@@ -19,7 +19,6 @@ import com.tibco.ebx.cs.commons.ui.util.Presales_UIUtils;
  * @author Aurélien Ticot
  * @since 1.0.0
  */
-@SuppressWarnings("javadoc")
 public final class Timeline {
 	public static final String JS_VARNAME_TIMELINE = "timeline";
 	public static final String JS_VARNAME_OPTIONS = "options";

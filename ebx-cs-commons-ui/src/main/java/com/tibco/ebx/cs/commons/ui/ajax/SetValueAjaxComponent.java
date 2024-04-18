@@ -9,12 +9,12 @@ import com.orchestranetworks.schema.info.SchemaFacetTableRef;
 import com.orchestranetworks.ui.UIAjaxComponent;
 import com.orchestranetworks.ui.UIAjaxContext;
 import com.tibco.ebx.cs.commons.lib.utils.SchemaUtils;
-import com.tibco.ebx.cs.commons.ui.bean.SetValueEditor;
 import com.tibco.ebx.cs.commons.ui.util.UIUtils;
 
 /**
- * This ajax component is called by SetValueEditor. It gets the value from a referenced records (FK) and returns it.
- * 
+ * This ajax component is called by SetValueEditor. It gets the value from a
+ * referenced records (FK) and returns it.
+ *
  * @author Mickaël Chevalier
  *
  * @see SetValueEditor

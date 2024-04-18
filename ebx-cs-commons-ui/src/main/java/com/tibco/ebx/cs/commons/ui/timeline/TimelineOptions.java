@@ -12,9 +12,7 @@ import com.orchestranetworks.schema.Path;
  * @author Aurélien Ticot
  * @since 1.0.0
  */
-@SuppressWarnings("javadoc")
 public class TimelineOptions {
-	// TODO Convert constants to enum
 	/**
 	 * The Class Align.
 	 *

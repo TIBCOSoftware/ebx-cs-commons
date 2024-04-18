@@ -24,14 +24,6 @@
 			<artifactId>ebx-cs-commons-lib</artifactId>
 			<version>${revision}</version>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-lang3</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>javax.servlet-api</artifactId>
-		</dependency>
 	</dependencies>
 
 	<build>
