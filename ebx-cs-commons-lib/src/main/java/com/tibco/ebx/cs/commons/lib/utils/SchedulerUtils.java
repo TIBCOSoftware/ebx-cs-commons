@@ -7,7 +7,7 @@ import com.orchestranetworks.scheduler.ScheduledExecutionContext;
 
 /**
  * Utility class aims to be used in scheduled task.
- * 
+ *
  * @author Mickaël Chevalier
  */
 public final class SchedulerUtils {
@@ -21,7 +21,7 @@ public final class SchedulerUtils {
 	 */
 	public static void executeCommandLine(final ScheduledExecutionContext pContext, final String pCommandLine) {
 		CommandLine command = CommandLine.parse(pCommandLine);
-		DefaultExecutor executor = new DefaultExecutor();
+		DefaultExecutor executor = DefaultExecutor.builder().get();
 		int exitValue = 0;
 		try {
 			exitValue = executor.execute(command);
