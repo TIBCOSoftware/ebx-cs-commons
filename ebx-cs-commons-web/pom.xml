@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.tibco.ebx.cs.commons</groupId>
+		<artifactId>ebx-cs-commons</artifactId>
+		<version>${revision}</version>
+	</parent>
+	<artifactId>ebx-cs-commons-web</artifactId>
+	<name>ebx-cs-commons-web</name>
+	<packaging>war</packaging>
+
+	<dependencies>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.tibco.ebx.cs.commons</groupId>
+			<artifactId>ebx-cs-commons-lib</artifactId>
+			<version>${revision}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.tibco.ebx.cs.commons</groupId>
+			<artifactId>ebx-cs-commons-addons</artifactId>
+			<version>${revision}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.tibco.ebx.cs.commons</groupId>
+			<artifactId>ebx-cs-commons-ui</artifactId>
+			<version>${revision}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.tibco.ebx.cs.commons</groupId>
+			<artifactId>ebx-cs-commons-beans</artifactId>
+			<version>${revision}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.tibco.ebx.core</groupId>
+			<artifactId>ebx-lib</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.tibco.ebx.addon</groupId>
+			<artifactId>ebx-addons</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifest>
+						</manifest>
+						<manifestEntries>
+							<Created-By>Tibco EBX</Created-By>
+							<Implementation-Version>${revision}</Implementation-Version>
+							<Implementation-Title>EBX 6 - ebx-cs-commons</Implementation-Title>
+							<Class-Path></Class-Path>
+						</manifestEntries>
+					</archive>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>
