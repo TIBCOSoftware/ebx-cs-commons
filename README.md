@@ -7,9 +7,9 @@ This library includes utility methods and components destined to speed up an EBX
 
 * [Java](https://www.java.com)
 * [Maven](https://maven.apache.org/)
-* [EBX](https://docs.tibco.com/pub/ebx/latest/doc/html/en/index.html)
+* [TIBCO EBX](https://docs.tibco.com/pub/ebx/latest/doc/html/en/index.html)
 
-### Project structure ###
+## Project structure ##
 
 The project is structured into 7 maven modules hosting different types of utilities:
 - ebx-cs-commons-addons - the module hosting utilities method extending functionalities of the official add-ons for TIBCO EBX.
@@ -20,7 +20,18 @@ The project is structured into 7 maven modules hosting different types of utilit
 - ebx-cs-commons-ui - the module hosting UI extensions such as Widget, UIForm, UserService.
 - ebx-cs-commons-web - the web application of the CS Commons including Java Beans generator.
 
-### Integration ###
+## Integration ##
 
 To add EBX CS Commons library into your project you need to add its jars and war as dependency.
 Note that you only need the war file deployed if you want to use the Java Beans generator that the CS Commons provide.
+
+## Third-party libraries ##
+
+CS Commons project relies on the following third-party dependencies. 
+[Apache Commons Lang3] (https://commons.apache.org/proper/commons-lang/)
+[Apache Commons Validator] (https://commons.apache.org/proper/commons-validator/)
+[Apache Commons Exec] (https://commons.apache.org/proper/commons-exec/)
+[Javax JMS] (https://mvnrepository.com/artifact/javax.jms)
+[Javax Servlet API] (https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api)
+
+
