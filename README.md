@@ -5,7 +5,7 @@ This library includes utility methods and components destined to speed up a TIBC
 
 Three main versions of CS Commons Library are hosted:
 * branch "main" - EBX 6.0 and 6.1 compatible version based on Javax Servlet API
-* branch "jakarat-6.2" - EBX 6.2+ compatible version based on Jakarta Servlet API
+* branch "jakarta-6.2" - EBX 6.2+ compatible version based on Jakarta Servlet API
 * branch "ebx-5.9" - EBX 5.9 compatible version
 
 
