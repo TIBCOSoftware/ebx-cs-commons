@@ -1,6 +1,6 @@
 # README #
 
-This repository host a CS Commons Library for TIBCO EBX®.
+This repository hosts CS Commons Library for TIBCO EBX®.
 This library includes utility methods and components destined to speed up a TIBCO EBX® project implementation and is based on the experience of Professional Services and Customer Success teams of TIBCO Orchestra Networks (part of Cloud Software Group).
 
 ## Built With
