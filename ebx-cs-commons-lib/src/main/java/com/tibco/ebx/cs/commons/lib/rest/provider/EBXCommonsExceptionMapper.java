@@ -1,9 +1,9 @@
 package com.tibco.ebx.cs.commons.lib.rest.provider;
 
-import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.ExceptionMapper;
-
 import com.tibco.ebx.cs.commons.lib.exception.EBXCommonsException;
+
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.ext.ExceptionMapper;
 
 /**
  * Mapper for EBXCommonsException <br>

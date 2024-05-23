@@ -4,13 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.Destination;
-import javax.jms.JMSException;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
-import javax.jms.TextMessage;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -25,6 +18,14 @@ import com.orchestranetworks.schema.trigger.TriggerSetupContext;
 import com.orchestranetworks.service.ExportSpec;
 import com.orchestranetworks.service.OperationException;
 import com.orchestranetworks.service.ProcedureContext;
+
+import jakarta.jms.Connection;
+import jakarta.jms.ConnectionFactory;
+import jakarta.jms.Destination;
+import jakarta.jms.JMSException;
+import jakarta.jms.MessageProducer;
+import jakarta.jms.Session;
+import jakarta.jms.TextMessage;
 
 /**
  * @author Gilles Mayer
@@ -42,7 +43,8 @@ public class SendToJMS extends TableTrigger {
 	private String viewPublication;
 	private boolean checkAccessRules;
 
-	private String exportToXml(final AdaptationTable table, final Adaptation record, final ProcedureContext procedureContext) throws OperationException {
+	private String exportToXml(final AdaptationTable table, final Adaptation record,
+			final ProcedureContext procedureContext) throws OperationException {
 		final Request request = table.createRequest();
 		request.setXPathFilter(record.toXPathPredicateString());
 
@@ -84,10 +86,12 @@ public class SendToJMS extends TableTrigger {
 		this.sendRecordData(table, record, procedureContext);
 	}
 
-	private void sendRecordData(final AdaptationTable table, final Adaptation record, final ProcedureContext procedureContext) throws OperationException {
+	private void sendRecordData(final AdaptationTable table, final Adaptation record,
+			final ProcedureContext procedureContext) throws OperationException {
 		try (Connection connection = this.jmsConnectionFactory.createConnection();
 				Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-				MessageProducer producer = session.createProducer((Destination) this.envContext.lookup(this.destination))) {
+				MessageProducer producer = session
+						.createProducer((Destination) this.envContext.lookup(this.destination))) {
 			TextMessage message = session.createTextMessage(this.exportToXml(table, record, procedureContext));
 			producer.send(message);
 		} catch (NamingException | JMSException e) {
