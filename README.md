@@ -4,9 +4,9 @@ This repository hosts the CS Commons Library for TIBCO EBX®.
 This library includes utility methods and components destined to speed up a TIBCO EBX® project implementation and is based on the experience of Professional Services and Customer Success teams of TIBCO Orchestra Networks (part of Cloud Software Group).
 
 Three main versions of CS Commons Library are hosted:
-* branch "main" - EBX 6.0 and 6.1 compatible version based on Javax Servlet API
-* branch "jakarta-6.2" - EBX 6.2+ compatible version based on Jakarta Servlet API
-* branch "ebx-5.9" - EBX 5.9 compatible version
+* branch "ebx6-javax" - EBX 6.0 and 6.1 compatible version based on Javax Servlet API
+* branch "ebx6-jakarta" - EBX 6.2+ compatible version based on Jakarta Servlet API
+* branch "ebx5.9" - EBX 5.9 compatible version
 
 
 ## Built With
