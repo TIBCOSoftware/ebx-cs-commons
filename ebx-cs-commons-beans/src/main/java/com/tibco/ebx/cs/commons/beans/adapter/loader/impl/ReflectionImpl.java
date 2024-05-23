@@ -1,6 +1,5 @@
 package com.tibco.ebx.cs.commons.beans.adapter.loader.impl;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
@@ -22,7 +21,7 @@ import com.tibco.ebx.cs.commons.beans.adapter.relation.ToMany;
 import com.tibco.ebx.cs.commons.beans.adapter.relation.ToOne;
 
 /**
- *
+ * 
  * @author Gilles Mayer
  */
 final class ReflectionImpl {
@@ -38,18 +37,15 @@ final class ReflectionImpl {
 	}
 
 	/**
-	 * Implementation of the getter methods in interfaces managed by the
-	 * {@link BeanLoader}
+	 * Implementation of the getter methods in interfaces managed by the {@link BeanLoader}
 	 * <p>
-	 * Method name, return type (including type parameters) and annotations are used
-	 * to infer the expected method behavior which includes:
+	 * Method name, return type (including type parameters) and annotations are used to infer the expected method behavior which includes:
 	 * <ul>
 	 * <li>getting the value from the adaptation (record),
 	 * <li>optionally transforming the value (or values),
 	 * <li>optionally mapping to target enum type,
 	 * <li>optionally mapping to target bean type,
-	 * <li>optionally transforming collections to the right collection type (or
-	 * map).
+	 * <li>optionally transforming collections to the right collection type (or map).
 	 * </ul>
 	 *
 	 * @param adaptation  the adaptation backing the bean
@@ -59,12 +55,9 @@ final class ReflectionImpl {
 	 *
 	 * @throws InstantiationException if thrown by a reflection operation
 	 * @throws IllegalAccessException if thrown by a reflection operation
-	 * @throws ModelException         if no operation could be inferred for the
-	 *                                method
+	 * @throws ModelException         if no operation could be inferred for the method
 	 */
-	static <T> Object doInvocation(final Adaptation adaptation, final Method method,
-			final BiFunction<Class<T>, Adaptation, T> beanFactory)
-			throws InstantiationException, IllegalAccessException {
+	static <T> Object doInvocation(final Adaptation adaptation, final Method method, final BiFunction<Class<T>, Adaptation, T> beanFactory) throws InstantiationException, IllegalAccessException {
 		if (Utils.isGetter(method)) {
 			return reflectionGet(adaptation, method, beanFactory);
 		}
@@ -74,8 +67,7 @@ final class ReflectionImpl {
 	}
 
 	@SuppressWarnings("rawtypes")
-	private static <T> Object reflectionGet(final Adaptation adaptation, final Method method,
-			final BiFunction<Class<T>, Adaptation, T> beanFactory)
+	private static <T> Object reflectionGet(final Adaptation adaptation, final Method method, final BiFunction<Class<T>, Adaptation, T> beanFactory)
 			throws InstantiationException, IllegalAccessException {
 		Class targetType = Utils.getTargetType(method);
 		if (Utils.isField(method)) {
@@ -90,8 +82,7 @@ final class ReflectionImpl {
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private static Object reflectionGetField(final Adaptation adaptation, final Method method, final Class targetType)
-			throws InstantiationException, IllegalAccessException {
+	private static Object reflectionGetField(final Adaptation adaptation, final Method method, final Class targetType) throws InstantiationException, IllegalAccessException {
 		// ================================
 		// || Field 'get' implementation ||
 		// ================================
@@ -108,15 +99,7 @@ final class ReflectionImpl {
 				if (!Map.class.isAssignableFrom(method.getReturnType())) {
 					throw new ModelException("keyExtractor is specified but " + method + " return type is not a Map");
 				}
-				;
-
-				try {
-					keyExtractor = (Function<Object, ?>) field.keyExtractor().getDeclaredConstructor().newInstance();
-				} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
-						| InvocationTargetException | NoSuchMethodException | SecurityException e) {
-					throw new ModelException("keyExtractor is specified but cannot be instantiated");
-				}
-
+				keyExtractor = (Function<Object, ?>) field.keyExtractor().newInstance();
 			}
 		}
 
@@ -145,21 +128,15 @@ final class ReflectionImpl {
 
 				if (targetType.isEnum()) {
 					// Map to enum values
-					stream = stream.map(e -> e == null || targetType.isAssignableFrom(e.getClass()) ? e
-							: Enum.valueOf(targetType, e.toString()));
+					stream = stream.map(e -> e == null || targetType.isAssignableFrom(e.getClass()) ? e : Enum.valueOf(targetType, e.toString()));
 				}
 
 				if (keyExtractor != null && method.getGenericReturnType() instanceof ParameterizedType) {
 					// Build and return the map
 					final Class<?> valueType = Utils.getMapValueType(method);
 					if (Utils.isCollection(valueType)) {
-						return stream
-								.collect(
-										Collectors.collectingAndThen(
-												Collectors.groupingBy(keyExtractor,
-														Collectors.mapping(Function.identity(),
-																Utils.getCollector(valueType))),
-												Collections::unmodifiableMap));
+						return stream.collect(Collectors.collectingAndThen(Collectors.groupingBy(keyExtractor, Collectors.mapping(Function.identity(), Utils.getCollector(valueType))),
+								Collections::unmodifiableMap));
 					}
 				}
 
@@ -190,9 +167,8 @@ final class ReflectionImpl {
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private static <T> Object reflectionGetRelation(final Adaptation adaptation, final Method method,
-			final BiFunction<Class<T>, Adaptation, T> beanFactory, final Class targetType, final Relation relation)
-			throws InstantiationException, IllegalAccessException {
+	private static <T> Object reflectionGetRelation(final Adaptation adaptation, final Method method, final BiFunction<Class<T>, Adaptation, T> beanFactory, final Class targetType,
+			final Relation relation) throws InstantiationException, IllegalAccessException {
 		// ===================================
 		// || Relation 'get' implementation ||
 		// ===================================
@@ -220,22 +196,13 @@ final class ReflectionImpl {
 
 					final Class<?> valueType = Utils.getMapValueType(method);
 					if (Utils.isCollection(valueType)) {
-						return adaptationStream
-								.collect(
-										Collectors.collectingAndThen(
-												Collectors.groupingBy(keyMapper,
-														Collectors.mapping(
-																record -> beanFactory.apply(targetType, record),
-																Utils.getCollector(valueType))),
-												Collections::unmodifiableMap));
+						return adaptationStream.collect(Collectors.collectingAndThen(
+								Collectors.groupingBy(keyMapper, Collectors.mapping(record -> beanFactory.apply(targetType, record), Utils.getCollector(valueType))), Collections::unmodifiableMap));
 					}
 				}
-				return adaptationStream.collect(Collectors.collectingAndThen(
-						Collectors.toMap(keyMapper, record -> beanFactory.apply(targetType, record)),
-						Collections::unmodifiableMap));
+				return adaptationStream.collect(Collectors.collectingAndThen(Collectors.toMap(keyMapper, record -> beanFactory.apply(targetType, record)), Collections::unmodifiableMap));
 			}
-			return ((ToMany) relation).get(adaptation).stream().map(record -> beanFactory.apply(targetType, record))
-					.collect(Utils.getCollector(method.getReturnType()));
+			return ((ToMany) relation).get(adaptation).stream().map(record -> beanFactory.apply(targetType, record)).collect(Utils.getCollector(method.getReturnType()));
 		} else if (relation instanceof ToOne) {
 			return beanFactory.apply(targetType, ((ToOne) relation).get(adaptation));
 		} else {
@@ -246,8 +213,7 @@ final class ReflectionImpl {
 	static Iterable<Method> listAbstractGetters(final Class<?> beanType) {
 		ArrayList<Method> getters = new ArrayList<>();
 		for (Method method : beanType.getMethods()) {
-			if (Modifier.isAbstract(method.getModifiers()) && !method.equals(OBJECT_GET_CLASS)
-					&& Utils.isGetter(method)) {
+			if (Modifier.isAbstract(method.getModifiers()) && !method.equals(OBJECT_GET_CLASS) && Utils.isGetter(method)) {
 				getters.add(method);
 			}
 		}

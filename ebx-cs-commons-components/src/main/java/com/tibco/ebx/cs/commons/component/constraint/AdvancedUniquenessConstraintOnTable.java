@@ -43,6 +43,8 @@ public class AdvancedUniquenessConstraintOnTable implements ConstraintOnTableWit
 
 	@Override
 	public void checkRecord(final ValueContextForValidationOnRecord pContext) {
+		pContext.removeRecordFromMessages(pContext.getRecord());
+
 		StringBuilder predicate = new StringBuilder();
 		StringBuilder valueInMessage = new StringBuilder();
 		StringBuilder fieldsInMessage = new StringBuilder();

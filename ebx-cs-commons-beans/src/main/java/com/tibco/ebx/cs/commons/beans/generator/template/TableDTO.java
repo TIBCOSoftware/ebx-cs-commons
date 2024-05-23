@@ -1,11 +1,13 @@
 package com.tibco.ebx.cs.commons.beans.generator.template;
 
 /**
- * Table DTO class
+ * Table DTO abstract class
  * 
  * @author Mickaël Chevalier
  *
+ * @param <T> TableBean
  */
-public interface TableDTO extends EBXDTO {
+public abstract class TableDTO<T extends TableBean> extends EBXDTO<T> {
 
+	protected abstract TableDAO<T> getDAO();
 }

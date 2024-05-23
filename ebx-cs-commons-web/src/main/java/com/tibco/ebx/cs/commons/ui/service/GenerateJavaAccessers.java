@@ -755,7 +755,7 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 		str.append("* @author EBX Commons" + CR);
 		str.append("*/" + CR);
 		str.append("@Schema(name = \"" + pDTO.getJavaClassName() + "\", description = \"Object representing " + bean.getJavaClassName() + "\")" + CR);
-		str.append("public class " + pDTO.getJavaClassName() + " implements ");
+		str.append("public class " + pDTO.getJavaClassName() + " extends ");
 		if (bean.getSpecific().booleanValue()) {
 			str.append("SpecificComplexTypeDTO");
 			extraImports.add("com.tibco.ebx.cs.commons.beans.generator.template.SpecificComplexTypeDTO");
@@ -766,14 +766,12 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 			str.append("ComplexTypeDTO");
 			extraImports.add("com.tibco.ebx.cs.commons.beans.generator.template.ComplexTypeDTO");
 		} else {
-			// TODO dead code ?
 			str.append("DatasetDTO");
 			extraImports.add("com.tibco.ebx.cs.commons.beans.generator.template.DatasetDTO");
 		}
-		// Remove typing of DTOs
-		// str.append("<" + bean.getJavaClassName() + "> {" + CR);
-		// extraImports.add(GenerateJavaAccessers.getClassSignatureForBean(bean));
-		str.append(" {" + CR);
+		str.append("<" + bean.getJavaClassName() + "> {" + CR);
+		extraImports.add(GenerateJavaAccessers.getClassSignatureForBean(bean));
+		str.append(CR);
 		SchemaNode startNode = pNode;
 		if (startNode.isTableNode()) {
 			startNode = startNode.getTableOccurrenceRootNode();
@@ -783,13 +781,10 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 		str.append(GenerateJavaAccessers.generateDTOConstructors(pNode, pDTO, extraImports));
 		str.append(CR);
 		str.append(this.generateDTOAccessersForFieldsBelow(startNode, pDTO, extraImports));
-		//
-		// No need, DAO is present into Service class, and should not be in DTO
-		// if (pNode.getPathInAdaptation().equals(Path.ROOT)) {
-		//
-		// str.append(this.generateGetDAO(pNode, extraImports));
-		// str.append(CR);
-		// }
+		if (pNode.getPathInAdaptation().equals(Path.ROOT)) {
+			str.append(this.generateGetDAO(pNode, extraImports));
+			str.append(CR);
+		}
 		str.append(this.generateHashCodeAndEquals(pNode, pDTO.getJavaClassName(), extraImports));
 
 		str.append("}");
@@ -864,11 +859,10 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 
 	private static String generateDTOConstructors(final SchemaNode pNode, final DataTransferObject pDTO, final Set<String> pExtraImports) {
 		StringBuilder str = new StringBuilder();
-		str.append(TAB[1] + "/**" + CR);
-		str.append(TAB[1] + "* Default Constructor" + CR);
-		str.append(TAB[1] + "*/" + CR);
+		str.append("/**" + CR);
+		str.append("* Default Constructor" + CR);
+		str.append("*/" + CR);
 		str.append(TAB[1] + "public " + pDTO.getJavaClassName() + "(){" + CR);
-		str.append(TAB[2] + "super();" + CR);
 		str.append(TAB[1] + "}" + CR);
 		return str.toString();
 	}
@@ -2278,10 +2272,8 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 			pExtraImports.add("java.util.List");
 		}
 		if (DamaUtils.isNodeDAC(pNode)) {
-			// pExtraImports.add("com.orchestranetworks.addon.dama.models.MediaType");
-			// type += "MediaType";
-			pExtraImports.add("com.tibco.ebx.cs.commons.beans.generator.template.MediaTypeDTO");
-			type += "MediaTypeDTO";
+			pExtraImports.add("com.orchestranetworks.addon.dama.models.MediaType");
+			type += "MediaType";
 		} else if ((pNode.isAssociationNode() || pNode.getFacetOnTableReference() != null) && pIncludedDTO != null) {
 			type += pIncludedDTO.getJavaClassName();
 			pExtraImports.add(GenerateJavaAccessers.getClassSignatureForDTO(pIncludedDTO));
@@ -2725,13 +2717,7 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 					}
 				} else {
 					str.append(TAB[2] + variableName + "." + GenerateJavaAccessers.getSetterNameForNode(node) + "(");
-					if (DamaUtils.isNodeDAC(node)) {
-						pExtraImports.add("com.tibco.ebx.cs.commons.beans.generator.template.MediaTypeToMediaTypeDTOMapper");
-						str.append("MediaTypeToMediaTypeDTOMapper.getInstance().getDTO(");
-						str.append(parameterName + "." + GenerateJavaAccessers.getGetterNameForNode(node) + "()));" + CR);
-					} else {
-						str.append(parameterName + "." + GenerateJavaAccessers.getGetterNameForNode(node) + "());" + CR);
-					}
+					str.append(parameterName + "." + GenerateJavaAccessers.getGetterNameForNode(node) + "());" + CR);
 				}
 			} else {
 				str.append(this.setValuesFromBeanForDTOForFieldsBelow(node, pDTO, pExtraImports));
@@ -2820,13 +2806,7 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 					}
 				} else {
 					str.append(TAB[2] + variableName + "." + GenerateJavaAccessers.getSetterNameForNode(node) + "(");
-					if (DamaUtils.isNodeDAC(node)) {
-						pExtraImports.add("com.tibco.ebx.cs.commons.beans.generator.template.MediaTypeToMediaTypeDTOMapper");
-						str.append("MediaTypeToMediaTypeDTOMapper.getInstance().getBean(pDTO.");
-						str.append(GenerateJavaAccessers.getGetterNameForNode(node) + "()));" + CR);
-					} else {
-						str.append("pDTO." + GenerateJavaAccessers.getGetterNameForNode(node) + "());" + CR);
-					}
+					str.append("pDTO." + GenerateJavaAccessers.getGetterNameForNode(node) + "());" + CR);
 				}
 			} else {
 				str.append(this.setValuesFromDTOForBeanForFieldsBelow(node, pDTO, pExtraImports));

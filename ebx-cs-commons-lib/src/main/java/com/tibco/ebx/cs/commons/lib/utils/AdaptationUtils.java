@@ -270,6 +270,7 @@ public final class AdaptationUtils {
 	public static List<Adaptation> getListOfRecordsFromRequestResult(final RequestResult pResult, final Optional<String> pPredicate) {
 		List<Adaptation> records = new ArrayList<>();
 		Adaptation record = null;
+		pResult.refreshIfNeeded();
 		while ((record = pResult.nextAdaptation()) != null) {
 			if (!pPredicate.isPresent() || StringUtils.isBlank(pPredicate.get()) || record.matches(pPredicate.get())) {
 				records.add(record);

@@ -6,6 +6,7 @@ package com.tibco.ebx.cs.commons.ui.network;
  * @author Aurélien Ticot
  * @since 1.0.0
  */
+@SuppressWarnings("javadoc")
 public class NetworkLayoutOptions {
 	/**
 	 * The Class Hierarchical_Direction.
@@ -47,6 +48,7 @@ public class NetworkLayoutOptions {
 			super();
 		}
 
+		@SuppressWarnings("hiding")
 		protected static class Hierarchical {
 			private Hierarchical() {
 				super();
@@ -225,8 +227,7 @@ public class NetworkLayoutOptions {
 		jsObject.append(JsObjectName.RandomSeed.JS_NAME + ": " + this.getRandomSeed() + ", ");
 		jsObject.append(JsObjectName.Hierarchical.JS_NAME + ": {");
 		jsObject.append(JsObjectName.Hierarchical.Enabled.JS_NAME + ": " + this.isHierarchicalEnabled() + ", ");
-		jsObject.append(JsObjectName.Hierarchical.Level_Separation.JS_NAME + ": "
-				+ this.getHierarchicalLevelSeparation() + ", ");
+		jsObject.append(JsObjectName.Hierarchical.Level_Separation.JS_NAME + ": " + this.getHierarchicalLevelSeparation() + ", ");
 		jsObject.append(JsObjectName.Hierarchical.Direction.JS_NAME + ": '" + this.getHierarchicalDirection() + "', ");
 		jsObject.append(JsObjectName.Hierarchical.Sort_Method.JS_NAME + ": '" + this.getHierarchicalSortMethod() + "'");
 		jsObject.append("}");

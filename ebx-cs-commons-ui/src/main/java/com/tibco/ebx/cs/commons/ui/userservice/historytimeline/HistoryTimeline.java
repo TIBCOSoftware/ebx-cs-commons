@@ -10,12 +10,14 @@ import java.util.UUID;
 
 import com.onwbp.adaptation.Adaptation;
 import com.onwbp.adaptation.AdaptationTable;
+import com.onwbp.adaptation.CfContentType;
 import com.onwbp.adaptation.PrimaryKey;
 import com.orchestranetworks.schema.Path;
 import com.orchestranetworks.schema.SchemaNode;
 import com.orchestranetworks.ui.UIButtonSpecJSAction;
 import com.orchestranetworks.ui.UIComponentWriter;
 import com.orchestranetworks.ui.UIHttpManagerComponent;
+import com.orchestranetworks.ui.UIHttpManagerComponentBridge;
 import com.tibco.ebx.cs.commons.lib.message.Messages;
 import com.tibco.ebx.cs.commons.ui.timeline.Timeline;
 import com.tibco.ebx.cs.commons.ui.timeline.TimelineGroup;
@@ -23,6 +25,8 @@ import com.tibco.ebx.cs.commons.ui.timeline.TimelineItem;
 import com.tibco.ebx.cs.commons.ui.timeline.TimelineOptions;
 
 /**
+ * <strong>Using non public API</strong><br>
+ * <br>
  * The Class HistoryTimeline.
  *
  * @author Aurélien Ticot
@@ -34,6 +38,20 @@ public final class HistoryTimeline {
 	private static final String TIMESTAMP_FIELD_PATH = "/ebx-technical/timestamp";
 	private static final String OPERATION_FIELD_PATH = "/ebx-technical/op";
 	private static final String USER_FIELD_PATH = "/ebx-technical/user";
+
+	/**
+	 * <strong>Using non public API</strong><br>
+	 * <br>
+	 * Sets the history content type.
+	 *
+	 * @param pManagerComponent the new history content type
+	 * @since 1.0.0
+	 */
+	private static void setHistoryContentType(final UIHttpManagerComponent pManagerComponent) {
+		// USING_NON_PUBLIC_API
+
+		UIHttpManagerComponentBridge.setContentType(CfContentType.HISTORY, pManagerComponent);
+	}
 
 	private final UIComponentWriter writer;
 	private final Locale locale;
@@ -101,6 +119,7 @@ public final class HistoryTimeline {
 		if (pRecord != null) {
 			UIHttpManagerComponent managerComponent = pWriter.createWebComponentForSubSession();
 			managerComponent.selectInstanceOrOccurrence(pRecord);
+			HistoryTimeline.setHistoryContentType(managerComponent);
 			UIButtonSpecJSAction buttonSpec = pWriter.buildButtonPreview(managerComponent.getURIWithParameters());
 			String jsCommand = buttonSpec.getJavaScriptCommand().replace("\"", "'");
 
@@ -160,8 +179,7 @@ public final class HistoryTimeline {
 		for (SchemaNode pNode : pSchemaNode.getNodeChildren()) {
 			String group = pNode.getPathInAdaptation().format();
 
-			if (group.contains(HistoryTimeline.OPERATION_FIELDS_PATH)
-					|| group.contains(HistoryTimeline.TECHNICAL_FIELDS_PATH)) {
+			if (group.contains(HistoryTimeline.OPERATION_FIELDS_PATH) || group.contains(HistoryTimeline.TECHNICAL_FIELDS_PATH)) {
 				continue;
 			}
 
@@ -210,8 +228,7 @@ public final class HistoryTimeline {
 				String content = value.getValue();
 				String style = value.getStyle();
 
-				HistoryTimelineTransactionValueItem transactionValueItem = new HistoryTimelineTransactionValueItem(
-						group, startDate, endDate, content, operation);
+				HistoryTimelineTransactionValueItem transactionValueItem = new HistoryTimelineTransactionValueItem(group, startDate, endDate, content, operation);
 				transactionValueItem.setEndless(isEndless);
 				transactionValueItem.setPk(transaction.getTransactionId());
 				transactionValueItem.setStyle(style);
@@ -239,8 +256,7 @@ public final class HistoryTimeline {
 			endDate = this.options.getMax();
 		}
 
-		HistoryTimelineTransactionItem item = new HistoryTimelineTransactionItem(null, startDate, endDate, index, index,
-				null);
+		HistoryTimelineTransactionItem item = new HistoryTimelineTransactionItem(null, startDate, endDate, index, index, null);
 		item.setEndless(isEndless);
 		item.setType(TimelineItem.Type.BACKGROUND);
 
@@ -272,8 +288,7 @@ public final class HistoryTimeline {
 			endDate = this.options.getMax();
 		}
 
-		String content = HistoryTimeline.addPopUpLinkToHistoryItem(this.writer, pTransaction.getRecord()).replace("'",
-				"\\'");
+		String content = HistoryTimeline.addPopUpLinkToHistoryItem(this.writer, pTransaction.getRecord()).replace("'", "\\'");
 		content += " ";
 
 		if (operation != null && operation.equals(HistoryTimelineTransaction.OperationType.creation)) {
@@ -290,8 +305,7 @@ public final class HistoryTimeline {
 
 		String groupId = HistoryTimelineTransaction.TRANSACTION_GROUP_ID;
 
-		HistoryTimelineTransactionItem item = new HistoryTimelineTransactionItem(groupId, startDate, endDate, index,
-				index, content);
+		HistoryTimelineTransactionItem item = new HistoryTimelineTransactionItem(groupId, startDate, endDate, index, index, content);
 		item.setEndless(isEndless);
 		item.setVersion(true);
 
@@ -396,8 +410,7 @@ public final class HistoryTimeline {
 	 * @return the history item field values
 	 * @since 1.0.0
 	 */
-	private List<HistoryTimelineTransactionFieldValue> getHistoryItemFieldValues(final Adaptation pHistoryItem,
-			final SchemaNode pSchemaNode) {
+	private List<HistoryTimelineTransactionFieldValue> getHistoryItemFieldValues(final Adaptation pHistoryItem, final SchemaNode pSchemaNode) {
 		List<HistoryTimelineTransactionFieldValue> fieldValues = new ArrayList<>();
 
 		String mainOperation = pHistoryItem.getString(Path.SELF.add(HistoryTimeline.OPERATION_FIELD_PATH));
@@ -414,8 +427,7 @@ public final class HistoryTimeline {
 			if (operation != null) {
 				operation = mainOperation;
 			}
-			HistoryTimelineTransactionFieldValue fieldValue = new HistoryTimelineTransactionFieldValue(path, value,
-					operation);
+			HistoryTimelineTransactionFieldValue fieldValue = new HistoryTimelineTransactionFieldValue(path, value, operation);
 			fieldValues.add(fieldValue);
 		}
 

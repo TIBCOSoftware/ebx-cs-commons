@@ -45,17 +45,15 @@ import com.orchestranetworks.userservice.UserServiceObjectContextForInputValidat
 import com.orchestranetworks.userservice.UserServicePane;
 import com.orchestranetworks.userservice.UserServicePaneContext;
 import com.orchestranetworks.userservice.UserServicePaneWriter;
+import com.orchestranetworks.userservice.UserServiceRootTabbedPane;
 import com.orchestranetworks.userservice.UserServiceSetupDisplayContext;
 import com.orchestranetworks.userservice.UserServiceSetupObjectContext;
 import com.orchestranetworks.userservice.UserServiceTab;
-
-import com.orchestranetworks.userservice.UserServiceTabbedPane;
 import com.tibco.ebx.cs.commons.lib.exception.EBXResourceNotFoundException;
 import com.tibco.ebx.cs.commons.lib.exception.EBXResourceNotIdentifiedException;
 import com.tibco.ebx.cs.commons.lib.exception.WorkflowConfigurationException;
 import com.tibco.ebx.cs.commons.lib.message.Messages;
 import com.tibco.ebx.cs.commons.lib.utils.AdaptationUtils;
-import com.tibco.ebx.cs.commons.lib.utils.CommonsLogger;
 import com.tibco.ebx.cs.commons.lib.utils.SchemaUtils;
 import com.tibco.ebx.cs.commons.lib.utils.WorkflowUtils;
 import com.tibco.ebx.cs.commons.lib.workflow.WorkflowConstants;
@@ -189,7 +187,7 @@ public class DynamicServiceFormOperations {
 			}
 		} catch (EBXResourceNotFoundException | WorkflowConfigurationException | EBXResourceNotIdentifiedException ex) {
 			pConfigurator.setLeftButtons(saveButton, saveCloseButton, revertButton, closeButton);
-			CommonsLogger.getLogger().error(ex.getMessage());
+			// TODO Log the exception message.
 		}
 
 		if (this.toolbarBuilderMethod != null) {
@@ -214,7 +212,7 @@ public class DynamicServiceFormOperations {
 		if (this.tabs.isEmpty()) {
 			pConfigurator.setContent(new UIFormPaneGeneral());
 		} else {
-			UserServiceTabbedPane rootPane = pConfigurator.newTabbedPane();
+			UserServiceRootTabbedPane rootPane = pConfigurator.newTabbedPane();
 			UserServiceTab mainTab = rootPane.newTab(new UIFormPaneGeneral());
 			rootPane.addTab(mainTab);
 			for (SchemaNode tabNode : this.tabs) {
@@ -287,7 +285,7 @@ public class DynamicServiceFormOperations {
 						this.isRecordJustCreated = true;
 					}
 					this.record = savedRecord.get();
-					completeWorkItemIfCreatingOrDuplicatingInWorkflow(userServiceEventContext, this.record);
+					DynamicServiceFormOperations.completeWorkItemIfCreatingOrDuplicatingInWorkflow(userServiceEventContext, this.record);
 				}
 				if (this.isDuplicate) {
 					this.isDuplicate = false;
@@ -328,16 +326,13 @@ public class DynamicServiceFormOperations {
 						return;
 					}
 				}
-
 				pBuilder.registerRecordOrDataSet(this.key, this.record);
 				this.isRecordJustCreated = false;
 			}
 		} else {
-			pBuilder.registerNewRecord(this.key, this.table);
+			pBuilder.registerNewRecord(this.key, table);
 		}
 	}
-
-
 
 	/**
 	 * Validation of the form
@@ -736,12 +731,7 @@ public class DynamicServiceFormOperations {
 	 * Gets categories of a given node This method is used by DynamicFormBasedOnType and DynamicAccessRuleBasedOnType
 	 *
 	 * The category of an attribute is expected to be a succession of token separated by ';'. Each token is composed as the type and the associated mandatory boolean separated by a ','. Example :
-	 *  catA,true;catB,false -> the node belongs to 2 categories typeA and typeB.
-	 *
-	 * @see DynamicAccessRuleBasedOnTypes
-	 * @see DynamicForm
-	 *
-	 * @author MCH ======= catA,true;catB,false -&gt; the node belongs to 2 categories typeA and typeB.
+	 * catA,true;catB,false -&gt; the node belongs to 2 categories typeA and typeB.
 	 * 
 	 * @param pNode the node
 	 *

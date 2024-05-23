@@ -24,7 +24,7 @@ import com.tibco.ebx.cs.commons.lib.exception.EBXCommonsException;
  * @param <D> TableDAO type
  * @param <T> TableDTO Type
  */
-public abstract class Service<B extends TableBean, D extends TableDAO<B>, T extends TableDTO> {
+public abstract class Service<B extends TableBean, D extends TableDAO<B>, T extends TableDTO<B>> {
 
 	private static final String NOT_DTO_RETURNED_FROM_SUCCESSFUL_PROCEDURE = "Not DTO returned from successful procedure.";
 
@@ -68,7 +68,7 @@ public abstract class Service<B extends TableBean, D extends TableDAO<B>, T exte
 			@Override
 			public void execute(final ProcedureContext pContext) throws Exception {
 				for (T dto : pDTOs) {
-					Service.this.getDAO().create(pContext, pDataset, Service.this.getMapper().getBean(pDataset, dto, Optional.of(pSession.getPermissions())), Optional.of(pSession.getPermissions()));
+					dto.getDAO().create(pContext, pDataset, Service.this.getMapper().getBean(pDataset, dto, Optional.of(pSession.getPermissions())), Optional.of(pSession.getPermissions()));
 				}
 			}
 		});
@@ -161,13 +161,13 @@ public abstract class Service<B extends TableBean, D extends TableDAO<B>, T exte
 		Procedure proc = new Procedure() {
 			@Override
 			public void execute(final ProcedureContext pContext) throws Exception {
-				Optional<B> bean = Service.this.getDAO().read(pPK, pDataset, Optional.of(pSession.getPermissions()));
+				Optional<B> bean = pDTO.getDAO().read(pPK, pDataset, Optional.of(pSession.getPermissions()));
 				B newBean = Service.this.getMapper().getBean(pDataset, pDTO, Optional.of(pSession.getPermissions()));
-				if (!pPK.equals(Service.this.getDAO().getRecordPrimaryKey(newBean))) {
+				if (!pPK.equals(pDTO.getDAO().getRecordPrimaryKey(newBean))) {
 					throw OperationException.createError("DTO does not correspond to record to update");
 				}
 				if (bean.isPresent()) {
-					Service.this.getDAO().update(pContext, pDataset, newBean, Optional.of(pSession.getPermissions()));
+					pDTO.getDAO().update(pContext, pDataset, newBean, Optional.of(pSession.getPermissions()));
 					foundDTOs.add(pDTO);
 				}
 			}
@@ -198,8 +198,7 @@ public abstract class Service<B extends TableBean, D extends TableDAO<B>, T exte
 		ProcedureResult result = srv.execute(new Procedure() {
 			@Override
 			public void execute(final ProcedureContext pContext) throws Exception {
-				B bean = Service.this.getDAO().update(pContext, pDataset, Service.this.getMapper().getBean(pDataset, pDTO, Optional.of(pSession.getPermissions())),
-						Optional.of(pSession.getPermissions()));
+				B bean = pDTO.getDAO().update(pContext, pDataset, Service.this.getMapper().getBean(pDataset, pDTO, Optional.of(pSession.getPermissions())), Optional.of(pSession.getPermissions()));
 				dtos.add(Service.this.getMapper().getDTO(bean));
 			}
 		});
@@ -229,8 +228,7 @@ public abstract class Service<B extends TableBean, D extends TableDAO<B>, T exte
 			@Override
 			public void execute(final ProcedureContext pContext) throws Exception {
 				for (T dto : pDTOs) {
-					B bean = Service.this.getDAO().update(pContext, pDataset, Service.this.getMapper().getBean(pDataset, dto, Optional.of(pSession.getPermissions())),
-							Optional.of(pSession.getPermissions()));
+					B bean = dto.getDAO().update(pContext, pDataset, Service.this.getMapper().getBean(pDataset, dto, Optional.of(pSession.getPermissions())), Optional.of(pSession.getPermissions()));
 					dtos.add(Service.this.getMapper().getDTO(bean));
 				}
 			}
@@ -257,7 +255,7 @@ public abstract class Service<B extends TableBean, D extends TableDAO<B>, T exte
 		ProcedureResult result = srv.execute(new Procedure() {
 			@Override
 			public void execute(final ProcedureContext pContext) throws Exception {
-				B bean = Service.this.getDAO().createOrUpdate(pContext, pDataset, Service.this.getMapper().getBean(pDataset, pDTO, Optional.of(pSession.getPermissions())),
+				B bean = pDTO.getDAO().createOrUpdate(pContext, pDataset, Service.this.getMapper().getBean(pDataset, pDTO, Optional.of(pSession.getPermissions())),
 						Optional.of(pSession.getPermissions()));
 				dtos.add(Service.this.getMapper().getDTO(bean));
 			}

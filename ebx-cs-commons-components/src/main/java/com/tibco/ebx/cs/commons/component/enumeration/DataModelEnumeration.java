@@ -6,8 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.stream.Collectors;
 
 import com.onwbp.adaptation.Adaptation;
 import com.onwbp.adaptation.AdaptationHome;
@@ -17,7 +15,6 @@ import com.orchestranetworks.instance.ValueContextForValidation;
 import com.orchestranetworks.schema.ConstraintContext;
 import com.orchestranetworks.schema.ConstraintEnumeration;
 import com.orchestranetworks.schema.InvalidSchemaException;
-import com.orchestranetworks.schema.Path;
 import com.orchestranetworks.schema.SchemaLocation;
 import com.tibco.ebx.cs.commons.lib.utils.HomeCollector;
 
@@ -27,20 +24,6 @@ import com.tibco.ebx.cs.commons.lib.utils.HomeCollector;
  *
  */
 public class DataModelEnumeration implements ConstraintEnumeration<String> {
-	/**
-	 * Dataset path
-	 *
-	 */
-	private Path datasetPath;
-
-	public Path getDatasetPath() {
-		return datasetPath;
-	}
-
-	public void setDatasetPath(final Path datasetPath) {
-		this.datasetPath = datasetPath;
-	}
-
 	public static Adaptation getAnyDataset(final Repository pRepository, final String pSchemaLocation) {
 		Map<String, Adaptation> map = getUsedSchemasLocationsWithOneDataset(pRepository);
 		return map.get(pSchemaLocation);
@@ -81,16 +64,7 @@ public class DataModelEnumeration implements ConstraintEnumeration<String> {
 	@Override
 	public List<String> getValues(final ValueContext pContext) throws InvalidSchemaException {
 		Map<String, Adaptation> map = getUsedSchemasLocationsWithOneDataset(pContext.getHome().getRepository());
-		Map<String, Adaptation> finalMap = map;
-		if (this.datasetPath != null) {
-			String dataset = (String) pContext.getValue(this.datasetPath);
-			if (dataset != null) {
-				Map<String, Adaptation> filteredMap = map.entrySet().stream().filter(entry -> entry.getValue().getAdaptationName().getStringName().equals(dataset))
-						.collect(Collectors.toMap(Entry::getKey, Entry::getValue));
-				finalMap = filteredMap;
-			}
-		}
-		return Arrays.asList(finalMap.keySet().toArray(new String[finalMap.keySet().size()]));
+		return Arrays.asList(map.keySet().toArray(new String[map.keySet().size()]));
 	}
 
 	@Override

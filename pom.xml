@@ -14,11 +14,11 @@
 	</organization>
 	
 	<properties>
-		<revision>3.0.0</revision>
+		<revision>2.5.0</revision>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<!-- EBX and addons -->
-		<ebx.core.version>6.1.1</ebx.core.version>
-		<ebx.addons.version>6.1.1-2000_0001</ebx.addons.version>
+		<ebx.core.version>5.9.25</ebx.core.version>
+		<ebx.addons.version>4.5.20-0045</ebx.addons.version>
 		
 		<!-- Servlet API -->
 		<javax.servlet.version>4.0.1</javax.servlet.version>

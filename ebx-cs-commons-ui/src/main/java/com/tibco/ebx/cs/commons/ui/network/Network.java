@@ -47,8 +47,7 @@ public final class Network {
 	 * @param pModuleName        module name
 	 * @since 1.0.0
 	 */
-	public void draw(final UIComponentWriter pWriter, final String pNetworkDivId, final String pContainerDivStyle,
-			final String pModuleName) {
+	public void draw(final UIComponentWriter pWriter, final String pNetworkDivId, final String pContainerDivStyle, final String pModuleName) {
 		Network.addDependencies(pWriter, pModuleName);
 		Network.addNetworkDiv(pWriter, pNetworkDivId, pContainerDivStyle);
 		this.addNodes(pWriter);
@@ -124,6 +123,7 @@ public final class Network {
 	 * @since 1.0.0
 	 */
 	private static void addDependencies(final UIComponentWriter pWriter, final String pModuleName) {
+		Presales_UIUtils.addJsLibrary(pWriter, "vis.js", pModuleName);
 		Presales_UIUtils.addCssLink(pWriter, "vis.css", pModuleName);
 	}
 
@@ -164,8 +164,7 @@ public final class Network {
 	 * @param pStyle        the style
 	 * @since 1.0.0
 	 */
-	private static void addNetworkDiv(final UIComponentWriter pWriter, final String pNetworkDivId,
-			final String pStyle) {
+	private static void addNetworkDiv(final UIComponentWriter pWriter, final String pNetworkDivId, final String pStyle) {
 		pWriter.add("<div>");
 		pWriter.add("<div id=\"" + pNetworkDivId + "\" style=\"" + pStyle + "\"></div>");
 		pWriter.add("</div>");

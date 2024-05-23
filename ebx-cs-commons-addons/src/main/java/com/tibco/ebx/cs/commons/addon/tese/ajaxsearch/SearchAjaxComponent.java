@@ -1,6 +1,7 @@
 package com.tibco.ebx.cs.commons.addon.tese.ajaxsearch;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -24,10 +25,6 @@ import com.tibco.ebx.cs.commons.lib.utils.CommonsLogger;
  * @since 1.0.0
  */
 public abstract class SearchAjaxComponent extends UIAjaxComponent {
-	private static final String OPEN_TH = "<th>";
-	private static final String OPEN_TD = "<td>";
-	private static final String CLOSE_TD = "</td>";
-	private static final String CLOSE_TH = "</th>";
 	private UIAjaxContext context;
 	private Locale locale;
 
@@ -59,7 +56,7 @@ public abstract class SearchAjaxComponent extends UIAjaxComponent {
 	 * @return the array list
 	 * @since 1.0.0
 	 */
-	public abstract List<SchemaNode> defineSearchedTables(final UIAjaxContext pContext);
+	public abstract ArrayList<SchemaNode> defineSearchedTables(final UIAjaxContext pContext);
 
 	/**
 	 * Defines the search sensibility.
@@ -86,17 +83,18 @@ public abstract class SearchAjaxComponent extends UIAjaxComponent {
 
 		Adaptation dataSet = null;
 		List<SchemaNode> tableSelected = null;
-		List<SearchResultBean> results;
 		try {
 			dataSet = this.getDataSet(this.context);
 			tableSelected = this.getSearchedTables(this.context);
-			SearchEngine searchEngine = new SearchEngine(dataSet, session);
-			results = searchEngine.search(tableSelected, query, searchSensibility);
 		} catch (OperationException ex) {
 			this.displayException(ex);
 			return;
 		}
 
+		// ---------------
+
+		SearchEngine searchEngine = new SearchEngine(dataSet, session);
+		List<SearchResultBean> results = searchEngine.search(tableSelected, query, searchSensibility);
 		this.displaySearchResults(results);
 	}
 
@@ -127,7 +125,7 @@ public abstract class SearchAjaxComponent extends UIAjaxComponent {
 	 * @since 1.0.0
 	 */
 	private void displayException(final OperationException pException) {
-		this.context.add("<span style=\"" + RESULTS_SPAN_STYLE + "color:red;\">");
+		this.context.add("<span style=\"" + SearchAjaxComponent.RESULTS_SPAN_STYLE + "color:red;\">");
 		this.context.add(Messages.get(this.getClass(), this.locale, "Error"));
 		this.context.add(pException.getMessageForLocale(this.locale));
 		this.context.add("</span>");
@@ -139,7 +137,7 @@ public abstract class SearchAjaxComponent extends UIAjaxComponent {
 	 * @since 1.0.0
 	 */
 	private void displayNoResults() {
-		this.context.add("<span style=\"" + RESULTS_SPAN_STYLE + "\">");
+		this.context.add("<span style=\"" + SearchAjaxComponent.RESULTS_SPAN_STYLE + "\">");
 		this.context.add(Messages.get(this.getClass(), this.locale, "NoResultFound"));
 		this.context.add("</span>");
 	}
@@ -261,17 +259,17 @@ public abstract class SearchAjaxComponent extends UIAjaxComponent {
 		this.context.add("<thead>");
 		this.context.add("<tr>");
 
-		this.context.add(OPEN_TH);
+		this.context.add("<th>");
 		this.context.add(Messages.get(this.getClass(), this.locale, "Record"));
-		this.context.add(CLOSE_TH);
+		this.context.add("</th>");
 
-		this.context.add(OPEN_TH);
+		this.context.add("<th>");
 		this.context.add(Messages.get(this.getClass(), this.locale, "Score"));
-		this.context.add(CLOSE_TH);
+		this.context.add("</th>");
 
-		this.context.add(OPEN_TH);
+		this.context.add("<th>");
 		this.context.add(Messages.get(this.getClass(), this.locale, "Link"));
-		this.context.add(CLOSE_TH);
+		this.context.add("</th>");
 
 		this.context.add("</tr>");
 		this.context.add("</thead>");
@@ -289,27 +287,26 @@ public abstract class SearchAjaxComponent extends UIAjaxComponent {
 
 		this.context.add("<tr>");
 
-		this.context.add(OPEN_TD);
+		this.context.add("<td>");
 		if (record != null) {
 			this.context.add(record.getLabel(this.locale));
 		}
-		this.context.add(CLOSE_TD);
+		this.context.add("</td>");
 
-		this.context.add(OPEN_TD);
+		this.context.add("<td>");
 		if (reason != null) {
 			this.context.add(reason.formatMessage(this.locale));
 		}
-		this.context.add(CLOSE_TD);
+		this.context.add("</td>");
 
-		this.context.add(OPEN_TD);
+		this.context.add("<td>");
 		if (record != null) {
 			UIHttpManagerComponent uiHttpManagerComponent = this.context.createWebComponentForSubSession();
 			uiHttpManagerComponent.selectInstanceOrOccurrence(record);
 			UIButtonSpecJSAction buttonPreview = this.context.buildButtonPreview(uiHttpManagerComponent.getURIWithParameters());
 			this.context.addButtonJavaScript(buttonPreview);
 		}
-		this.context.add(CLOSE_TD);
-
+		this.context.add("</td>");
 		this.context.add("<tr>");
 	}
 }

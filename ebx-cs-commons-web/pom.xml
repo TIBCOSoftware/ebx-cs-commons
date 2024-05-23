@@ -71,7 +71,7 @@
 						<manifestEntries>
 							<Created-By>Tibco EBX</Created-By>
 							<Implementation-Version>${revision}</Implementation-Version>
-							<Implementation-Title>EBX 6 - ebx-cs-commons</Implementation-Title>
+							<Implementation-Title>TIBCO EBX 5 - CS Commons Library</Implementation-Title>
 							<Class-Path></Class-Path>
 						</manifestEntries>
 					</archive>

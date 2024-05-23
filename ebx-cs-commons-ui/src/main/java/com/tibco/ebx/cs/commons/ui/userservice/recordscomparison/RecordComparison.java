@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.onwbp.adaptation.Adaptation;
 import com.onwbp.adaptation.RequestResult;
 import com.onwbp.base.text.UserMessage;
@@ -23,8 +25,7 @@ import com.tibco.ebx.cs.commons.lib.message.Messages;
 import com.tibco.ebx.cs.commons.ui.util.Presales_UIUtils;
 
 /**
- * Compare multiple records of the same schema. It allows to get the results of
- * the comparison and/or display the result table.
+ * Compare multiple records of the same schema. It allows to get the results of the comparison and/or display the result table.
  *
  * @author Aurélien Ticot
  * @see #addComparisonTable
@@ -63,8 +64,7 @@ public final class RecordComparison {
 	/**
 	 * Instantiate the RecordComparison class by setting the compared items.
 	 *
-	 * @param comparedItems the list of adaptation to compare. Same schema is
-	 *                      required.
+	 * @param comparedItems the list of adaptation to compare. Same schema is required.
 	 * @param locale        the locale
 	 * @since 1.0.0
 	 */
@@ -80,17 +80,14 @@ public final class RecordComparison {
 	}
 
 	/**
-	 * Instantiate the RecordComparison class by setting the compared items and the
-	 * options.
+	 * Instantiate the RecordComparison class by setting the compared items and the options.
 	 *
-	 * @param comparedItems the list of adaptation to compare. Same model is
-	 *                      required.
+	 * @param comparedItems the list of adaptation to compare. Same model is required.
 	 * @param options       the options bean to configure the record comparison.
 	 * @param locale        the locale
 	 * @since 1.0.0
 	 */
-	public RecordComparison(final List<Adaptation> comparedItems, final RecordComparisonOptions options,
-			final Locale locale) {
+	public RecordComparison(final List<Adaptation> comparedItems, final RecordComparisonOptions options, final Locale locale) {
 		this.comparedItems = comparedItems;
 		if (comparedItems == null) {
 			this.comparedItems = new ArrayList<>();
@@ -125,8 +122,7 @@ public final class RecordComparison {
 	/**
 	 * Gets the comparison result.
 	 *
-	 * @return the list of RecordComparisonItemField defining for each compared
-	 *         field the information of the comparison.
+	 * @return the list of RecordComparisonItemField defining for each compared field the information of the comparison.
 	 * @since 1.0.0
 	 */
 	public List<RecordComparisonItemField> getComparisonResult() {
@@ -136,8 +132,7 @@ public final class RecordComparison {
 	/**
 	 * Gets the options.
 	 *
-	 * @return the RecordComparisonOptions defining the options set for the
-	 *         comparison.
+	 * @return the RecordComparisonOptions defining the options set for the comparison.
 	 * @since 1.0.0
 	 */
 	public RecordComparisonOptions getOptions() {
@@ -213,8 +208,7 @@ public final class RecordComparison {
 						if (fieldBean.isForeignKey()) {
 							valueAdaptations.add(fieldNode.getFacetOnTableReference().getLinkedRecord(vc));
 						}
-						valueLabels
-								.add(fieldNode.displayOccurrence(item.get(fieldBean.getPath()), true, vc, this.locale));
+						valueLabels.add(fieldNode.displayOccurrence(item.get(fieldBean.getPath()), true, vc, this.locale));
 					}
 
 					RecordComparisonItemValue itemValue = new RecordComparisonItemValue();
@@ -242,6 +236,7 @@ public final class RecordComparison {
 		int nbItems = pItemValues.size();
 		for (int i = 0; i < nbItems; i++) {
 			if (i != 0) {
+				// TODO To compare on value instead of value label
 				if (!pItemValues.get(i).getLabels().equals(pItemValues.get(i - 1).getLabels())) {
 					equal = false;
 				}
@@ -258,6 +253,7 @@ public final class RecordComparison {
 	 */
 	private void initializeComparison() {
 		if (!this.comparedItems.isEmpty()) {
+			// TODO Check the records are of the same schema
 
 			// Build the list of compared fields
 			SchemaNode rootSchemaNode = this.comparedItems.get(0).getSchemaNode();
@@ -284,20 +280,17 @@ public final class RecordComparison {
 
 		// Hide similars button
 		UserMessage hideSimilarLabel = Messages.getInfo(this.getClass(), "HideSimilarities", "");
-		UIButtonSpecJSAction jsButtonHideSimilarSpec = new UIButtonSpecJSAction(hideSimilarLabel,
-				RecordComparison.JS_HIDE_FUNCTION_NAME + "('" + RecordComparison.HTML_CLASS_COMPARISONEQUAL + "')");
+		UIButtonSpecJSAction jsButtonHideSimilarSpec = new UIButtonSpecJSAction(hideSimilarLabel, RecordComparison.JS_HIDE_FUNCTION_NAME + "('" + RecordComparison.HTML_CLASS_COMPARISONEQUAL + "')");
 		pWriter.addButtonJavaScript(jsButtonHideSimilarSpec);
 
 		// Hide differences button
 		UserMessage hideDiffLabel = Messages.getInfo(this.getClass(), "HideDifferences", "");
-		UIButtonSpecJSAction jsButtonHideDiffSpec = new UIButtonSpecJSAction(hideDiffLabel,
-				RecordComparison.JS_HIDE_FUNCTION_NAME + "('" + RecordComparison.HTML_CLASS_COMPARISONNOTEQUAL + "')");
+		UIButtonSpecJSAction jsButtonHideDiffSpec = new UIButtonSpecJSAction(hideDiffLabel, RecordComparison.JS_HIDE_FUNCTION_NAME + "('" + RecordComparison.HTML_CLASS_COMPARISONNOTEQUAL + "')");
 		pWriter.addButtonJavaScript(jsButtonHideDiffSpec);
 
 		// Show all button
 		UserMessage showAllLabel = Messages.getInfo(this.getClass(), "ShowAll", "");
-		UIButtonSpecJSAction jsButtonShowAllSpec = new UIButtonSpecJSAction(showAllLabel,
-				RecordComparison.JS_SHOWALL_FUNCTION_NAME + "()");
+		UIButtonSpecJSAction jsButtonShowAllSpec = new UIButtonSpecJSAction(showAllLabel, RecordComparison.JS_SHOWALL_FUNCTION_NAME + "()");
 		pWriter.addButtonJavaScript(jsButtonShowAllSpec);
 
 		pWriter.add("</div>");
@@ -344,12 +337,10 @@ public final class RecordComparison {
 		// Start main container
 		String mainContainerClass = RecordComparison.HTML_CLASS_TABLECONTAINER + " ebx_ColoredBorder";
 		String mainContainerStyle = containerWidth + containerPaddingTop;
-		pWriter.add("<div id=\"" + RecordComparison.HTML_ID_TABLE_CONTAINER + "\" class=\"" + mainContainerClass
-				+ "\" style=\"" + mainContainerStyle + "\">");
+		pWriter.add("<div id=\"" + RecordComparison.HTML_ID_TABLE_CONTAINER + "\" class=\"" + mainContainerClass + "\" style=\"" + mainContainerStyle + "\">");
 
 		// fixed header
-		String tableHeaderClass = RecordComparison.HTML_CLASS_TABLEHEADER
-				+ " ebx_LightColoredBackground ebx_ColoredBorder";
+		String tableHeaderClass = RecordComparison.HTML_CLASS_TABLEHEADER + " ebx_LightColoredBackground ebx_ColoredBorder";
 		String tableHeaderStyle = headerHeightStyle + containerWidth;
 		pWriter.add("<div class=\"" + tableHeaderClass + "\" style=\"" + tableHeaderStyle + "\">");
 		pWriter.add("</div>");
@@ -406,12 +397,10 @@ public final class RecordComparison {
 	 * @param pWriter     the component writer
 	 * @param pLabel      the label of the field to be displayed
 	 * @param pIsCompared a boolean indicating the field is compared or not
-	 * @param pIsLastRow  a boolean indicating if the row is the last of the table
-	 *                    (require a specific style)
+	 * @param pIsLastRow  a boolean indicating if the row is the last of the table (require a specific style)
 	 * @since 1.0.0
 	 */
-	private static void insertFieldLabelCell(final UIComponentWriter pWriter, final String pLabel,
-			final boolean pIsCompared, final boolean pIsLastRow) {
+	private static void insertFieldLabelCell(final UIComponentWriter pWriter, final String pLabel, final boolean pIsCompared, final boolean pIsLastRow) {
 		String tdClass = RecordComparison.HTML_CLASS_LABELTD + " ebx_ColoredBorder";
 		if (pIsLastRow) {
 			tdClass += " " + RecordComparison.HTML_CLASS_LASTROWTD;
@@ -431,12 +420,10 @@ public final class RecordComparison {
 	 * @param pWriter    the component writer
 	 * @param pBean      the bean of the row, corresponding to the field
 	 * @param pIsEven    a boolean indicating if the row is even
-	 * @param pIsLastRow a boolean indicating if the row is the last of the table
-	 *                   (require a specific style)
+	 * @param pIsLastRow a boolean indicating if the row is the last of the table (require a specific style)
 	 * @since 1.0.0
 	 */
-	private void insertFieldRow(final UIComponentWriter pWriter, final RecordComparisonItemField pBean,
-			final boolean pIsEven, final boolean pIsLastRow) {
+	private void insertFieldRow(final UIComponentWriter pWriter, final RecordComparisonItemField pBean, final boolean pIsEven, final boolean pIsLastRow) {
 		String trClass = "";
 		// Add the relevant even or odd class
 		if (pIsEven) {
@@ -481,8 +468,7 @@ public final class RecordComparison {
 	private void insertGroupRow(final UIComponentWriter pWriter, final String pLabel) {
 		final int nbItems = this.comparedItems.size();
 		pWriter.add("<tr class=\"" + RecordComparison.HTML_CLASS_GROUPETR + "\">");
-		pWriter.add(
-				"<td colspan=\"" + String.valueOf(nbItems + 1) + "\" class=\"ebx_ColoredBorder\">" + pLabel + "</td>");
+		pWriter.add("<td colspan=\"" + String.valueOf(nbItems + 1) + "\" class=\"ebx_ColoredBorder\">" + pLabel + "</td>");
 		pWriter.add("</tr>");
 	}
 
@@ -495,7 +481,7 @@ public final class RecordComparison {
 	private static void insertHideShowFunctions(final UIComponentWriter pWriter) {
 		pWriter.addJS_cr();
 		pWriter.addJS_cr("function " + RecordComparison.JS_HIDE_FUNCTION_NAME + "(type) {");
-		pWriter.addJS_cr("    var rows = document.getElementsByTagName('tr');");
+		pWriter.addJS_cr("    var rows = document.getElementsByTagName('tr');"); // TODO Change by another ref than tr
 		pWriter.addJS_cr("    for (var i = 0, c = rows.length; i < c; i++) {");
 		pWriter.addJS_cr("        if(rows[i].className.indexOf(type) > -1){");
 		pWriter.addJS_cr("            rows[i].style.display = 'none';");
@@ -506,7 +492,7 @@ public final class RecordComparison {
 		pWriter.addJS_cr("}");
 		pWriter.addJS_cr();
 		pWriter.addJS_cr("function " + RecordComparison.JS_SHOWALL_FUNCTION_NAME + "() {");
-		pWriter.addJS_cr("    var rows = document.getElementsByTagName('tr');");
+		pWriter.addJS_cr("    var rows = document.getElementsByTagName('tr');"); // TODO Change by another ref than tr
 		pWriter.addJS_cr("    for (var i = 0, c = rows.length; i < c; i++) {");
 		pWriter.addJS_cr("        rows[i].style.display = '';");
 		pWriter.addJS_cr("    }");
@@ -515,21 +501,43 @@ public final class RecordComparison {
 	}
 
 	/**
+	 * Insert a picture from managed by the IDAM module.
+	 *
+	 * @param pWriter      the component writer
+	 * @param pPictureName the reference of the picture
+	 * @since 1.0.0
+	 */
+	@SuppressWarnings("unused")
+	private void insertIDAMPicture(final UIComponentWriter pWriter, String pPictureName) {
+		if (!this.comparedItems.isEmpty()) {
+			Math.random();
+			// IDAM deal with null value instead of empty string
+			if (StringUtils.isBlank(pPictureName)) {
+				pPictureName = null;
+			}
+
+			this.options.getPictureSize();
+
+			this.comparedItems.get(0).getHome().getRepository();
+
+			// TODO Deal with IDAM dependencies
+			// Uncomment if using IDAM module
+			// IDAM idam = new IDAM(repository);
+			// IDAMComponentWriter idamWriter = new IDAMComponentWriter(idam, pWriter);
+			// idamWriter.addSingleImage(pictureName, size, id, true);
+		}
+	}
+
+	/**
 	 * Insert a td in a row representing the value of an item.
 	 *
 	 * @param pWriter                         the component writer
-	 * @param pItemValue                      the bean aggregating the value of a
-	 *                                        single item
-	 * @param pIsAssociationOrMultiOccurrence a boolean to define if the cell is an
-	 *                                        association or a multi-occurenced
-	 *                                        value (true).
-	 * @param pIsLastRow                      a boolean indicating if the row is the
-	 *                                        last of the table (require a specific
-	 *                                        style)
+	 * @param pItemValue                      the bean aggregating the value of a single item
+	 * @param pIsAssociationOrMultiOccurrence a boolean to define if the cell is an association or a multi-occurenced value (true).
+	 * @param pIsLastRow                      a boolean indicating if the row is the last of the table (require a specific style)
 	 * @since 1.0.0
 	 */
-	private void insertItemCell(final UIComponentWriter pWriter, final RecordComparisonItemValue pItemValue,
-			final boolean pIsAssociationOrMultiOccurrence, final boolean pIsLastRow) {
+	private void insertItemCell(final UIComponentWriter pWriter, final RecordComparisonItemValue pItemValue, final boolean pIsAssociationOrMultiOccurrence, final boolean pIsLastRow) {
 		String tdClass = "ebx_ColoredBorder";
 		if (pIsLastRow) {
 			tdClass += " " + RecordComparison.HTML_CLASS_LASTROWTD;
@@ -559,12 +567,10 @@ public final class RecordComparison {
 	 * @param pWriter        the component writer
 	 * @param pPictureRef    the reference to the picture as string
 	 * @param pIsIDAMPicture a boolean indicating if the picture is managed by IDAM
-	 * @param pIsLastRow     a boolean indicating if the row is the last of the
-	 *                       table (require a specific style)
+	 * @param pIsLastRow     a boolean indicating if the row is the last of the table (require a specific style)
 	 * @since 1.0.0
 	 */
-	private void insertItemPictureCell(final UIComponentWriter pWriter, final String pPictureRef,
-			final boolean pIsIDAMPicture, final boolean pIsLastRow) {
+	private void insertItemPictureCell(final UIComponentWriter pWriter, final String pPictureRef, final boolean pIsIDAMPicture, final boolean pIsLastRow) {
 		String tdClass = "ebx_ColoredBorder";
 		if (pIsLastRow) {
 			tdClass += " " + RecordComparison.HTML_CLASS_LASTROWTD;
@@ -574,8 +580,11 @@ public final class RecordComparison {
 		}
 		pWriter.add("<td class=\"" + tdClass + "\">");
 
-		this.insertPicture(pWriter, pPictureRef);
-
+		if (pIsIDAMPicture) {
+			this.insertIDAMPicture(pWriter, pPictureRef);
+		} else {
+			this.insertPicture(pWriter, pPictureRef);
+		}
 		pWriter.add("</td>");
 	}
 
@@ -594,22 +603,19 @@ public final class RecordComparison {
 	}
 
 	/**
-	 * Insert the JavaScript function to resize the table according to the workspace
-	 * size.
+	 * Insert the JavaScript function to resize the table according to the workspace size.
 	 *
 	 * @param pWriter     the component writer
-	 * @param pTableWidth the size of the table, according to the number and the
-	 *                    width of each column
+	 * @param pTableWidth the size of the table, according to the number and the width of each column
 	 * @since 1.0.0
 	 */
 	private static void insertResizingFunction(final UIComponentWriter pWriter, final int pTableWidth) {
-
+		// TODO Compute the offset
 		String jsFnListenerName = "syncContainerToWorkspace";
 		pWriter.addJS_cr();
 		pWriter.addJS("function ").addJS(jsFnListenerName).addJS("(size) {");
 		pWriter.addJS_cr("    var tableWidth = " + String.valueOf(pTableWidth) + ";");
-		pWriter.addJS_cr(
-				"    var container = document.getElementById('" + RecordComparison.HTML_ID_TABLE_CONTAINER + "');");
+		pWriter.addJS_cr("    var container = document.getElementById('" + RecordComparison.HTML_ID_TABLE_CONTAINER + "');");
 		pWriter.addJS_cr("    container.style.height = (size.h * 1)- 128 + 'px';");
 		// -115px to take into account the buttons on top and the message at
 		// bottom
@@ -625,14 +631,14 @@ public final class RecordComparison {
 	}
 
 	/**
-	 * Insert a style html tag to define the classes and style of the comparison
-	 * table. Not recommended to insert style tag in the body tag of an html
-	 * structure but this avoid managing a css file in the resources.
+	 * Insert a style html tag to define the classes and style of the comparison table. Not recommended to insert style tag in the body tag of an html structure but this avoid managing a css file in
+	 * the resources.
 	 *
 	 * @param pWriter the component writer
 	 * @since 1.0.0
 	 */
 	private void insertStyle(final UIComponentWriter pWriter) {
+		// TODO Move style to a dedicated file in web-app
 
 		Color color = this.options.getDifferenceColor();
 		String red = String.valueOf(color.getRed());
@@ -641,38 +647,28 @@ public final class RecordComparison {
 		String cssColor = "rgb(" + red + "," + green + "," + blue + ")";
 
 		String style = "";
-		style += "." + RecordComparison.HTML_CLASS_TABLECONTAINER
-				+ "{margin:0 15px;position:relative;border-width:1px;border-style:solid;overflow-x:auto;overflow-y:hidden}";
-		style += "." + RecordComparison.HTML_CLASS_TABLEHEADER
-				+ "{position:absolute;top:0;right:0;left:0;border-width:0 0 1px;border-style:solid}";
-		style += "." + RecordComparison.HTML_CLASS_TABLESUBCONTAINER
-				+ "{height:100%;overflow-x:hidden;overflow-y:auto}";
-		style += "." + RecordComparison.HTML_CLASS_PRODUCTCOMPARETABLE
-				+ "{overflow-x:hidden;overflow-y:auto;border-collapse:separate;width:100%;border-spacing:0}";
+		style += "." + RecordComparison.HTML_CLASS_TABLECONTAINER + "{margin:0 15px;position:relative;border-width:1px;border-style:solid;overflow-x:auto;overflow-y:hidden}";
+		style += "." + RecordComparison.HTML_CLASS_TABLEHEADER + "{position:absolute;top:0;right:0;left:0;border-width:0 0 1px;border-style:solid}";
+		style += "." + RecordComparison.HTML_CLASS_TABLESUBCONTAINER + "{height:100%;overflow-x:hidden;overflow-y:auto}";
+		style += "." + RecordComparison.HTML_CLASS_PRODUCTCOMPARETABLE + "{overflow-x:hidden;overflow-y:auto;border-collapse:separate;width:100%;border-spacing:0}";
 		style += "." + RecordComparison.HTML_CLASS_PRODUCTCOMPARETABLE + " thead{vertical-align:middle}";
 		style += "." + RecordComparison.HTML_CLASS_PRODUCTCOMPARETABLE + " th{padding:0 5px}";
-		style += "." + RecordComparison.HTML_CLASS_THINNER
-				+ "{font-size:13px;position:absolute;top:0;padding-left:5px;margin-left:-5px;border-width:0 0 0 1px;border-style:solid;overflow:hidden}";
-		style += "." + RecordComparison.HTML_CLASS_GROUPCOL + " ." + RecordComparison.HTML_CLASS_THINNER
-				+ "{width:191px;padding-right:30px;padding-left:6px;border-left:none}";
+		style += "." + RecordComparison.HTML_CLASS_THINNER + "{font-size:13px;position:absolute;top:0;padding-left:5px;margin-left:-5px;border-width:0 0 0 1px;border-style:solid;overflow:hidden}";
+		style += "." + RecordComparison.HTML_CLASS_GROUPCOL + " ." + RecordComparison.HTML_CLASS_THINNER + "{width:191px;padding-right:30px;padding-left:6px;border-left:none}";
 		style += "." + RecordComparison.HTML_CLASS_PRODUCTCOMPARETABLE + " tbody{font-size:13px}";
-		style += "." + RecordComparison.HTML_CLASS_PRODUCTCOMPARETABLE
-				+ " td{border-width:0 0 1px 1px;border-style:solid;padding:5px 10px}";
+		style += "." + RecordComparison.HTML_CLASS_PRODUCTCOMPARETABLE + " td{border-width:0 0 1px 1px;border-style:solid;padding:5px 10px}";
 		style += "." + RecordComparison.HTML_CLASS_COMPARISONNOTEQUAL + "{background-color:" + cssColor + "}";
-		style += "." + RecordComparison.HTML_CLASS_GROUPETR
-				+ "{font-weight:700;text-align:center;vertical-align:bottom;height:40px}";
+		style += "." + RecordComparison.HTML_CLASS_GROUPETR + "{font-weight:700;text-align:center;vertical-align:bottom;height:40px}";
 		style += "." + RecordComparison.HTML_CLASS_GROUPCOL + "{text-align:right;width:200px;padding:0 10px}";
 		style += "." + RecordComparison.HTML_CLASS_GROUPETR + " td{border-left-width:0!important}";
 		style += "." + RecordComparison.HTML_CLASS_ITEMCOL + "{width:200px;padding:0 10px}";
-		style += "." + RecordComparison.HTML_CLASS_LABELTD
-				+ "{text-align:right;border-left-width:0!important;padding-right:30px!important}";
+		style += "." + RecordComparison.HTML_CLASS_LABELTD + "{text-align:right;border-left-width:0!important;padding-right:30px!important}";
 		style += "." + RecordComparison.HTML_CLASS_LASTROWTD + "{border-bottom-width:0!important}";
 		style += "." + RecordComparison.HTML_CLASS_HIDDENCOMPAREDROW + "{display:none}";
 		style += "." + RecordComparison.HTML_CLASS_ITEMPICTURE + "{text-align:center}";
 		style += "." + RecordComparison.HTML_CLASS_ITEMPICTURE + " img{max-height:180px;max-width:180px}";
 		style += "." + RecordComparison.HTML_CLASS_COMPARISONTABLEFOOTNOTE + "{color:grey;margin-left:15px}";
-		style += "." + RecordComparison.HTML_CLASS_PRODUCTCOMPARETABLE
-				+ " ul{margin-bottom:0;margin-top:0;padding-left:20px}";
+		style += "." + RecordComparison.HTML_CLASS_PRODUCTCOMPARETABLE + " ul{margin-bottom:0;margin-top:0;padding-left:20px}";
 
 		pWriter.add("<style>");
 		pWriter.add(style);
@@ -757,20 +753,17 @@ public final class RecordComparison {
 	}
 
 	/**
-	 * Insert the value of a field for an item and add a pop-up link to the
-	 * associated/linked record.
+	 * Insert the value of a field for an item and add a pop-up link to the associated/linked record.
 	 *
 	 * @param pWriter    the component writer
 	 * @param pItemValue The object containing the labels and adaptations
 	 * @param pIndex     The index of the value
 	 * @since 1.0.0
 	 */
-	private static void insertValue(final UIComponentWriter pWriter, final RecordComparisonItemValue pItemValue,
-			final int pIndex) {
+	private static void insertValue(final UIComponentWriter pWriter, final RecordComparisonItemValue pItemValue, final int pIndex) {
 		if (pItemValue.getRecords().size() - 1 >= pIndex && pItemValue.getLabels().size() - 1 >= pIndex) {
 			// insert the label with preview pop-up link
-			Presales_UIUtils.addPopUpLink(pWriter, pItemValue.getRecords().get(pIndex),
-					pItemValue.getLabels().get(pIndex));
+			Presales_UIUtils.addPopUpLink(pWriter, pItemValue.getRecords().get(pIndex), pItemValue.getLabels().get(pIndex));
 		} else if (pItemValue.getLabels().size() - 1 >= pIndex) {
 			// Insert the label only
 			pWriter.add(pItemValue.getLabels().get(pIndex));
@@ -915,9 +908,7 @@ public final class RecordComparison {
 	}
 
 	/**
-	 * Initialize the comparison by getting all the compared fields from the data
-	 * model. Each field is defined in a ItemFieldComparisonBean. The list of bean
-	 * represents the list of field.
+	 * Initialize the comparison by getting all the compared fields from the data model. Each field is defined in a ItemFieldComparisonBean. The list of bean represents the list of field.
 	 *
 	 * @param pNode the node to analyze
 	 * @since 1.0.0

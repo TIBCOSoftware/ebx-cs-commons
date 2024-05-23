@@ -8,5 +8,5 @@ package com.tibco.ebx.cs.commons.beans.generator.template;
  *
  * @param <T> complex type bean
  */
-public interface ComplexTypeDTO<T extends ComplexTypeBean> extends EBXDTO {
+public abstract class ComplexTypeDTO<T extends ComplexTypeBean> extends EBXDTO<T> {
 }

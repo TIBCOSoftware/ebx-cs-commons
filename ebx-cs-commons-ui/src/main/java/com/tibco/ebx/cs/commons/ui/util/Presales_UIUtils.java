@@ -3,12 +3,14 @@ package com.tibco.ebx.cs.commons.ui.util;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 import com.onwbp.adaptation.Adaptation;
 import com.onwbp.base.text.Severity;
+import com.onwbp.boot.VM;
 import com.orchestranetworks.schema.Path;
 import com.orchestranetworks.schema.SchemaNode;
 import com.orchestranetworks.schema.info.SchemaNodeInformation;
@@ -35,8 +37,7 @@ public final class Presales_UIUtils {
 
 	/**
 	 * Adds a columns layout for the provided list of nodes.<br>
-	 * Technically insert in the html stream a div tag containing as many table form
-	 * row as expected column. Nodes are equally dispatched in the columns.
+	 * Technically insert in the html stream a div tag containing as many table form row as expected column. Nodes are equally dispatched in the columns.
 	 *
 	 * @param pWriter                   the writer
 	 * @param pNodes                    the nodes
@@ -46,8 +47,8 @@ public final class Presales_UIUtils {
 	 * @throws IllegalArgumentException if the arguments pWriter and pNode are null
 	 * @since 1.2.0
 	 */
-	public static void addColumnsLayout(final UIFormWriter pWriter, final List<SchemaNode> pNodes, int pNbColumns,
-			String pCustomStyle, final String pNodeInformationToExclude) throws IllegalArgumentException {
+	public static void addColumnsLayout(final UIFormWriter pWriter, final List<SchemaNode> pNodes, int pNbColumns, String pCustomStyle, final String pNodeInformationToExclude)
+			throws IllegalArgumentException {
 		if (pWriter == null) {
 			throw new IllegalArgumentException("pWriter argument shall not be null");
 		}
@@ -97,8 +98,7 @@ public final class Presales_UIUtils {
 
 	/**
 	 * Adds a columns layout for the children nodes of the provided group node.<br>
-	 * Technically insert in the html stream a div tag containing as many table form
-	 * row as expected column. Nodes are equally dispatched in the columns.
+	 * Technically insert in the html stream a div tag containing as many table form row as expected column. Nodes are equally dispatched in the columns.
 	 *
 	 * @param pWriter                   the writer
 	 * @param pGroupNode                the node of a group
@@ -108,8 +108,8 @@ public final class Presales_UIUtils {
 	 * @throws IllegalArgumentException if the arguments pWriter and pNode are null
 	 * @since 1.0.0
 	 */
-	public static void addColumnsLayout(final UIFormWriter pWriter, final SchemaNode pGroupNode, final int pNbColumns,
-			final String pCustomStyle, final String pNodeInformationToExclude) throws IllegalArgumentException {
+	public static void addColumnsLayout(final UIFormWriter pWriter, final SchemaNode pGroupNode, final int pNbColumns, final String pCustomStyle, final String pNodeInformationToExclude)
+			throws IllegalArgumentException {
 		if (pGroupNode == null) {
 			throw new IllegalArgumentException("pGroupNode argument shall not be null");
 		}
@@ -124,13 +124,11 @@ public final class Presales_UIUtils {
 	 * Add a link tag to import a stylesheet.
 	 *
 	 * @param pWriter   the writer
-	 * @param pLocation The location of the stylesheet from
-	 *                  /www/{@literal <locale>}/stylesheets
+	 * @param pLocation The location of the stylesheet from /www/{@literal <locale>}/stylesheets
 	 * @throws IllegalArgumentException if the argument pWriter is null.
 	 * @since 1.0.0
 	 */
-	public static void addCssLink(final UIComponentWriter pWriter, final String pLocation)
-			throws IllegalArgumentException {
+	public static void addCssLink(final UIComponentWriter pWriter, final String pLocation) throws IllegalArgumentException {
 		if (pWriter == null) {
 			throw new IllegalArgumentException("pWriter argument shall not be null");
 		}
@@ -143,38 +141,35 @@ public final class Presales_UIUtils {
 	 * Add a link tag to import a stylesheet.
 	 *
 	 * @param pWriter     the writer
-	 * @param pLocation   The location of the stylesheet from
-	 *                    /www/{@literal <locale>}/stylesheets
+	 * @param pLocation   The location of the stylesheet from /www/{@literal <locale>}/stylesheets
 	 * @param pModuleName The module name
 	 * @throws IllegalArgumentException if the argument pWriter is null.
 	 * @since 1.0.0
 	 */
-	public static void addCssLink(final UIComponentWriter pWriter, final String pLocation, final String pModuleName)
-			throws IllegalArgumentException {
+	public static void addCssLink(final UIComponentWriter pWriter, final String pLocation, final String pModuleName) throws IllegalArgumentException {
 		if (pWriter == null) {
 			throw new IllegalArgumentException("pWriter argument shall not be null");
 		}
 
-		String location = pWriter.getURLForResource(pModuleName, ResourceType.STYLESHEET, pLocation,
-				pWriter.getLocale());
+		String location = pWriter.getURLForResource(pModuleName, ResourceType.STYLESHEET, pLocation, pWriter.getLocale());
 		pWriter.add("<link rel=\"stylesheet\" href=\"" + location + "\" > ");
 	}
 
 	/**
-	 * Add the standard EBX date Widget in a UIFormRow (must be). This method is
-	 * deprecated because using EBX private API. It is not guarantee to work in the
-	 * future. It must be replaced by an other implementation being close to the
-	 * standard EBX one.
+	 * <strong>Using non public API</strong><br>
+	 * <br>
+	 * Add the standard EBX date Widget in a UIFormRow (must be). This method is deprecated because using EBX private API. It is not guarantee to work in the future. It must be replaced by an other
+	 * implementation being close to the standard EBX one.
 	 *
-	 * @param pId       used to build the identifier of the the different element
-	 *                  that compose the widget.
+	 * @param pId       used to build the identifier of the the different element that compose the widget.
 	 * @param pWriter   the writer
 	 * @param pCalendar the custom date initially set on the widget
 	 * @throws IllegalArgumentException if the argument pWriter is null.
 	 * @since 1.4.0
 	 */
-	public static void addEBXDateComponent(final String pId, final UIComponentWriter pWriter, final Calendar pCalendar)
-			throws IllegalArgumentException {
+	public static void addEBXDateComponent(final String pId, final UIComponentWriter pWriter, final Calendar pCalendar) throws IllegalArgumentException {
+		// USING_NON_PUBLIC_API
+
 		if (pWriter == null) {
 			throw new IllegalArgumentException("pWriter argument shall not be null");
 		}
@@ -192,60 +187,47 @@ public final class Presales_UIUtils {
 			year = pCalendar.get(Calendar.YEAR) + "";
 		}
 
-		UIButtonSpecJSAction dateButton = new UIButtonSpecJSAction(
-				Messages.get(Presales_UIUtils.class, Severity.INFO, "OpenCalendar"),
+		UIButtonSpecJSAction dateButton = new UIButtonSpecJSAction(Messages.get(Presales_UIUtils.class, Severity.INFO, "OpenCalendar"),
 				"EBX_Form.openCalendar('" + pId + "_year','" + pId + "_month','" + pId + "_day','" + pId + "');");
 		dateButton.setButtonIcon(UIButtonIcon.CALENDAR);
 		dateButton.setButtonLayout(UIButtonLayout.ICON_ONLY);
 		dateButton.setRelief(UIButtonRelief.FLAT);
 
 		pWriter.add("<span id=\"" + pId + "_dateInputs\" class=\"ebx_InputsDateContainer\">");
+		pWriter.add("<input type=\"text\" tabindex=\"1\" maxlength=\"2\" size=\"2\" style=\"width: 4ex;text-align: right;\"" + " value=\"" + day + "\" name=\"" + dayId + "\" id=\"" + dayId + "\"/>");
 		pWriter.add(
-				"<input type=\"text\" tabindex=\"1\" maxlength=\"2\" size=\"2\" style=\"width: 4ex;text-align: right;\""
-						+ " value=\"" + day + "\" name=\"" + dayId + "\" id=\"" + dayId + "\"/>");
-		pWriter.add(
-				"/<input type=\"text\" tabindex=\"2\" maxlength=\"2\" size=\"2\" style=\"width: 4ex;text-align: right;\" value=\""
-						+ month + "\" name=\"" + monthId + "\" id=\"" + monthId + "\" />");
-		pWriter.add(
-				"/<input type=\"text\" tabindex=\"3\" maxlength=\"4\" size=\"4\" style=\"width: 6ex;text-align: right;\" value=\""
-						+ year + "\" name=\"" + yearId + "\" id=\"" + yearId + "\"/ >");
+				"/<input type=\"text\" tabindex=\"2\" maxlength=\"2\" size=\"2\" style=\"width: 4ex;text-align: right;\" value=\"" + month + "\" name=\"" + monthId + "\" id=\"" + monthId + "\" />");
+		pWriter.add("/<input type=\"text\" tabindex=\"3\" maxlength=\"4\" size=\"4\" style=\"width: 6ex;text-align: right;\" value=\"" + year + "\" name=\"" + yearId + "\" id=\"" + yearId + "\"/ >");
 		pWriter.add("</span>");
 		pWriter.addButtonJavaScript(dateButton);
 	}
 
 	/**
-	 * Add the standard EBX date Widget in a UIFormRow (must be). This method is
-	 * deprecated because using EBX private API. It is not guarantee to work in the
-	 * future. It must be replaced by an other implementation being close to the
-	 * standard EBX one.
+	 * <strong>Using non public API</strong><br>
+	 * Add the standard EBX date Widget in a UIFormRow (must be). This method is deprecated because using EBX private API. It is not guarantee to work in the future. It must be replaced by an other
+	 * implementation being close to the standard EBX one.
 	 *
-	 * @param pId       used to build the identifier of the the different element
-	 *                  that compose the widget.
+	 * @param pId       used to build the identifier of the the different element that compose the widget.
 	 * @param pWriter   the writer
 	 * @param pCalendar the custom date initially set on the widget
 	 * @throws IllegalArgumentException if the argument pWriter is null.
-	 * @deprecated Use
-	 *             {@link Presales_UIUtils#addEBXDateComponent(String, UIComponentWriter, Calendar)}
-	 *             instead.
+	 * @deprecated Use {@link Presales_UIUtils#addEBXDateComponent(String, UIComponentWriter, Calendar)} instead.
 	 * @since 1.0.0
 	 */
 	@Deprecated
-	public static void addEBXPrivateDateWidget(final String pId, final UIComponentWriter pWriter,
-			final Calendar pCalendar) throws IllegalArgumentException {
+	public static void addEBXPrivateDateWidget(final String pId, final UIComponentWriter pWriter, final Calendar pCalendar) throws IllegalArgumentException {
 		Presales_UIUtils.addEBXDateComponent(pId, pWriter, pCalendar);
 	}
 
 	/**
-	 * Adds the getDate function to return the formated date of the ebx private date
-	 * widget.
+	 * Adds the getDate function to return the formated date of the ebx private date widget.
 	 *
 	 * @param pWriter the writer
 	 * @return the name of the function
 	 * @throws IllegalArgumentException if the argument pWriter is null.
 	 * @since 1.0.0
 	 */
-	public static String addEBXPrivateDateWidget_GetDateJsFunction(final UIComponentWriter pWriter)
-			throws IllegalArgumentException {
+	public static String addEBXPrivateDateWidget_GetDateJsFunction(final UIComponentWriter pWriter) throws IllegalArgumentException {
 		if (pWriter == null) {
 			throw new IllegalArgumentException("pWriter argument shall not be null");
 		}
@@ -268,75 +250,57 @@ public final class Presales_UIUtils {
 	}
 
 	/**
-	 * Add a JavaScript function to size the <strong>height</strong> of an html
-	 * element according to the workspace <strong>height</strong>.<br>
+	 * Add a JavaScript function to size the <strong>height</strong> of an html element according to the workspace <strong>height</strong>.<br>
 	 * <br>
-	 * <strong>Note</strong>: EBX 5.9 introduces translucent bottom bar where the
-	 * workspace continue underneath the bottom bar. This method follows this
-	 * behavior. For more control, check
+	 * <strong>Note</strong>: EBX 5.9 introduces translucent bottom bar where the workspace continue underneath the bottom bar. This method follows this behavior. For more control, check
 	 * {@link #addElementResizeToWorkspaceJS(UIComponentWriter, String, boolean, boolean, boolean, Integer, Integer, Double, Double) }.
 	 *
 	 * @param pWriter    the writer
 	 * @param pElementId id of the HTML tag to resize according to the workspace.
-	 * @throws IllegalArgumentException if the argument pWriter or pElementId are
-	 *                                  null
+	 * @throws IllegalArgumentException if the argument pWriter or pElementId are null
 	 * @since 1.8.0
 	 */
-	public static void addElementResizeHeightToWorkspaceJS(final UIComponentWriter pWriter, final String pElementId)
-			throws IllegalArgumentException {
+	public static void addElementResizeHeightToWorkspaceJS(final UIComponentWriter pWriter, final String pElementId) throws IllegalArgumentException {
 		Presales_UIUtils.addElementResizeToWorkspaceJS(pWriter, pElementId, true, false);
 	}
 
 	/**
-	 * Add a JavaScript function to size an html element according to the workspace
-	 * size.<br>
+	 * Add a JavaScript function to size an html element according to the workspace size.<br>
 	 * <br>
-	 * <strong>Note</strong>: EBX 5.9 introduces translucent bottom bar where the
-	 * workspace continue underneath the bottom bar. This methode keeps its behavior
-	 * by resize the element till the top of the bottom bar. For more control, check
-	 * {@link #addElementResizeToWorkspaceJS(UIComponentWriter, String, boolean, boolean, boolean, Integer, Integer, Double, Double)}..
+	 * <strong>Note</strong>: EBX 5.9 introduces translucent bottom bar where the workspace continue underneath the bottom bar. This methode keeps its behavior by resize the element till the top of
+	 * the bottom bar. For more control, check {@link #addElementResizeToWorkspaceJS(UIComponentWriter, String, boolean, boolean, boolean, Integer, Integer, Double, Double)}..
 	 *
 	 * @param pWriter    the writer
 	 * @param pElementId id of the HTML tag to resize according to the workspace.
-	 * @throws IllegalArgumentException if the argument pWriter or pElementId are
-	 *                                  null
+	 * @throws IllegalArgumentException if the argument pWriter or pElementId are null
 	 * @since 1.0.0
 	 */
-	public static void addElementResizeToWorkspaceJS(final UIComponentWriter pWriter, final String pElementId)
-			throws IllegalArgumentException {
+	public static void addElementResizeToWorkspaceJS(final UIComponentWriter pWriter, final String pElementId) throws IllegalArgumentException {
 		Presales_UIUtils.addElementResizeToWorkspaceJS(pWriter, pElementId, true, true, false, 0, 0, 1d, 1d);
 	}
 
 	/**
-	 * Add a JavaScript function to size an html element according to the workspace
-	 * size.<br>
+	 * Add a JavaScript function to size an html element according to the workspace size.<br>
 	 * <br>
-	 * <strong>Note</strong>: EBX 5.9 introduces translucent bottom bar where the
-	 * workspace continue underneath the bottom bar. This method follows this
-	 * behavior. For more control, check
+	 * <strong>Note</strong>: EBX 5.9 introduces translucent bottom bar where the workspace continue underneath the bottom bar. This method follows this behavior. For more control, check
 	 * {@link #addElementResizeToWorkspaceJS(UIComponentWriter, String, boolean, boolean, boolean, Integer, Integer, Double, Double) }.
 	 *
 	 * @param pWriter       the writer
 	 * @param pElementId    id of the HTML tag to resize according to the workspace.
 	 * @param pResizeHeight true to resize the height.
 	 * @param pResizeWidth  true to resize the width.
-	 * @throws IllegalArgumentException if the argument pWriter or pElementId are
-	 *                                  null
+	 * @throws IllegalArgumentException if the argument pWriter or pElementId are null
 	 * @since 1.8.0
 	 */
-	public static void addElementResizeToWorkspaceJS(final UIComponentWriter pWriter, final String pElementId,
-			final boolean pResizeHeight, final boolean pResizeWidth) throws IllegalArgumentException {
-		Presales_UIUtils.addElementResizeToWorkspaceJS(pWriter, pElementId, pResizeHeight, pResizeWidth, true, 0, 0, 1d,
-				1d);
+	public static void addElementResizeToWorkspaceJS(final UIComponentWriter pWriter, final String pElementId, final boolean pResizeHeight, final boolean pResizeWidth)
+			throws IllegalArgumentException {
+		Presales_UIUtils.addElementResizeToWorkspaceJS(pWriter, pElementId, pResizeHeight, pResizeWidth, true, 0, 0, 1d, 1d);
 	}
 
 	/**
-	 * Add a JavaScript function to size an html element according to the workspace
-	 * size.<br>
+	 * Add a JavaScript function to size an html element according to the workspace size.<br>
 	 * <br>
-	 * <strong>Note</strong>: EBX 5.9 introduces translucent bottom bar where the
-	 * workspace continue underneath the bottom bar. This method allows controling
-	 * this behavior.<br>
+	 * <strong>Note</strong>: EBX 5.9 introduces translucent bottom bar where the workspace continue underneath the bottom bar. This method allows controling this behavior.<br>
 	 * <br>
 	 * Check also the shorter methods:
 	 * <ul>
@@ -346,26 +310,19 @@ public final class Presales_UIUtils {
 	 * </ul>
 	 *
 	 * @param pWriter         the writer
-	 * @param pElementId      id of the HTML tag to resize according to the
-	 *                        workspace.
+	 * @param pElementId      id of the HTML tag to resize according to the workspace.
 	 * @param pResizeHeight   true to resize the height.
 	 * @param pResizeWidth    true to resize the width.
-	 * @param pUnderBottomBar true to follow EBX5.9 workspace underneath translucent
-	 *                        bottom bar.
+	 * @param pUnderBottomBar true to follow EBX5.9 workspace underneath translucent bottom bar.
 	 * @param pHeightOffset   Add an offset to the height.
 	 * @param pWidthOffset    Add an offset to the width.
-	 * @param pHeightRatio    The ratio of the workspace height (0.5 for half the
-	 *                        height).
-	 * @param pWidthRatio     The ratio of the workspace width (0.5 for half the
-	 *                        width).
-	 * @throws IllegalArgumentException if the argument pWriter or pElementId are
-	 *                                  null
+	 * @param pHeightRatio    The ratio of the workspace height (0.5 for half the height).
+	 * @param pWidthRatio     The ratio of the workspace width (0.5 for half the width).
+	 * @throws IllegalArgumentException if the argument pWriter or pElementId are null
 	 * @since 1.8.0
 	 */
-	public static void addElementResizeToWorkspaceJS(final UIComponentWriter pWriter, final String pElementId,
-			final boolean pResizeHeight, final boolean pResizeWidth, final boolean pUnderBottomBar,
-			final Integer pHeightOffset, final Integer pWidthOffset, final Double pHeightRatio,
-			final Double pWidthRatio) throws IllegalArgumentException {
+	public static void addElementResizeToWorkspaceJS(final UIComponentWriter pWriter, final String pElementId, final boolean pResizeHeight, final boolean pResizeWidth, final boolean pUnderBottomBar,
+			final Integer pHeightOffset, final Integer pWidthOffset, final Double pHeightRatio, final Double pWidthRatio) throws IllegalArgumentException {
 		if (pWriter == null) {
 			throw new IllegalArgumentException("pWriter argument shall not be null");
 		}
@@ -406,119 +363,89 @@ public final class Presales_UIUtils {
 	}
 
 	/**
-	 * Add a JavaScript function to size an HTML element according to the workspace
-	 * size.<br>
+	 * Add a JavaScript function to size an HTML element according to the workspace size.<br>
 	 * <br>
-	 * <strong>Note</strong>: EBX 5.9 introduces translucent bottom bar where the
-	 * workspace continue underneath the bottom bar. This methode keeps its behavior
-	 * by resize the element till the top of the bottom bar. For more control, check
-	 * {@link #addElementResizeToWorkspaceJS(UIComponentWriter, String, boolean, boolean, boolean, Integer, Integer, Double, Double)}..
+	 * <strong>Note</strong>: EBX 5.9 introduces translucent bottom bar where the workspace continue underneath the bottom bar. This methode keeps its behavior by resize the element till the top of
+	 * the bottom bar. For more control, check {@link #addElementResizeToWorkspaceJS(UIComponentWriter, String, boolean, boolean, boolean, Integer, Integer, Double, Double)}..
 	 *
 	 * @param pWriter      the writer
 	 * @param pElementId   id of the HTML tag to resize according to the workspace.
 	 * @param pHeightRatio the height ratio
 	 * @param pWidthRatio  the width ratio
-	 * @throws IllegalArgumentException if the argument pWriter or pElementId are
-	 *                                  null
+	 * @throws IllegalArgumentException if the argument pWriter or pElementId are null
 	 * @since 1.0.0
 	 */
-	public static void addElementResizeToWorkspaceJS(final UIComponentWriter pWriter, final String pElementId,
-			final Double pHeightRatio, final Double pWidthRatio) throws IllegalArgumentException {
-		Presales_UIUtils.addElementResizeToWorkspaceJS(pWriter, pElementId, true, true, false, 0, 0, pHeightRatio,
-				pWidthRatio);
+	public static void addElementResizeToWorkspaceJS(final UIComponentWriter pWriter, final String pElementId, final Double pHeightRatio, final Double pWidthRatio) throws IllegalArgumentException {
+		Presales_UIUtils.addElementResizeToWorkspaceJS(pWriter, pElementId, true, true, false, 0, 0, pHeightRatio, pWidthRatio);
 	}
 
 	/**
-	 * Add a JavaScript function to size an HTML element according to the workspace
-	 * size.<br>
+	 * Add a JavaScript function to size an HTML element according to the workspace size.<br>
 	 * <br>
-	 * <strong>Note</strong>: EBX 5.9 introduces translucent bottom bar where the
-	 * workspace continue underneath the bottom bar. This methode keeps its behavior
-	 * by resize the element till the top of the bottom bar. For more control, check
-	 * {@link #addElementResizeToWorkspaceJS(UIComponentWriter, String, boolean, boolean, boolean, Integer, Integer, Double, Double)}..
+	 * <strong>Note</strong>: EBX 5.9 introduces translucent bottom bar where the workspace continue underneath the bottom bar. This methode keeps its behavior by resize the element till the top of
+	 * the bottom bar. For more control, check {@link #addElementResizeToWorkspaceJS(UIComponentWriter, String, boolean, boolean, boolean, Integer, Integer, Double, Double)}..
 	 *
 	 * @param pWriter       the writer
 	 * @param pElementId    id of the HTML tag to resize according to the workspace.
 	 * @param pHeightOffset Add an offset to the height.
 	 * @param pWidthOffset  Add an offset to the width.
-	 * @throws IllegalArgumentException if the argument pWriter or pElementId are
-	 *                                  null
+	 * @throws IllegalArgumentException if the argument pWriter or pElementId are null
 	 * @since 1.0.0
 	 */
-	public static void addElementResizeToWorkspaceJS(final UIComponentWriter pWriter, final String pElementId,
-			final Integer pHeightOffset, final Integer pWidthOffset) throws IllegalArgumentException {
-		Presales_UIUtils.addElementResizeToWorkspaceJS(pWriter, pElementId, true, true, false, pHeightOffset,
-				pWidthOffset, 1d, 1d);
+	public static void addElementResizeToWorkspaceJS(final UIComponentWriter pWriter, final String pElementId, final Integer pHeightOffset, final Integer pWidthOffset)
+			throws IllegalArgumentException {
+		Presales_UIUtils.addElementResizeToWorkspaceJS(pWriter, pElementId, true, true, false, pHeightOffset, pWidthOffset, 1d, 1d);
 	}
 
 	/**
-	 * Add a JavaScript function to size an HTML element according to the workspace
-	 * size.<br>
+	 * Add a JavaScript function to size an HTML element according to the workspace size.<br>
 	 * <br>
-	 * <strong>Note</strong>: EBX 5.9 introduces translucent bottom bar where the
-	 * workspace continue underneath the bottom bar. This methode keeps its behavior
-	 * by resize the element till the top of the bottom bar. For more control, check
-	 * {@link #addElementResizeToWorkspaceJS(UIComponentWriter, String, boolean, boolean, boolean, Integer, Integer, Double, Double)}..
+	 * <strong>Note</strong>: EBX 5.9 introduces translucent bottom bar where the workspace continue underneath the bottom bar. This methode keeps its behavior by resize the element till the top of
+	 * the bottom bar. For more control, check {@link #addElementResizeToWorkspaceJS(UIComponentWriter, String, boolean, boolean, boolean, Integer, Integer, Double, Double)}..
 	 *
 	 * @param pWriter       the writer
 	 * @param pElementId    id of the HTML tag to resize according to the workspace.
 	 * @param pHeightOffset Add an offset to the height.
 	 * @param pWidthOffset  Add an offset to the width.
-	 * @param pHeightRatio  The ratio of the workspace height (0.5 for half the
-	 *                      height).
-	 * @param pWidthRatio   The ratio of the workspace width (0.5 for half the
-	 *                      width).
-	 * @throws IllegalArgumentException if the argument pWriter or pElementId are
-	 *                                  null
+	 * @param pHeightRatio  The ratio of the workspace height (0.5 for half the height).
+	 * @param pWidthRatio   The ratio of the workspace width (0.5 for half the width).
+	 * @throws IllegalArgumentException if the argument pWriter or pElementId are null
 	 * @since 1.0.0
 	 */
-	public static void addElementResizeToWorkspaceJS(final UIComponentWriter pWriter, final String pElementId,
-			final Integer pHeightOffset, final Integer pWidthOffset, final Double pHeightRatio,
+	public static void addElementResizeToWorkspaceJS(final UIComponentWriter pWriter, final String pElementId, final Integer pHeightOffset, final Integer pWidthOffset, final Double pHeightRatio,
 			final Double pWidthRatio) throws IllegalArgumentException {
-		Presales_UIUtils.addElementResizeToWorkspaceJS(pWriter, pElementId, true, true, false, pHeightOffset,
-				pWidthOffset, pHeightRatio, pWidthRatio);
+		Presales_UIUtils.addElementResizeToWorkspaceJS(pWriter, pElementId, true, true, false, pHeightOffset, pWidthOffset, pHeightRatio, pWidthRatio);
 	}
 
 	/**
-	 * Add a JavaScript function to size the <strong>width</strong> of an html
-	 * element according to the workspace <strong>width</strong>.<br>
+	 * Add a JavaScript function to size the <strong>width</strong> of an html element according to the workspace <strong>width</strong>.<br>
 	 * <br>
-	 * <strong>Note</strong>: EBX 5.9 introduces translucent bottom bar where the
-	 * workspace continue underneath the bottom bar. This method follows this
-	 * behavior. For more control, check
+	 * <strong>Note</strong>: EBX 5.9 introduces translucent bottom bar where the workspace continue underneath the bottom bar. This method follows this behavior. For more control, check
 	 * {@link #addElementResizeToWorkspaceJS(UIComponentWriter, String, boolean, boolean, boolean, Integer, Integer, Double, Double) }.
 	 *
 	 * @param pWriter    the writer
 	 * @param pElementId id of the HTML tag to resize according to the workspace.
-	 * @throws IllegalArgumentException if the argument pWriter or pElementId are
-	 *                                  null
+	 * @throws IllegalArgumentException if the argument pWriter or pElementId are null
 	 * @since 1.8.0
 	 */
-	public static void addElementResizeWidthToWorkspaceJS(final UIComponentWriter pWriter, final String pElementId)
-			throws IllegalArgumentException {
+	public static void addElementResizeWidthToWorkspaceJS(final UIComponentWriter pWriter, final String pElementId) throws IllegalArgumentException {
 		Presales_UIUtils.addElementResizeToWorkspaceJS(pWriter, pElementId, false, true);
 	}
 
 	/**
-	 * Add form rows for the sub-nodes of a parent with the parent label as first
-	 * row.<br>
-	 * Note: Permissions are not checked, if there are children node but the
-	 * permissions mean there is no displayed node, the title will be displayed.
-	 * Reason is the method can't get the permissions as there is no access to the
-	 * dataset/record with the current method signature.
+	 * Add form rows for the sub-nodes of a parent with the parent label as first row.<br>
+	 * Note: Permissions are not checked, if there are children node but the permissions mean there is no displayed node, the title will be displayed. Reason is the method can't get the permissions as
+	 * there is no access to the dataset/record with the current method signature.
 	 *
 	 * @param pWriter                   the writer
-	 * @param pGroupNode                the node to introspect to add its children
-	 *                                  as form rows
-	 * @param pNodeInformationToExclude the node information to check to exclude a
-	 *                                  node.
+	 * @param pGroupNode                the node to introspect to add its children as form rows
+	 * @param pNodeInformationToExclude the node information to check to exclude a node.
 	 * @throws IllegalArgumentException if the argument pWriter or pNode are null.
 	 * @since 1.0.0
 	 * @see #addTitleFormRow
 	 * @see #addSubNodesFormRow
 	 */
-	public static void addGroupFormRows(final UIFormWriter pWriter, final SchemaNode pGroupNode,
-			final String pNodeInformationToExclude) throws IllegalArgumentException {
+	public static void addGroupFormRows(final UIFormWriter pWriter, final SchemaNode pGroupNode, final String pNodeInformationToExclude) throws IllegalArgumentException {
 		if (pWriter == null) {
 			throw new IllegalArgumentException("pWriter argument shall not be null");
 		}
@@ -541,13 +468,11 @@ public final class Presales_UIUtils {
 	 * Add a script tag to import a javascript file.
 	 *
 	 * @param pWriter   the writer
-	 * @param pLocation The location of the javascript library from
-	 *                  /www/{@literal <locale>} /jscripts
+	 * @param pLocation The location of the javascript library from /www/{@literal <locale>} /jscripts
 	 * @throws IllegalArgumentException if the argument pWriter is null
 	 * @since 1.0.0
 	 */
-	public static void addJsLibrary(final UIComponentWriter pWriter, final String pLocation)
-			throws IllegalArgumentException {
+	public static void addJsLibrary(final UIComponentWriter pWriter, final String pLocation) throws IllegalArgumentException {
 		if (pWriter == null) {
 			throw new IllegalArgumentException("pWriter argument shall not be null");
 		}
@@ -557,6 +482,26 @@ public final class Presales_UIUtils {
 	}
 
 	/**
+	 * Add a script tag to import a javascript file.
+	 *
+	 * @param pWriter     the writer
+	 * @param pLocation   The location of the javascript library from /www/{@literal <locale>} /jscripts
+	 * @param pModuleName The module name
+	 * @throws IllegalArgumentException if the argument pWriter is null
+	 * @since 1.0.0
+	 */
+	public static void addJsLibrary(final UIComponentWriter pWriter, final String pLocation, final String pModuleName) throws IllegalArgumentException {
+		// TODO to be deprecated to use the native pWriter#addJavaScriptDependency
+		if (pWriter == null) {
+			throw new IllegalArgumentException("pWriter argument shall not be null");
+		}
+
+		String location = pWriter.getURLForResource(pModuleName, ResourceType.JSCRIPT, pLocation, pWriter.getLocale());
+		pWriter.add("<script src=\"" + location + "\" type=\"text/javascript\"></script>");
+	}
+
+	/**
+	 * <strong>Using non public API</strong><br>
 	 * Add the label or name of the record with a pop-up icon to open a record.
 	 *
 	 * @param pWriter the writer
@@ -564,8 +509,7 @@ public final class Presales_UIUtils {
 	 * @throws IllegalArgumentException if the argument pWriter or pRecord are null
 	 * @since 1.0.0
 	 */
-	public static void addPopUpLink(final UIComponentWriter pWriter, final Adaptation pRecord)
-			throws IllegalArgumentException {
+	public static void addPopUpLink(final UIComponentWriter pWriter, final Adaptation pRecord) throws IllegalArgumentException {
 		if (pWriter == null) {
 			throw new IllegalArgumentException("pWriter argument shall not be null");
 		}
@@ -578,6 +522,8 @@ public final class Presales_UIUtils {
 	}
 
 	/**
+	 * <strong>Using non public API</strong><br>
+	 * <br>
 	 * Add a label with a pop-up icon to open a record.
 	 *
 	 * @param pWriter the writer
@@ -586,8 +532,9 @@ public final class Presales_UIUtils {
 	 * @throws IllegalArgumentException if the argument pWriter or pRecord are null
 	 * @since 1.0.0
 	 */
-	public static void addPopUpLink(final UIComponentWriter pWriter, final Adaptation pRecord, final String pLabel)
-			throws IllegalArgumentException {
+	public static void addPopUpLink(final UIComponentWriter pWriter, final Adaptation pRecord, final String pLabel) throws IllegalArgumentException {
+		// USING_NON_PUBLIC_API
+
 		if (pWriter == null) {
 			throw new IllegalArgumentException("pWriter argument shall not be null");
 		}
@@ -608,8 +555,7 @@ public final class Presales_UIUtils {
 			pWriter.add("<a href=\"#\" onclick=\"" + jsCommand + "\">");
 			// Insert the preview icon
 			pWriter.add("<span class=\"ebx_Input\">");
-			pWriter.add(
-					"<span class=\"ebx_FlatButton ebx_IconButton ebx_Open\" style=\"text-align:center;vertical-align:middle;\">");
+			pWriter.add("<span class=\"ebx_FlatButton ebx_IconButton ebx_Open\" style=\"text-align:center;vertical-align:middle;\">");
 			pWriter.add("<span class=\"ebx_Icon\"></span>");
 			pWriter.add("</span>");
 			pWriter.add("</span>");
@@ -621,15 +567,12 @@ public final class Presales_UIUtils {
 	 * Add form rows for the sub-nodes of a parent.
 	 *
 	 * @param pWriter                   the writer
-	 * @param pGroupNode                the node to introspect to add its children
-	 *                                  as form rows.
-	 * @param pNodeInformationToExclude the node information to check to exclude a
-	 *                                  node.
+	 * @param pGroupNode                the node to introspect to add its children as form rows.
+	 * @param pNodeInformationToExclude the node information to check to exclude a node.
 	 * @throws IllegalArgumentException if the arguments pWriter or pNode are null.
 	 * @since 1.0.0
 	 */
-	public static void addSubNodesFormRow(final UIFormWriter pWriter, final SchemaNode pGroupNode,
-			final String pNodeInformationToExclude) throws IllegalArgumentException {
+	public static void addSubNodesFormRow(final UIFormWriter pWriter, final SchemaNode pGroupNode, final String pNodeInformationToExclude) throws IllegalArgumentException {
 		if (pWriter == null) {
 			throw new IllegalArgumentException("pWriter argument shall not be null");
 		}
@@ -668,13 +611,11 @@ public final class Presales_UIUtils {
 	 * @param pWriter the writer
 	 * @param pLabel  The label. Displayed at the top of the tile.
 	 * @param pValue  The value. Displayed at the center of the tile.
-	 * @param pInfo   The additional information. Displayed at the bottom of the
-	 *                tile.
+	 * @param pInfo   The additional information. Displayed at the bottom of the tile.
 	 * @throws IllegalArgumentException if the argument pWriter is null.
 	 * @since 1.2.0
 	 */
-	public static void addTile(final UIComponentWriter pWriter, final String pLabel, final String pValue,
-			final String pInfo) throws IllegalArgumentException {
+	public static void addTile(final UIComponentWriter pWriter, final String pLabel, final String pValue, final String pInfo) throws IllegalArgumentException {
 		Presales_UIUtils.addTile(pWriter, pLabel, pValue, pInfo, 0, 0, null);
 	}
 
@@ -684,15 +625,13 @@ public final class Presales_UIUtils {
 	 * @param pWriter the writer
 	 * @param pLabel  The label. Displayed at the top of the tile.
 	 * @param pValue  The value. Displayed at the center of the tile.
-	 * @param pInfo   The additional information. Displayed at the bottom of the
-	 *                tile.
+	 * @param pInfo   The additional information. Displayed at the bottom of the tile.
 	 * @param pWidth  The width in px of the tile (Default is 90).
 	 * @param pHeight The height in px of the tile (Default is 90).
 	 * @throws IllegalArgumentException if the argument pWriter is null.
 	 * @since 1.0.0
 	 */
-	public static void addTile(final UIComponentWriter pWriter, final String pLabel, final String pValue,
-			final String pInfo, final int pWidth, final int pHeight) throws IllegalArgumentException {
+	public static void addTile(final UIComponentWriter pWriter, final String pLabel, final String pValue, final String pInfo, final int pWidth, final int pHeight) throws IllegalArgumentException {
 		Presales_UIUtils.addTile(pWriter, pLabel, pValue, pInfo, pWidth, pHeight, null);
 	}
 
@@ -702,16 +641,14 @@ public final class Presales_UIUtils {
 	 * @param pWriter          the writer
 	 * @param pLabel           The label. Displayed at the top of the tile.
 	 * @param pValue           The value. Displayed at the center of the tile.
-	 * @param pInfo            The additional information. Displayed at the bottom
-	 *                         of the tile.
+	 * @param pInfo            The additional information. Displayed at the bottom of the tile.
 	 * @param pWidth           The width in px of the tile (Default is 90).
 	 * @param pHeight          The height in px of the tile (Default is 90).
 	 * @param pBackgroundColor the background color in hexa (Default is #FAFAFA).
 	 * @throws IllegalArgumentException if the argument pWriter is null.
 	 * @since 1.2.0
 	 */
-	public static void addTile(final UIComponentWriter pWriter, String pLabel, String pValue, String pInfo, int pWidth,
-			int pHeight, String pBackgroundColor) throws IllegalArgumentException {
+	public static void addTile(final UIComponentWriter pWriter, String pLabel, String pValue, String pInfo, int pWidth, int pHeight, String pBackgroundColor) throws IllegalArgumentException {
 		if (pWriter == null) {
 			throw new IllegalArgumentException("pWriter argument shall not be null");
 		}
@@ -735,8 +672,7 @@ public final class Presales_UIUtils {
 			pHeight = 90;
 		}
 
-		String containerStyle = "background-color:" + pBackgroundColor
-				+ ";box-sizing: border-box;border: 1px solid #EEEEEE;text-align:center;font-size:1em;position:relative;border-radius:4px;";
+		String containerStyle = "background-color:" + pBackgroundColor + ";box-sizing: border-box;border: 1px solid #EEEEEE;text-align:center;font-size:1em;position:relative;border-radius:4px;";
 		containerStyle += "width:" + pWidth + "px;";
 		containerStyle += "height:" + pHeight + "px;";
 
@@ -771,14 +707,12 @@ public final class Presales_UIUtils {
 	 * @param pWriter          the writer
 	 * @param pLabel           The label. Displayed at the top of the tile.
 	 * @param pValue           The value. Displayed at the center of the tile.
-	 * @param pInfo            The additional information. Displayed at the bottom
-	 *                         of the tile.
+	 * @param pInfo            The additional information. Displayed at the bottom of the tile.
 	 * @param pBackgroundColor the background color in hexa (Default is #FAFAFA).
 	 * @throws IllegalArgumentException if the argument pWriter is null.
 	 * @since 1.2.0
 	 */
-	public static void addTile(final UIComponentWriter pWriter, final String pLabel, final String pValue,
-			final String pInfo, final String pBackgroundColor) throws IllegalArgumentException {
+	public static void addTile(final UIComponentWriter pWriter, final String pLabel, final String pValue, final String pInfo, final String pBackgroundColor) throws IllegalArgumentException {
 		Presales_UIUtils.addTile(pWriter, pLabel, pValue, pInfo, 0, 0, pBackgroundColor);
 	}
 
@@ -790,8 +724,7 @@ public final class Presales_UIUtils {
 	 * @throws IllegalArgumentException if the argument pWriter is null
 	 * @since 1.0.0
 	 */
-	public static void addTitleFormRow(final UIFormWriter pWriter, final String pTitle)
-			throws IllegalArgumentException {
+	public static void addTitleFormRow(final UIFormWriter pWriter, final String pTitle) throws IllegalArgumentException {
 		if (pWriter == null) {
 			throw new IllegalArgumentException("pWriter argument shall not be null");
 		}
@@ -806,8 +739,7 @@ public final class Presales_UIUtils {
 	}
 
 	/**
-	 * Gets the JavaScript instruction calling the getDate function of the EBX
-	 * private date widget.
+	 * Gets the JavaScript instruction calling the getDate function of the EBX private date widget.
 	 *
 	 * @param pId the id of the targeted date widget
 	 * @return the JavaScript instruction
@@ -830,8 +762,7 @@ public final class Presales_UIUtils {
 	 * @throws IllegalArgumentException if one of the argument is null
 	 * @since 1.0.0
 	 */
-	public static String getPopUpLinkCommand(final UIComponentWriter pWriter, final Adaptation pRecord)
-			throws IllegalArgumentException {
+	public static String getPopUpLinkCommand(final UIComponentWriter pWriter, final Adaptation pRecord) throws IllegalArgumentException {
 		if (pWriter == null) {
 			throw new IllegalArgumentException("pWriter argument shall not be null");
 		}
@@ -846,21 +777,16 @@ public final class Presales_UIUtils {
 	}
 
 	/**
-	 * Modifies style properties of an html element. The method has to be called
-	 * after the definition of the html element in the page.
+	 * Modifies style properties of an html element. The method has to be called after the definition of the html element in the page.
 	 *
 	 * @param writer        the writer of the html page
 	 * @param idHtmlElement id of the html element
-	 * @param properties    map of properties (name and value) to change on the html
-	 *                      element; the property name must be a html recognized
-	 *                      property of attribute style
-	 * @throws IllegalArgumentException when writer or idHtmlElement or properties
-	 *                                  is null
+	 * @param properties    map of properties (name and value) to change on the html element; the property name must be a html recognized property of attribute style
+	 * @throws IllegalArgumentException when writer or idHtmlElement or properties is null
 	 * @author LLU
 	 * @since 1.4.0
 	 */
-	public static void modifyHtmlElement(final UIJavaScriptWriter writer, final String idHtmlElement,
-			final Map<String, String> properties) throws IllegalArgumentException {
+	public static void modifyHtmlElement(final UIJavaScriptWriter writer, final String idHtmlElement, final Map<String, String> properties) throws IllegalArgumentException {
 		if (writer == null) {
 			throw new IllegalArgumentException("writer shall not be null");
 		}
@@ -888,6 +814,179 @@ public final class Presales_UIUtils {
 	}
 
 	/**
+	 * <strong>Using non public API</strong><br>
+	 * <br>
+	 * Modifies style properties of the Insight graph tooltip. <br>
+	 * Default values applied :
+	 * <ul>
+	 * <li>backgroundColor : #F0F0D0</li>
+	 * <li>borderColor : #C0C0C0</li>
+	 * <li>padding : #F0F0D0</li>
+	 * </ul>
+	 * <b>WARNING</b><br>
+	 * There is only one tooltip element on a html page for insight, even if there are several graphs. Only one call per page to this method is necessary. <br>
+	 * <br>
+	 *
+	 * @param writer the writer of the html page
+	 * @throws IllegalArgumentException when writer is null
+	 * @author LLU
+	 * @see Presales_UIUtils#modifyInsightChartTooltip(UIJavaScriptWriter, Map)
+	 * @since 1.4.0
+	 */
+	public static void modifyInsightChartTooltip(final UIJavaScriptWriter writer) throws IllegalArgumentException {
+		// USING_NON_PUBLIC_API
+
+		Map<String, String> styleProperties = new HashMap<>();
+		styleProperties.put("backgroundColor", "#F0F0D0");
+		styleProperties.put("borderColor", "#C0C0C0");
+		styleProperties.put("padding", "5px 10px");
+		Presales_UIUtils.modifyInsightChartTooltip(writer, styleProperties);
+	}
+
+	/**
+	 * <strong>Using non public API</strong><br>
+	 * <br>
+	 * Modifies style properties of the Insight graph tooltip. <br>
+	 * <br>
+	 * <b>WARNING</b><br>
+	 * There is only one tooltip element on a html page for insight, even if there are several graphs. Only one call per page to this method is necessary.
+	 *
+	 * @param writer     the writer of the html page
+	 * @param properties map of properties (name and value) to change on the tooltip; the property name must be a html recognized property of attribute style
+	 * @throws IllegalArgumentException when writer or properties is null
+	 * @author LLU
+	 * @see Presales_UIUtils#modifyHtmlElement(UIJavaScriptWriter, String, Map)
+	 * @since 1.4.0
+	 */
+	public static void modifyInsightChartTooltip(final UIJavaScriptWriter writer, final Map<String, String> properties) throws IllegalArgumentException {
+		// USING_NON_PUBLIC_API
+
+		Presales_UIUtils.modifyHtmlElement(writer, "tooltip", properties);
+	}
+
+	/**
+	 * <strong>Using non public API</strong><br>
+	 * <br>
+	 * Modifies style properties of the Insight graph tooltip. <br>
+	 * <br>
+	 * <b>WARNING</b><br>
+	 * There is only one tooltip element on a html page for insight, even if there are several graphs. Only one call per page to this method is necessary.
+	 *
+	 * @param writer          the writer of the html page
+	 * @param backgroundColor the backgroundColor as the value accepted by html (example : green or #123456)
+	 * @param borderColor     the borderColor as the value accepted by html (example : green or #123456)
+	 * @throws IllegalArgumentException when writer or both backgroundColor and borderColor are null
+	 * @see Presales_UIUtils#modifyInsightChartTooltip(UIJavaScriptWriter, Map)
+	 * @since 1.4.0
+	 */
+	public static void modifyInsightChartTooltip(final UIJavaScriptWriter writer, final String backgroundColor, final String borderColor) throws IllegalArgumentException {
+		// USING_NON_PUBLIC_API
+
+		boolean argumentFilled = false;
+		Map<String, String> styleProperties = new HashMap<>();
+		if (backgroundColor != null && backgroundColor.trim().length() > 0) {
+			styleProperties.put("backgroundColor", backgroundColor);
+			argumentFilled = true;
+		}
+		if (borderColor != null && borderColor.trim().length() > 0) {
+			styleProperties.put("borderColor", borderColor);
+			argumentFilled = true;
+		}
+		if (!argumentFilled) {
+			throw new IllegalArgumentException("At least one of backgroundColor or borderColor shall not be null");
+		}
+		Presales_UIUtils.modifyInsightChartTooltip(writer, styleProperties);
+	}
+
+	/**
+	 * <strong>Using non public API</strong><br>
+	 * Standardize the width of field labels in different table form row. In a single page (or a single tab), all field label will be aligned whatever they are in different tableFormRow. Tabs are
+	 * considered independent by default, to override this behavior, check the method {@link #standardizeFieldLabelWidth(UIComponentWriter, boolean) standardizeFieldLabelWidth(UIFormWriter,
+	 * boolean)}.<br>
+	 * <br>
+	 * This should be used in a writePane of a custom layout. For a layout with multiple tabs, only a single call in one of the writePane is necessary.<br>
+	 * <br>
+	 * This function is using ebx internal terms not provided by the public API. Further EBX version may break it.
+	 *
+	 * @param pWriter the writer
+	 * @throws IllegalArgumentException if the argument pWriter is null.
+	 * @since 1.2.0
+	 */
+	public static void standardizeFieldLabelWidth(final UIComponentWriter pWriter) throws IllegalArgumentException {
+		Presales_UIUtils.standardizeFieldLabelWidth(pWriter, true);
+	}
+
+	/**
+	 * <strong>Using non public API</strong><br>
+	 * <br>
+	 * Standardize the width of field labels in different table form row. In a single page (or a single tab), all field label will be aligned whatever they are in different tableFormRow.<br>
+	 * <br>
+	 * This should be used in a writePane of a custom layout. For a layout with multiple tabs, only a single call in one of the writePane is necessary.<br>
+	 * <br>
+	 * This function is using EBX internal terms not provided by the public API. Further EBX version may break it.
+	 *
+	 * @param pWriter         the writer
+	 * @param pIndependantTab if true, field label width will be standardize independently in each tab, if false the same width will be applied in all tabs.
+	 * @throws IllegalArgumentException if the argument pWriter is null.
+	 * @since 1.2.0
+	 */
+	public static void standardizeFieldLabelWidth(final UIComponentWriter pWriter, final boolean pIndependantTab) throws IllegalArgumentException {
+		// USING_NON_PUBLIC_API
+
+		if (pWriter == null) {
+			throw new IllegalArgumentException("pWriter argument shall not be null");
+		}
+
+		pWriter.addJS_cr();
+		pWriter.addJS_cr("function setLabelWidth(id) {");
+		pWriter.addJS_cr("    var query = 'td.ebx_Label';");
+		pWriter.addJS_cr("    if (id) {");
+		pWriter.addJS_cr("        query = '#' + id + ' ' + query;");
+		pWriter.addJS_cr("    }");
+		pWriter.addJS_cr("    var tdLabelList = document.querySelectorAll(query);");
+		pWriter.addJS_cr("    var maxWidth = 0;");
+		pWriter.addJS_cr("    for (var i = 0; i < tdLabelList.length; i++) {");
+		pWriter.addJS_cr("        var tdLabel = tdLabelList[i];");
+		pWriter.addJS_cr("        var width = tdLabel.clientWidth;");
+		pWriter.addJS_cr("        if (width > maxWidth) {");
+		pWriter.addJS_cr("            maxWidth = width;");
+		pWriter.addJS_cr("        }");
+		pWriter.addJS_cr("    }");
+
+		StringBuilder productInfo = new StringBuilder();
+		VM.properties.getProductInfo(productInfo);
+		if (productInfo.toString().contains("5.9")) // TODO To find another way
+		{
+			pWriter.addJS_cr("    var defaultPadding = 2;");
+		} else {
+			pWriter.addJS_cr("    var defaultPadding = 17;");
+		}
+
+		pWriter.addJS_cr("    for (var i = 0; i < tdLabelList.length; i++) {");
+		pWriter.addJS_cr("        var tdLabel = tdLabelList[i];");
+		pWriter.addJS_cr("        tdLabel.style.minWidth = (maxWidth - defaultPadding) + 'px';");
+		pWriter.addJS_cr("    }");
+		pWriter.addJS_cr("}");
+		pWriter.addJS_cr();
+		pWriter.addJS_cr("(function () {");
+		if (pIndependantTab) {
+			pWriter.addJS_cr("    var tabs = document.querySelectorAll('.ebx_WorkspaceFormTabContent');");
+			pWriter.addJS_cr("    if (tabs.length > 0) {");
+			pWriter.addJS_cr("        for (var i = 0; i < tabs.length; i++) {");
+			pWriter.addJS_cr("            var tab = tabs[i];");
+			pWriter.addJS_cr("            setLabelWidth(tab.id);");
+			pWriter.addJS_cr("        }");
+			pWriter.addJS_cr("    } else {");
+			pWriter.addJS_cr("        setLabelWidth();");
+			pWriter.addJS_cr("    }");
+		} else {
+			pWriter.addJS_cr("    setLabelWidth();");
+		}
+		pWriter.addJS_cr("})();");
+		pWriter.addJS_cr();
+	}
+
+	/**
 	 * Introspect the schema for the addColumnsLayout methods.
 	 *
 	 * @param pNodes                    the nodes
@@ -895,8 +994,7 @@ public final class Presales_UIUtils {
 	 * @return the list
 	 * @since 1.2.0
 	 */
-	private static List<SchemaNode> addColumnsLayoutIntrospectSchema(final List<SchemaNode> pNodes,
-			final String pNodeInformationToExclude) {
+	private static List<SchemaNode> addColumnsLayoutIntrospectSchema(final List<SchemaNode> pNodes, final String pNodeInformationToExclude) {
 		List<SchemaNode> keptNodes = new ArrayList<>();
 		if (pNodes == null || pNodes.isEmpty()) {
 			return keptNodes;
@@ -914,8 +1012,7 @@ public final class Presales_UIUtils {
 				keptNodes.add(node);
 			} else {
 				List<SchemaNode> children = Arrays.asList(node.getNodeChildren());
-				keptNodes
-						.addAll(Presales_UIUtils.addColumnsLayoutIntrospectSchema(children, pNodeInformationToExclude));
+				keptNodes.addAll(Presales_UIUtils.addColumnsLayoutIntrospectSchema(children, pNodeInformationToExclude));
 			}
 		}
 		return keptNodes;

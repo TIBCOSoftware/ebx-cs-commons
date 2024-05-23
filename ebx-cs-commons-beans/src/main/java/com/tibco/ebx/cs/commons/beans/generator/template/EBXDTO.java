@@ -6,7 +6,8 @@ package com.tibco.ebx.cs.commons.beans.generator.template;
  * @author Mickaël Chevalier
  * @since 1.1.6
  *
+ * @param <EBXBean> EBX bean
  */
-public interface EBXDTO {
+public class EBXDTO<EBXBean> {
 
 }

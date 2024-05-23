@@ -41,16 +41,12 @@ public final class UIFormGroupPane implements UIFormPane {
 	 * Instantiates a new UIFormPane including the sub-nodes of the group(s).
 	 *
 	 * @param pNodes                    the list of nodes of the groups.
-	 * @param pAddTitle                 the boolean defining if titles (label of the
-	 *                                  parent node) is added as first row of the
-	 *                                  group.
-	 * @param pNodeInformationToExclude the node information to check to exclude a
-	 *                                  node.
+	 * @param pAddTitle                 the boolean defining if titles (label of the parent node) is added as first row of the group.
+	 * @param pNodeInformationToExclude the node information to check to exclude a node.
 	 * @throws IllegalArgumentException if pNodes is null.
 	 * @since 1.4.0
 	 */
-	public UIFormGroupPane(final ArrayList<SchemaNode> pNodes, final boolean pAddTitle,
-			final String pNodeInformationToExclude) throws IllegalArgumentException {
+	public UIFormGroupPane(final ArrayList<SchemaNode> pNodes, final boolean pAddTitle, final String pNodeInformationToExclude) throws IllegalArgumentException {
 		super();
 		if (pNodes == null) {
 			throw new IllegalArgumentException("pNodes argument shall not be null");
@@ -64,13 +60,11 @@ public final class UIFormGroupPane implements UIFormPane {
 	 * Instantiates a new UIFormPane including the sub-nodes of the group(s).
 	 *
 	 * @param pNodes                    the list of nodes of the groups.
-	 * @param pNodeInformationToExclude the node information to check to exclude a
-	 *                                  node.
+	 * @param pNodeInformationToExclude the node information to check to exclude a node.
 	 * @throws IllegalArgumentException if pNodes is null.
 	 * @since 1.4.0
 	 */
-	public UIFormGroupPane(final ArrayList<SchemaNode> pNodes, final String pNodeInformationToExclude)
-			throws IllegalArgumentException {
+	public UIFormGroupPane(final ArrayList<SchemaNode> pNodes, final String pNodeInformationToExclude) throws IllegalArgumentException {
 		super();
 		if (pNodes == null) {
 			throw new IllegalArgumentException("pNodes argument shall not be null");
@@ -98,15 +92,12 @@ public final class UIFormGroupPane implements UIFormPane {
 	 * Instantiates a new UIFormPane including the sub-nodes of the group(s).
 	 *
 	 * @param pNode                     the node of the group.
-	 * @param pAddTitle                 the boolean defining if a title (label of
-	 *                                  the parent node) is added as first row.
-	 * @param pNodeInformationToExclude the node information to check to exclude a
-	 *                                  node.
+	 * @param pAddTitle                 the boolean defining if a title (label of the parent node) is added as first row.
+	 * @param pNodeInformationToExclude the node information to check to exclude a node.
 	 * @throws IllegalArgumentException if pNode is null.
 	 * @since 1.0.0
 	 */
-	public UIFormGroupPane(final SchemaNode pNode, final boolean pAddTitle, final String pNodeInformationToExclude)
-			throws IllegalArgumentException {
+	public UIFormGroupPane(final SchemaNode pNode, final boolean pAddTitle, final String pNodeInformationToExclude) throws IllegalArgumentException {
 		super();
 		if (pNode == null) {
 			throw new IllegalArgumentException("pNode argument shall not be null");
@@ -120,13 +111,11 @@ public final class UIFormGroupPane implements UIFormPane {
 	 * Instantiates a new UIFormPane including the sub-nodes of the group(s).
 	 *
 	 * @param pNode                     the node of the group.
-	 * @param pNodeInformationToExclude the node information to check to exclude a
-	 *                                  node.
+	 * @param pNodeInformationToExclude the node information to check to exclude a node.
 	 * @throws IllegalArgumentException if pNode is null.
 	 * @since 1.0.0
 	 */
-	public UIFormGroupPane(final SchemaNode pNode, final String pNodeInformationToExclude)
-			throws IllegalArgumentException {
+	public UIFormGroupPane(final SchemaNode pNode, final String pNodeInformationToExclude) throws IllegalArgumentException {
 		super();
 		if (pNode == null) {
 			throw new IllegalArgumentException("pNode argument shall not be null");
@@ -140,13 +129,11 @@ public final class UIFormGroupPane implements UIFormPane {
 	 *
 	 * @param pNode                     the node of the group.
 	 * @param pTitle                    the title added as first row.
-	 * @param pNodeInformationToExclude the node information to check to exclude a
-	 *                                  node.
+	 * @param pNodeInformationToExclude the node information to check to exclude a node.
 	 * @throws IllegalArgumentException if pNode is null.
 	 * @since 1.0.0
 	 */
-	public UIFormGroupPane(final SchemaNode pNode, final String pTitle, final String pNodeInformationToExclude)
-			throws IllegalArgumentException {
+	public UIFormGroupPane(final SchemaNode pNode, final String pTitle, final String pNodeInformationToExclude) throws IllegalArgumentException {
 		super();
 		if (pNode == null) {
 			throw new IllegalArgumentException("pNode argument shall not be null");
@@ -237,5 +224,6 @@ public final class UIFormGroupPane implements UIFormPane {
 			}
 			Presales_UIUtils.addColumnsLayout(pWriter, node, this.nbColumn, this.style, this.nodeInformationToExclude);
 		}
+		Presales_UIUtils.standardizeFieldLabelWidth(pWriter);
 	}
 }

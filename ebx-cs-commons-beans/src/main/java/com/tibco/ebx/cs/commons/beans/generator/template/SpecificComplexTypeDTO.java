@@ -8,5 +8,5 @@ package com.tibco.ebx.cs.commons.beans.generator.template;
  *
  * @param <T> Object
  */
-public interface SpecificComplexTypeDTO<T extends Object> extends EBXDTO {
+public abstract class SpecificComplexTypeDTO<T extends Object> extends EBXDTO<T> {
 }

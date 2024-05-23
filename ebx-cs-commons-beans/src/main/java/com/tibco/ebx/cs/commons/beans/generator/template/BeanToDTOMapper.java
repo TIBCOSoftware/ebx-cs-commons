@@ -15,7 +15,7 @@ import com.tibco.ebx.cs.commons.lib.exception.EBXCommonsException;
  * @param <B> TableBean type
  * @param <T> DTO type
  */
-public abstract class BeanToDTOMapper<B extends Object, T extends Object> {
+public abstract class BeanToDTOMapper<B extends Object, T extends EBXDTO<B>> {
 
 	protected abstract B getBean(Adaptation pDataset, T pDTO, Optional<SessionPermissions> pPermissions) throws EBXCommonsException;
 

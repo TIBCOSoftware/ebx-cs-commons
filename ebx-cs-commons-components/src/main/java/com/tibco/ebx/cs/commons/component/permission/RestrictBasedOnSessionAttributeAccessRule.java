@@ -1,6 +1,7 @@
 package com.tibco.ebx.cs.commons.component.permission;
 
 import com.onwbp.adaptation.Adaptation;
+import com.onwbp.base.misc.ObjectUtils;
 import com.orchestranetworks.schema.SchemaNode;
 import com.orchestranetworks.service.AccessPermission;
 import com.orchestranetworks.service.AccessRule;
@@ -8,9 +9,9 @@ import com.orchestranetworks.service.Session;
 
 /**
  * Restrict a field to read only or hidden based on the value of a session attribute. To check for a session attribute being <code>null</code>, pass in <code>null</code> as the value. To check for it
- * not being <code>null</code>, pass in <code>NOT-NULL</code> as the value. <<<<<<< HEAD =======
+ * not being <code>null</code>, pass in <code>NOT-NULL</code> as the value.
  * 
- * @author Mickaël Chevalier >>>>>>> master
+ * @author Mickaël Chevalier
  */
 public class RestrictBasedOnSessionAttributeAccessRule implements AccessRule {
 	/**
@@ -41,7 +42,7 @@ public class RestrictBasedOnSessionAttributeAccessRule implements AccessRule {
 		Object value = session.getAttribute(attributeName);
 		// Restrict it if we're looking for NOT-NULL and the value isn't null,
 		// or if the value matches (including nulls)
-		if ((NOT_NULL.equals(attributeValue) && value != null) || java.util.Objects.equals(value, attributeValue)) {
+		if ((NOT_NULL.equals(attributeValue) && value != null) || ObjectUtils.equals(value, attributeValue)) {
 			return restrictedPermission;
 		}
 		return AccessPermission.getReadWrite();

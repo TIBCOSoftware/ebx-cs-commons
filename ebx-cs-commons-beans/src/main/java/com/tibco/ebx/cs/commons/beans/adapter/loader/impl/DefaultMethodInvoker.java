@@ -7,26 +7,22 @@ import java.lang.reflect.Method;
 
 /**
  * Implementation of the default methods invocation in proxies
- *
+ * 
  * @author Gilles Mayer
  */
 enum DefaultMethodInvoker {
 
 	/**
-	 * Compatible with java 1.8, 9, 11 but deprecated since 9. Private constructor
-	 * takes three arguments in java 14. Very slow with the latest updates 1.8
+	 * Compatible with java 1.8, 9, 11 but deprecated since 9. Private constructor takes three arguments in java 14. Very slow with the latest updates 1.8
 	 */
 	PRIVATE_CONSTRUCTOR {
 		@Override
-		Object invokeDefaultMethod(final Class<?> iface, final Object proxy, final Method method, final Object[] args)
-				throws Throwable {
-			Constructor<MethodHandles.Lookup> constructor = MethodHandles.Lookup.class
-					.getDeclaredConstructor(Class.class, Integer.TYPE);
-			if (constructor.trySetAccessible()) {
+		Object invokeDefaultMethod(final Class<?> iface, final Object proxy, final Method method, final Object[] args) throws Throwable {
+			Constructor<MethodHandles.Lookup> constructor = MethodHandles.Lookup.class.getDeclaredConstructor(Class.class, Integer.TYPE);
+			if (!constructor.isAccessible()) {
 				constructor.setAccessible(true);
 			}
-			return constructor.newInstance(iface, MethodHandles.Lookup.PUBLIC | MethodHandles.Lookup.PRIVATE)
-					.unreflectSpecial(method, iface).bindTo(proxy).invokeWithArguments(args);
+			return constructor.newInstance(iface, MethodHandles.Lookup.PUBLIC | MethodHandles.Lookup.PRIVATE).unreflectSpecial(method, iface).bindTo(proxy).invokeWithArguments(args);
 		}
 	},
 
@@ -35,12 +31,9 @@ enum DefaultMethodInvoker {
 	 */
 	FIND_SPECIAL {
 		@Override
-		Object invokeDefaultMethod(final Class<?> iface, final Object proxy, final Method method, final Object[] args)
-				throws Throwable {
-			return MethodHandles.lookup()
-					.findSpecial(iface, method.getName(),
-							MethodType.methodType(method.getReturnType(), method.getParameterTypes()), iface)
-					.bindTo(proxy).invokeWithArguments(args);
+		Object invokeDefaultMethod(final Class<?> iface, final Object proxy, final Method method, final Object[] args) throws Throwable {
+			return MethodHandles.lookup().findSpecial(iface, method.getName(), MethodType.methodType(method.getReturnType(), method.getParameterTypes()), iface).bindTo(proxy)
+					.invokeWithArguments(args);
 		}
 	};
 

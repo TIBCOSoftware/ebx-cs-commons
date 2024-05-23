@@ -13,12 +13,12 @@ import com.tibco.ebx.cs.commons.lib.utils.CommonsConstants;
 import com.tibco.ebx.cs.commons.ui.util.Presales_UIUtils;
 
 /**
- * The Class Timeline allows defining and drawing a timeline graphical
- * representation of items.
+ * The Class Timeline allows defining and drawing a timeline graphical representation of items.
  *
  * @author Aurélien Ticot
  * @since 1.0.0
  */
+@SuppressWarnings("javadoc")
 public final class Timeline {
 	public static final String JS_VARNAME_TIMELINE = "timeline";
 	public static final String JS_VARNAME_OPTIONS = "options";
@@ -48,22 +48,14 @@ public final class Timeline {
 	protected static final String CUSTOM_TIME_CALENDAR_PREFIX = "customTimeUser";
 
 	/**
-	 * Format the date to be included in JavaScript code. It uses the javascript
-	 * library moment, allowing to better manage date manipulation on client side.
-	 * Moment especially provides startOf and endOf methods to return the start /
-	 * end of the day (or month, year ...) from an exact date. Loading the ressource
-	 * moment.js file is required.
+	 * Format the date to be included in JavaScript code. It uses the javascript library moment, allowing to better manage date manipulation on client side. Moment especially provides startOf and
+	 * endOf methods to return the start / end of the day (or month, year ...) from an exact date. Loading the ressource moment.js file is required.
 	 *
 	 * @param date    the date to format.
-	 * @param startOf a boolean setting if the returned moment date shall use the
-	 *                .startOf(type) method.
-	 * @param endOf   a boolean setting if the returned moment date shall use the
-	 *                .endOf(type) method.
-	 * @param type    a string setting the type of startOf / endOf to use. Values
-	 *                are: minute, hour, day, month, year and can be get from
-	 *                TimelineOptions.Snap class.
-	 * @return the moment date: moment(215678943) or
-	 *         moment(215678943).startOf('day') or moment(215678943).endOf('day').
+	 * @param startOf a boolean setting if the returned moment date shall use the .startOf(type) method.
+	 * @param endOf   a boolean setting if the returned moment date shall use the .endOf(type) method.
+	 * @param type    a string setting the type of startOf / endOf to use. Values are: minute, hour, day, month, year and can be get from TimelineOptions.Snap class.
+	 * @return the moment date: moment(215678943) or moment(215678943).startOf('day') or moment(215678943).endOf('day').
 	 * @since 1.0.0
 	 */
 	protected static String formatDate(final Date date, final boolean startOf, final boolean endOf, final String type) {
@@ -170,8 +162,7 @@ public final class Timeline {
 	/**
 	 * Define the potentially required javascript variables.
 	 *
-	 * @param pDeclaration a map of Strings with the variable name as key and the
-	 *                     variable value as value of the map.
+	 * @param pDeclaration a map of Strings with the variable name as key and the variable value as value of the map.
 	 * @since 1.0.0
 	 */
 	public void addVariableDeclaration(final HashMap<String, String> pDeclaration) {
@@ -270,6 +261,9 @@ public final class Timeline {
 	 * @since 1.0.0
 	 */
 	private void addDependencies(final UIComponentWriter pWriter) {
+		Presales_UIUtils.addJsLibrary(pWriter, "vis.js", CommonsConstants.MODULE_NAME);
+		Presales_UIUtils.addJsLibrary(pWriter, "moment.js", CommonsConstants.MODULE_NAME);
+		Presales_UIUtils.addJsLibrary(pWriter, "moment-range.js", CommonsConstants.MODULE_NAME);
 		Presales_UIUtils.addCssLink(pWriter, "vis.css", CommonsConstants.MODULE_NAME);
 	}
 
@@ -338,8 +332,7 @@ public final class Timeline {
 	private void addMenuCustomDate(final UIComponentWriter pWriter) {
 		pWriter.add("<div style=\"margin:10px 0;float:left;\">");
 
-		UIButtonSpecJSAction asof = new UIButtonSpecJSAction(Messages.getInfo(this.getClass(), "menu.AsOf"),
-				Timeline.JS_FUNCNAME_MENU_ASOF + "();");
+		UIButtonSpecJSAction asof = new UIButtonSpecJSAction(Messages.getInfo(this.getClass(), "menu.AsOf"), Timeline.JS_FUNCNAME_MENU_ASOF + "();");
 		pWriter.addButtonJavaScript(asof);
 
 		Calendar customTime = Calendar.getInstance();
@@ -363,28 +356,22 @@ public final class Timeline {
 	private void addMenuNavigation(final UIComponentWriter pWriter) {
 		pWriter.add("<div style=\"margin:10px 0;float:right;\">");
 
-		UIButtonSpecJSAction fit = new UIButtonSpecJSAction(Messages.getInfo(this.getClass(), "menu.Fit"),
-				Timeline.JS_FUNCNAME_MENU_FIT + "();");
+		UIButtonSpecJSAction fit = new UIButtonSpecJSAction(Messages.getInfo(this.getClass(), "menu.Fit"), Timeline.JS_FUNCNAME_MENU_FIT + "();");
 		pWriter.addButtonJavaScript(fit);
 
-		UIButtonSpecJSAction reset = new UIButtonSpecJSAction(Messages.getInfo(this.getClass(), "menu.Reset"),
-				Timeline.JS_FUNCNAME_MENU_RESET + "();");
+		UIButtonSpecJSAction reset = new UIButtonSpecJSAction(Messages.getInfo(this.getClass(), "menu.Reset"), Timeline.JS_FUNCNAME_MENU_RESET + "();");
 		pWriter.addButtonJavaScript(reset);
 
-		UIButtonSpecJSAction zoomIn = new UIButtonSpecJSAction(Messages.getInfo(this.getClass(), "menu.ZoomIn"),
-				Timeline.JS_FUNCNAME_MENU_ZOOM + "(-" + this.options.getZoomStep() + ");");
+		UIButtonSpecJSAction zoomIn = new UIButtonSpecJSAction(Messages.getInfo(this.getClass(), "menu.ZoomIn"), Timeline.JS_FUNCNAME_MENU_ZOOM + "(-" + this.options.getZoomStep() + ");");
 		pWriter.addButtonJavaScript(zoomIn);
 
-		UIButtonSpecJSAction zoomOut = new UIButtonSpecJSAction(Messages.getInfo(this.getClass(), "menu.ZoomOut"),
-				Timeline.JS_FUNCNAME_MENU_ZOOM + "(" + this.options.getZoomStep() + ");");
+		UIButtonSpecJSAction zoomOut = new UIButtonSpecJSAction(Messages.getInfo(this.getClass(), "menu.ZoomOut"), Timeline.JS_FUNCNAME_MENU_ZOOM + "(" + this.options.getZoomStep() + ");");
 		pWriter.addButtonJavaScript(zoomOut);
 
-		UIButtonSpecJSAction moveLeft = new UIButtonSpecJSAction(Messages.getInfo(this.getClass(), "menu.MoveLeft"),
-				Timeline.JS_FUNCNAME_MENU_MOVE + "(" + this.options.getMoveStep() + ");");
+		UIButtonSpecJSAction moveLeft = new UIButtonSpecJSAction(Messages.getInfo(this.getClass(), "menu.MoveLeft"), Timeline.JS_FUNCNAME_MENU_MOVE + "(" + this.options.getMoveStep() + ");");
 		pWriter.addButtonJavaScript(moveLeft);
 
-		UIButtonSpecJSAction moveRight = new UIButtonSpecJSAction(Messages.getInfo(this.getClass(), "menu.MoveRight"),
-				Timeline.JS_FUNCNAME_MENU_MOVE + "(-" + this.options.getMoveStep() + ");");
+		UIButtonSpecJSAction moveRight = new UIButtonSpecJSAction(Messages.getInfo(this.getClass(), "menu.MoveRight"), Timeline.JS_FUNCNAME_MENU_MOVE + "(-" + this.options.getMoveStep() + ");");
 		pWriter.addButtonJavaScript(moveRight);
 
 		pWriter.add("</div>");
@@ -446,11 +433,9 @@ public final class Timeline {
 	private void addTimelineImplementation(final UIComponentWriter pWriter, final String pTimelineDivId) {
 
 		pWriter.addJS_cr();
-		pWriter.addJS_cr(
-				"var " + Timeline.CONTAINER_VAR_NAME + " = document.getElementById('" + pTimelineDivId + "');");
+		pWriter.addJS_cr("var " + Timeline.CONTAINER_VAR_NAME + " = document.getElementById('" + pTimelineDivId + "');");
 		pWriter.addJS_cr();
-		pWriter.addJS_cr("var " + Timeline.JS_VARNAME_TIMELINE + " = new vis.Timeline(" + Timeline.CONTAINER_VAR_NAME
-				+ ", " + Timeline.JS_VARNAME_ITEMS + ", " + Timeline.JS_VARNAME_OPTIONS + ");");
+		pWriter.addJS_cr("var " + Timeline.JS_VARNAME_TIMELINE + " = new vis.Timeline(" + Timeline.CONTAINER_VAR_NAME + ", " + Timeline.JS_VARNAME_ITEMS + ", " + Timeline.JS_VARNAME_OPTIONS + ");");
 		pWriter.addJS_cr();
 		if (this.groups != null) {
 			pWriter.addJS_cr(Timeline.JS_VARNAME_TIMELINE + ".setGroups(" + Timeline.JS_VARNAME_GROUPS + ");");
@@ -507,9 +492,7 @@ public final class Timeline {
 	}
 
 	/**
-	 * Merge the items of the timeline when they are equal, ie same group, same
-	 * value/content and an overlapping date range. Merging the items is an option
-	 * defined in the instance of TimelineOptions.
+	 * Merge the items of the timeline when they are equal, ie same group, same value/content and an overlapping date range. Merging the items is an option defined in the instance of TimelineOptions.
 	 *
 	 * @see TimelineItem#equalItems(TimelineItem)
 	 * @see TimelineOptions#getMergeItem()

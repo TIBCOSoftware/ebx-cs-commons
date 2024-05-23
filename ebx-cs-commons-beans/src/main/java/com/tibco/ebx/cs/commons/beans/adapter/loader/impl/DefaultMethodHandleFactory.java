@@ -7,27 +7,23 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 /**
- * Implementation of the finding of default methods' handles used by proxies
- * invocation handler
- *
+ * Implementation of the finding of default methods' handles used by proxies invocation handler
+ * 
  * @author Gilles Mayer
  */
 enum DefaultMethodHandleFactory {
 
 	/**
-	 * Compatible with java 1.8, 9, 11 but deprecated since 9. Private constructor
-	 * takes three arguments in java 14. Very slow with the latest updates 1.8
+	 * Compatible with java 1.8, 9, 11 but deprecated since 9. Private constructor takes three arguments in java 14. Very slow with the latest updates 1.8
 	 */
 	PRIVATE_CONSTRUCTOR {
 		@Override
 		MethodHandle findSpecial(final Class<?> iface, final Method method) throws ReflectiveOperationException {
-			Constructor<MethodHandles.Lookup> constructor = MethodHandles.Lookup.class
-					.getDeclaredConstructor(Class.class, Integer.TYPE);
-			if (constructor.trySetAccessible()) {
+			Constructor<MethodHandles.Lookup> constructor = MethodHandles.Lookup.class.getDeclaredConstructor(Class.class, Integer.TYPE);
+			if (!constructor.isAccessible()) {
 				constructor.setAccessible(true);
 			}
-			return constructor.newInstance(iface, MethodHandles.Lookup.PUBLIC | MethodHandles.Lookup.PRIVATE)
-					.unreflectSpecial(method, iface);
+			return constructor.newInstance(iface, MethodHandles.Lookup.PUBLIC | MethodHandles.Lookup.PRIVATE).unreflectSpecial(method, iface);
 		}
 	},
 
@@ -37,8 +33,7 @@ enum DefaultMethodHandleFactory {
 	FIND_SPECIAL {
 		@Override
 		MethodHandle findSpecial(final Class<?> iface, final Method method) throws ReflectiveOperationException {
-			return MethodHandles.lookup().findSpecial(iface, method.getName(),
-					MethodType.methodType(method.getReturnType(), method.getParameterTypes()), iface);
+			return MethodHandles.lookup().findSpecial(iface, method.getName(), MethodType.methodType(method.getReturnType(), method.getParameterTypes()), iface);
 		}
 	};
 

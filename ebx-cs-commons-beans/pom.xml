@@ -20,11 +20,6 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.tibco.ebx.addon</groupId>
-			<artifactId>ebx-addons</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
 			<groupId>com.tibco.ebx.cs.commons</groupId>
 			<artifactId>ebx-cs-commons-lib</artifactId>
 			<version>${revision}</version>
