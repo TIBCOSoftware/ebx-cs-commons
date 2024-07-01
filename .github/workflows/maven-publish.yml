@@ -31,6 +31,6 @@ jobs:
         CS_NEXUS_PASSWORD: ${{secrets.CS_NEXUS_PASSWORD }}
 
     - name: Publish to GitHub Packages Apache Maven
-      run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml
+      run: mvn deploy
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
