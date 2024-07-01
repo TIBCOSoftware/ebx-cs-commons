@@ -194,6 +194,19 @@
 		 <url>https://maven.pkg.github.com/tibcofield/ebx-cs-commons</url>
 	   </repository>
 	</distributionManagement>
+	<repositories>
+		<repository>
+			<id>on.ps.maven.repository.ebx.cs</id>
+			<name>Professional Services EBX Repository</name>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>always</updatePolicy>
+				<checksumPolicy>warn</checksumPolicy>
+			</releases>
+			<url>https://services.orchestranetworks.com/nexus/repository/maven-ebx-cs/</url>
+			<layout>default</layout>
+		</repository>
+	</repositories>
 	<!-- Project modules -->
 	<modules>
 		<module>ebx-cs-commons-lib</module>
