@@ -186,7 +186,14 @@
 			</plugin>
 		</plugins>
 	</build>
-
+	
+	<distributionManagement>
+	   <repository>
+		 <id>github</id>
+		 <name>TIBCO Field Packages</name>
+		 <url>https://maven.pkg.github.com/tibcofield/ebx-cs-commons</url>
+	   </repository>
+	</distributionManagement>
 	<!-- Project modules -->
 	<modules>
 		<module>ebx-cs-commons-lib</module>
