@@ -26,10 +26,11 @@ jobs:
 
     - name: Build with Maven
       run: mvn install -s $GITHUB_WORKSPACE/.m2/settings.xml
+      env:
+        CS_NEXUS_USER: ${{secrets.CS_NEXUS_USER}}
+        CS_NEXUS_PASSWORD: ${{secrets.CS_NEXUS_PASSWORD }}
 
     - name: Publish to GitHub Packages Apache Maven
       run: mvn deploy -s $GITHUB_WORKSPACE/.m2/settings.xml
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        CS_NEXUS_USER: ${{secrets.CS_USER}}
-        CS_NEXUS_PASSWORD: ${{secrets.CS_PASSWORD }}
