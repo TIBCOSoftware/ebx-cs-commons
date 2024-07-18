@@ -219,6 +219,5 @@
 		<module>ebx-cs-commons-ui</module>
 		<module>ebx-cs-commons-components</module>
 		<module>ebx-cs-commons-web</module>
-		<module>ebx-cs-commons-query</module>
 	</modules>
 </project>
