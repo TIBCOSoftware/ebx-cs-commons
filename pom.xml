@@ -17,8 +17,8 @@
 		<revision>3.1.0</revision>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<!-- EBX and addons -->
-		<ebx.core.version>6.2.0-RC2</ebx.core.version>
-		<ebx.addons.version>6.2.0-RC2</ebx.addons.version>
+		<ebx.core.version>6.2.0</ebx.core.version>
+		<ebx.addons.version>6.2.0</ebx.addons.version>
 		
 		<!-- Servlet API -->
 		<jakarta.servlet.version>6.1.0-M1</jakarta.servlet.version>
@@ -186,56 +186,14 @@
 			</plugin>
 		</plugins>
 	</build>
-
-	<!-- Project modules -->
-	<modules>
-		<module>ebx-cs-commons-lib</module>
-		<module>ebx-cs-commons-addons</module>
-		<module>ebx-cs-commons-beans</module>
-		<module>ebx-cs-commons-ui</module>
-		<module>ebx-cs-commons-components</module>
-		<module>ebx-cs-commons-web</module>
-		<module>ebx-cs-commons-query</module>
-	</modules>
-	
 	<distributionManagement>
-    <!-- use the following if you're not using a snapshot version. -->
-    <repository>
-      <id>on.ps.maven.repository.releases</id>
-      <name>maven-releases</name>
-      <url>https://services.orchestranetworks.com/nexus/repository/maven-releases</url>
-    </repository>
-
-    <!-- use the following if you ARE using a snapshot version. -->
-    <snapshotRepository>
-      <id>on.ps.maven.repository.snapshots</id>
-      <name>maven-snapshots</name>
-      <url>https://services.orchestranetworks.com/nexus/repository/maven-snapshots</url>
-    </snapshotRepository>
-  </distributionManagement>
-  <repositories>
-		<repository>
-			<id>on.ps.maven.repository.releases</id>
-			<name>Professional Services EBX Repository</name>
-			<releases>
-				<enabled>true</enabled>
-				<updatePolicy>always</updatePolicy>
-				<checksumPolicy>warn</checksumPolicy>
-			</releases>
-			<url>https://services.orchestranetworks.com/nexus/repository/maven-releases/</url>
-			<layout>default</layout>
-		</repository>
-		<repository>
-			<id>on.ps.maven.repository.snapshots</id>
-			<name>Professional Services EBX Repository</name>
-			<snapshots>
-				<enabled>true</enabled>
-				<updatePolicy>always</updatePolicy>
-				<checksumPolicy>warn</checksumPolicy>
-			</snapshots>
-			<url>https://services.orchestranetworks.com/nexus/repository/maven-snapshots/</url>
-			<layout>default</layout>
-		</repository>
+	   <repository>
+		 <id>github</id>
+		 <name>TIBCO Field Packages</name>
+		 <url>https://maven.pkg.github.com/tibcofield/ebx-cs-commons</url>
+	   </repository>
+	</distributionManagement>
+	<repositories>
 		<repository>
 			<id>on.ps.maven.repository.ebx.cs</id>
 			<name>Professional Services EBX Repository</name>
@@ -248,4 +206,15 @@
 			<layout>default</layout>
 		</repository>
 	</repositories>
+	<!-- Project modules -->
+	<modules>
+		<module>ebx-cs-commons-lib</module>
+		<module>ebx-cs-commons-addons</module>
+		<module>ebx-cs-commons-beans</module>
+		<module>ebx-cs-commons-ui</module>
+		<module>ebx-cs-commons-components</module>
+		<module>ebx-cs-commons-web</module>
+		<module>ebx-cs-commons-query</module>
+	</modules>
+
 </project>
