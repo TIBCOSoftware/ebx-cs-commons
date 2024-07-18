@@ -187,17 +187,35 @@
 		</plugins>
 	</build>
 	
-	<distributionManagement>
-	   <repository>
-		 <id>github</id>
-		 <name>TIBCO Field Packages</name>
-		 <url>https://maven.pkg.github.com/tibcofield/ebx-cs-commons</url>
-	   </repository>
-	</distributionManagement>
+	<profiles>
+		<profile>
+			<id>github</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<distributionManagement>
+			   <repository>
+				 <id>github</id>
+				 <name>TIBCO Field Packages</name>
+				 <url>https://maven.pkg.github.com/tibcofield/ebx-cs-commons</url>
+			   </repository>		
+			</distributionManagement>
+		</profile>
+		<profile>
+			<id>cs-nexus</id>
+			<distributionManagement>
+			   <repository>
+				 <id>cs-nexus</id>
+				 <name>CS Nexus</name>
+				 <url>https://services.orchestranetworks.com/nexus/repository/maven-releases</url>
+			   </repository>		
+			</distributionManagement>
+		</profile>
+	</profiles>
 	<repositories>
 		<repository>
-			<id>on.ps.maven.repository.ebx.cs</id>
-			<name>Professional Services EBX Repository</name>
+			<id>ebx-cs</id>
+			<name>Customer Success Internal EBX Repository</name>
 			<releases>
 				<enabled>true</enabled>
 				<updatePolicy>always</updatePolicy>

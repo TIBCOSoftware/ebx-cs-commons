@@ -42,7 +42,7 @@ jobs:
         server-id: on.ps.maven.repository.release
         
     - name: Publish to CS Nexus
-      run: mvn deploy
+      run: mvn deploy -Pcs-nexus
       env:
         CS_NEXUS_USER: ${{secrets.CS_NEXUS_USER}}
         CS_NEXUS_PASSWORD: ${{secrets.CS_NEXUS_PASSWORD }}
