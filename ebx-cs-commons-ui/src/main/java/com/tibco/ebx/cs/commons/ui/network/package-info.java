@@ -1,3 +1,4 @@
+/* Copyright © 2024. Cloud Software Group, Inc. This file is subject to the license terms contained in the license file that is distributed with this file. */
 /**
  * Provides a Java framework to build graphical networkgraph using the javascript visualization
  * library vis.js.<br>

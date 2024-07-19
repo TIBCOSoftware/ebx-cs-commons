@@ -1,3 +1,4 @@
+/* Copyright © 2024. Cloud Software Group, Inc. This file is subject to the license terms contained in the license file that is distributed with this file. */
 /**
  * Provides an advanced record comparison.<br>
  * The functionality taken into account a non-limited number of records to compare. It also provides
