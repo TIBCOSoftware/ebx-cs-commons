@@ -9,12 +9,11 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
-
+      
     steps:
     - uses: actions/checkout@v4
     - name: Set up JDK 17 for GitHub
@@ -39,12 +38,10 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
-        server-id: on.ps.maven.repository.release
+        server-id: cs-nexus-release
         
     - name: Publish to CS Nexus
-      run: mvn deploy -Pcs-nexus
+      run: mvn deploy -Pcs-nexus -s $GITHUB_WORKSPACE/.m2/settings.xml
       env:
         CS_NEXUS_USER: ${{secrets.CS_NEXUS_USER}}
         CS_NEXUS_PASSWORD: ${{secrets.CS_NEXUS_PASSWORD }}
-
-    
