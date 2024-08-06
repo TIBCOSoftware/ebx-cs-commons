@@ -29,6 +29,7 @@ CS Commons Library project relies on the following third-party dependencies:
 - [Apache Commons Exec](https://commons.apache.org/proper/commons-exec/)
 - [Javax JMS](https://mvnrepository.com/artifact/javax.jms)
 - [Javax Servlet API](https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api)
+
 Javax JMS and Javax Servlet API both libraries are under dual licenses CDDL and GPL. TIBCO chose to opt for CDDL instead of GPL. 
 
 ## Project structure ##
