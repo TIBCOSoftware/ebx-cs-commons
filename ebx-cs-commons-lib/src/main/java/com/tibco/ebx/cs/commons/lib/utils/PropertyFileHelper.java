@@ -24,13 +24,14 @@ import com.orchestranetworks.workflow.PublishedProcessKey;
 import com.orchestranetworks.workflow.WorkflowEngine;
 
 /**
- * A class to help read values from the properties file. It can be sub-classed to handle specific properties.
- * 
+ * A class to help read values from the properties file. It can be sub-classed
+ * to handle specific properties.
+ *
  * @author Mickaël Chevalier
  */
 public class PropertyFileHelper {
-	private static final String PROPERTY_VALUE_SEPARATOR = "\\s*,\\s*";
-	private static final String PROPERTY_TOKEN_SEPARATOR = "\\s*\\|\\s*";
+	private static final String PROPERTY_VALUE_SEPARATOR = ",";
+	private static final String PROPERTY_TOKEN_SEPARATOR = "\\|";
 
 	protected static final int PROPERTY_TOKEN_INDEX_DATA_SPACE_NAME = 0;
 	protected static final int PROPERTY_TOKEN_INDEX_DATA_SET_NAME = 1;
@@ -41,7 +42,7 @@ public class PropertyFileHelper {
 
 	/**
 	 * Create the helper
-	 * 
+	 *
 	 * @param propertiesFile a string representing the path to the properties file
 	 * @throws IOException if an error occurred loading the properties file
 	 */
@@ -55,7 +56,7 @@ public class PropertyFileHelper {
 
 	/**
 	 * Get the properties object representing the properties
-	 * 
+	 *
 	 * @return the properties
 	 */
 	public Properties getProperties() {
@@ -64,7 +65,7 @@ public class PropertyFileHelper {
 
 	/**
 	 * Get a property and throw an exception if it's not found or has no value
-	 * 
+	 *
 	 * @param propertyName the property name
 	 * @return the property
 	 * @throws IOException if the property couldn't be found or has no value
@@ -79,7 +80,7 @@ public class PropertyFileHelper {
 
 	/**
 	 * Is a property defined
-	 * 
+	 *
 	 * @param propertyName the property name
 	 * @return if it's defined
 	 */
@@ -89,9 +90,10 @@ public class PropertyFileHelper {
 
 	/**
 	 * Get a property as a boolean
-	 * 
+	 *
 	 * @param propertyName       the property name
-	 * @param defaultWhenMissing the default value if the property is missing or has no value defined
+	 * @param defaultWhenMissing the default value if the property is missing or has
+	 *                           no value defined
 	 * @return the boolean value
 	 */
 	public boolean getBooleanProperty(final String propertyName, final boolean defaultWhenMissing) {
@@ -100,8 +102,9 @@ public class PropertyFileHelper {
 	}
 
 	/**
-	 * Get a comma-separated property value as an array of strings. If the property is missing or has an empty value, an empty array will be returned.
-	 * 
+	 * Get a comma-separated property value as an array of strings. If the property
+	 * is missing or has an empty value, an empty array will be returned.
+	 *
 	 * @param propertyName the property name
 	 * @return an array of strings
 	 */
@@ -114,8 +117,8 @@ public class PropertyFileHelper {
 	}
 
 	/**
-	 * Split a given pipe-delimited proparty value into an array of strings
-	 * 
+	 * Split a given pipe-delimited property value into an array of strings
+	 *
 	 * @param propertyValue the pipe-delimited property value
 	 * @return an array of strings
 	 */
@@ -125,7 +128,7 @@ public class PropertyFileHelper {
 
 	/**
 	 * Get the data space represented by the given property value
-	 * 
+	 *
 	 * @param propertyValue a string representing the data space name
 	 * @param repo          the repository
 	 * @return the data space, or null if not found
@@ -140,8 +143,9 @@ public class PropertyFileHelper {
 
 	/**
 	 * Get the data set represented by the given property value
-	 * 
-	 * @param propertyValue a string representing the data space name and data set name
+	 *
+	 * @param propertyValue a string representing the data space name and data set
+	 *                      name
 	 * @param repo          the repository
 	 * @return the data set, or null if not found
 	 */
@@ -152,18 +156,21 @@ public class PropertyFileHelper {
 		AdaptationHome dataSpace = repo.lookupHome(HomeKey.forBranchName(tokens[PROPERTY_TOKEN_INDEX_DATA_SPACE_NAME]));
 		// Look up the data set represented by the typical index used for data sets,
 		// if the data space was found
-		return dataSpace == null ? null : dataSpace.findAdaptationOrNull(AdaptationName.forName(tokens[PROPERTY_TOKEN_INDEX_DATA_SET_NAME]));
+		return dataSpace == null ? null
+				: dataSpace.findAdaptationOrNull(AdaptationName.forName(tokens[PROPERTY_TOKEN_INDEX_DATA_SET_NAME]));
 	}
 
 	/**
 	 * Get the table represented by the given property value
-	 * 
-	 * @param propertyValue a string representing the data space name, data set name, and table path
+	 *
+	 * @param propertyValue a string representing the data space name, data set
+	 *                      name, and table path
 	 * @param repo          the repository
 	 * @return the table, or null if not found
 	 */
 	public static AdaptationTable getTableFromProperty(final String propertyValue, final Repository repo) {
-		// Split the string. It should at least contain the data space, data set, and table.
+		// Split the string. It should at least contain the data space, data set, and
+		// table.
 		String[] tokens = getPropertyValueTokens(propertyValue);
 		// Look up the data space represented by the typical index used for data spaces
 		AdaptationHome dataSpace = repo.lookupHome(HomeKey.forBranchName(tokens[PROPERTY_TOKEN_INDEX_DATA_SPACE_NAME]));
@@ -171,21 +178,24 @@ public class PropertyFileHelper {
 			return null;
 		}
 		// Look up the data set represented by the typical index used for data sets
-		Adaptation dataSet = dataSpace.findAdaptationOrNull(AdaptationName.forName(tokens[PROPERTY_TOKEN_INDEX_DATA_SET_NAME]));
+		Adaptation dataSet = dataSpace
+				.findAdaptationOrNull(AdaptationName.forName(tokens[PROPERTY_TOKEN_INDEX_DATA_SET_NAME]));
 		// Look up the table represented by the typical index used for tables,
 		// if the data set was found
-		return (dataSet == null || dataSet.hasSevereError()) ? null : dataSet.getTable(Path.parse(tokens[PROPERTY_TOKEN_INDEX_TABLE_NAME]));
+		return (dataSet == null || dataSet.hasSevereError()) ? null
+				: dataSet.getTable(Path.parse(tokens[PROPERTY_TOKEN_INDEX_TABLE_NAME]));
 	}
 
 	/**
 	 * Get the workflow publications represented by the given property value
-	 * 
+	 *
 	 * @param propertyValue a string representing the workflow model name
 	 * @param repo          the repository
 	 * @param session       the session
 	 * @return the list of publications, or an empty list if none found
 	 */
-	public static List<PublishedProcess> getWorkflowPublicationsFromProperty(final String propertyValue, final Repository repo, final Session session) {
+	public static List<PublishedProcess> getWorkflowPublicationsFromProperty(final String propertyValue,
+			final Repository repo, final Session session) {
 		WorkflowEngine wfEngine = WorkflowEngine.getFromRepository(repo, session);
 		List<PublishedProcess> publishedProcesses = new ArrayList<>();
 

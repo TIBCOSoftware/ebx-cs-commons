@@ -48,11 +48,12 @@ public class DataAccessObjectTrigger extends TableTrigger {
 		}
 	}
 
-	private static void checkTableDAO(final Adaptation pRecord, final ProcedureContext pContext) throws ConstraintViolationException, EBXCommonsException {
+	private static void checkTableDAO(final Adaptation pRecord, final ProcedureContext pContext)
+			throws ConstraintViolationException, EBXCommonsException {
 		DataAccessObject dao = DataAccessObjectDAO.getInstance().read(pRecord);
 		Table table = dao.getTable();
-		if (table != null && table.getDao() == null) {
-			table.setDao(dao);
+		if (table != null && table.getDaobject() == null) {
+			table.setDaobject(dao);
 			ModelTableDAO.getInstance().update(pContext, table.getEbxRecord(), table);
 		}
 	}

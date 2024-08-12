@@ -84,7 +84,8 @@ public class HistoryTimelineTransactionItem extends TimelineItem {
 	 * @param content      the content
 	 * @since 1.0.0
 	 */
-	public HistoryTimelineTransactionItem(final String group, final Date start, final Date end, final Integer startVersion, final Integer endVersion, final String content) {
+	public HistoryTimelineTransactionItem(final String group, final Date start, final Date end,
+			final Integer startVersion, final Integer endVersion, final String content) {
 		super(group, start, end, content);
 		this.startVersion = startVersion;
 		this.endVersion = endVersion;
@@ -190,7 +191,7 @@ public class HistoryTimelineTransactionItem extends TimelineItem {
 	 * @param isVersionId the new version id
 	 * @since 1.0.0
 	 */
-	public void setVersionId(final boolean isVersionId) {
+	public void setIsVersionId(final boolean isVersionId) {
 		this.isVersionId = isVersionId;
 	}
 

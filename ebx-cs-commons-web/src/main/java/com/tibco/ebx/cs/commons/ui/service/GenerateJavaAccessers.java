@@ -88,16 +88,20 @@ import com.tibco.ebx.cs.commons.lib.utils.SchemaUtils;
 
 /**
  *
- * This service can be launched from any dataset to generate Data Access Object for the underlying data model
+ * This service can be launched from any dataset to generate Data Access Object
+ * for the underlying data model
  *
  * A Java Bean is then generated for every table and terminal complex types.
  *
- * This beans can be construct either from a record (Adaptation) of for a ValueContext. It also provide a method to save in creating or modifying the record.
+ * This beans can be construct either from a record (Adaptation) of for a
+ * ValueContext. It also provide a method to save in creating or modifying the
+ * record.
  *
- * Foreign keys are valued with the java bean of the target table if this last is part of the same dataset, with its string representation otherwise.
+ * Foreign keys are valued with the java bean of the target table if this last
+ * is part of the same dataset, with its string representation otherwise.
  *
  * Any association is resolved when its getter is called.
- * 
+ *
  * @author Mickaël Chevalier
  */
 public class GenerateJavaAccessers implements UserService<DatasetEntitySelection> {
@@ -111,16 +115,19 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 
 	/**
 	 *
-	 * Wizard first step displaying the configuration of the java bean generation, allowing to specify the destination folder and package.
+	 * Wizard first step displaying the configuration of the java bean generation,
+	 * allowing to specify the destination folder and package.
 	 *
 	 */
 	private class ConfigurationStep implements DatasetWizardStep {
 
 		@Override
-		public void setupDisplay(final UserServiceSetupDisplayContext<DatasetEntitySelection> pContext, final UserServiceDisplayConfigurator pConfigurator) {
+		public void setupDisplay(final UserServiceSetupDisplayContext<DatasetEntitySelection> pContext,
+				final UserServiceDisplayConfigurator pConfigurator) {
 
 			UserServiceTabbedPane tabbedPane = pConfigurator.newTabbedPane();
-			UserServiceTab tab = tabbedPane.newTab(GenerateJavaAccessers.this.objectKeys.get(GenerateJavaAccessers.this.schema), Path.SELF);
+			UserServiceTab tab = tabbedPane
+					.newTab(GenerateJavaAccessers.this.objectKeys.get(GenerateJavaAccessers.this.schema), Path.SELF);
 			Optional<String> modelFileName = SchemaUtils.getModelFileName(GenerateJavaAccessers.this.schema);
 			if (modelFileName.isPresent()) {
 				tab.setTitle(modelFileName.get());
@@ -155,7 +162,8 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 						if (result.hasFailed()) {
 							pContext.addError(result.getExceptionFullMessage(pContext.getSession().getLocale()));
 						}
-						DataModel dataModel = DataModelDAO.getInstance().read(AdaptationUtils.getRecordForValueContext(pEventContext.getValueContext(key)).orElse(null));
+						DataModel dataModel = DataModelDAO.getInstance().read(AdaptationUtils
+								.getRecordForValueContext(pEventContext.getValueContext(key)).orElse(null));
 						GenerateJavaAccessers.this.DATA_MODELS.put(schema, dataModel);
 					}
 					return CustomOutcome.GENERATION_STEP;
@@ -173,12 +181,15 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 
 	/**
 	 *
-	 * Wizard second step generating Java Beans and displaying the report of generation indicating which Java Beans must be set on complex types in the data model.
+	 * Wizard second step generating Java Beans and displaying the report of
+	 * generation indicating which Java Beans must be set on complex types in the
+	 * data model.
 	 *
 	 */
 	private class GenerateStep implements DatasetWizardStep {
 		@Override
-		public void setupDisplay(final UserServiceSetupDisplayContext<DatasetEntitySelection> pContext, final UserServiceDisplayConfigurator pConfigurator) throws OperationException {
+		public void setupDisplay(final UserServiceSetupDisplayContext<DatasetEntitySelection> pContext,
+				final UserServiceDisplayConfigurator pConfigurator) throws OperationException {
 			try {
 				GenerateJavaAccessers.this.initConfiguration(pContext.getRepository());
 			} catch (EBXCommonsException ex) {
@@ -203,7 +214,8 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 		public void writePane(final UserServicePaneContext pContext, final UserServicePaneWriter pWriter) {
 			pWriter.add("<div class='" + UICSSClasses.CONTAINER_WITH_TEXT + "'>");
 
-			ProgrammaticService srv = ProgrammaticService.createForSession(pWriter.getSession(), BeansRepositoryUtils.getCommonsDataspace(pContext.getRepository()));
+			ProgrammaticService srv = ProgrammaticService.createForSession(pWriter.getSession(),
+					BeansRepositoryUtils.getCommonsDataspace(pContext.getRepository()));
 
 			srv.execute(new Procedure() {
 				@Override
@@ -216,7 +228,8 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 							GenerateJavaAccessers.this.generateBeanForSchema(schema);
 							GenerateJavaAccessers.this.generateDatasetDAO(schema);
 						} catch (UnavailableContentError | OperationException ex) {
-							pWriter.add("<span style='color:red'>Failed to execute service : " + ex.getMessage() + "</span><br />");
+							pWriter.add("<span style='color:red'>Failed to execute service : " + ex.getMessage()
+									+ "</span><br />");
 							CommonsLogger.getLogger().error(ex.getMessage(), ex);
 						}
 					}
@@ -230,13 +243,19 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 					pWriter.add("<br />");
 
 					if (!GenerateJavaAccessers.this.terminalComplexElements.isEmpty()) {
-						pWriter.add("<span>Some Java beans have been generated for below terminal complex elements.</span><br />");
-						pWriter.add("<span>They must be set to the data model in order for the generated classes to work properly.</span><br />");
+						pWriter.add(
+								"<span>Some Java beans have been generated for below terminal complex elements.</span><br />");
+						pWriter.add(
+								"<span>They must be set to the data model in order for the generated classes to work properly.</span><br />");
 						pWriter.add("<ul>");
 						for (SchemaNode terminalComplexNode : GenerateJavaAccessers.this.terminalComplexElements) {
 							pWriter.add("<li>");
-							pWriter.add("<b>" + GenerateJavaAccessers.getClassSignatureForBean(GenerateJavaAccessers.this.getOrRegisterBean(terminalComplexNode)) + "</b>");
-							pWriter.add(" (Path:" + terminalComplexNode.getPathInSchema().format() + " in model " + SchemaUtils.getModelFileName(terminalComplexNode.getSchemaLocation()) + ")");
+							pWriter.add("<b>"
+									+ GenerateJavaAccessers.getClassSignatureForBean(
+											GenerateJavaAccessers.this.getOrRegisterBean(terminalComplexNode))
+									+ "</b>");
+							pWriter.add(" (Path:" + terminalComplexNode.getPathInSchema().format() + " in model "
+									+ SchemaUtils.getModelFileName(terminalComplexNode.getSchemaLocation()) + ")");
 							pWriter.add("</li>");
 						}
 						pWriter.add("</ul>");
@@ -276,7 +295,8 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 	}
 	private static final DateFormat DATE_FORMAT = DateFormat.getDateInstance(DateFormat.DEFAULT, Locale.US);
 
-	private static final DateFormat DATETIME_FORMAT = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.US);
+	private static final DateFormat DATETIME_FORMAT = DateFormat.getDateTimeInstance(DateFormat.DEFAULT,
+			DateFormat.DEFAULT, Locale.US);
 
 	private static final String SUFFIX_DAO = "DAO";
 	private static final String SUFFIX_DTO = "DTO";
@@ -300,13 +320,14 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 
 	/**
 	 * Initialize the repository
-	 * 
+	 *
 	 * @param pRepository repository
 	 * @param pSession    session
 	 * @param pModuleName module name
 	 * @throws OperationException OperationException
 	 */
-	public static void initRepository(final Repository pRepository, final Session pSession, final String pModuleName) throws OperationException {
+	public static void initRepository(final Repository pRepository, final Session pSession, final String pModuleName)
+			throws OperationException {
 		BeansRepositoryUtils.getOrCreateDataModelsDataset(pRepository, pSession);
 	}
 
@@ -336,7 +357,8 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 	private int numberOfRS = 0;
 	private final List<SchemaNode> terminalComplexElements = new ArrayList<>();
 
-	private static void checkFolderExist(final UserServiceValidateContext<DatasetEntitySelection> pContext, final ValueContextForInputValidation vcfip, final String folder) {
+	private static void checkFolderExist(final UserServiceValidateContext<DatasetEntitySelection> pContext,
+			final ValueContextForInputValidation vcfip, final String folder) {
 		if (StringUtils.isBlank(folder)) {
 			return;
 		}
@@ -349,26 +371,34 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 	}
 
 	/**
-	 * Generates instance variables declarations for all fields below a certain position indicated by the schema node in parameter. It identifies on the fly packages to be imported in case extra
-	 * treatments are necessary such as for foreign key fields. It reports on the Wizard second step pane the eventual generation of Java Beans for complex types.
+	 * Generates instance variables declarations for all fields below a certain
+	 * position indicated by the schema node in parameter. It identifies on the fly
+	 * packages to be imported in case extra treatments are necessary such as for
+	 * foreign key fields. It reports on the Wizard second step pane the eventual
+	 * generation of Java Beans for complex types.
 	 *
-	 * @param pNode         The node from which to generate variables declaration for other elements.
+	 * @param pNode         The node from which to generate variables declaration
+	 *                      for other elements.
 	 * @param pExtraImports Set collecting extra packages to be imported.
 	 * @param pAnnotate
 	 *
 	 * @return The instance variable declaration as String
 	 * @throws EBXCommonsException
 	 */
-	private String generateAttributesForFieldsBelowForBean(final SchemaNode pNode, final Set<String> pExtraImports) throws OperationException, EBXCommonsException {
+	private String generateAttributesForFieldsBelowForBean(final SchemaNode pNode, final Set<String> pExtraImports)
+			throws OperationException, EBXCommonsException {
 		StringBuilder str = new StringBuilder();
 
 		for (SchemaNode node : pNode.getNodeChildren()) {
 			this.getOrRegisterField(node);
-			if (!node.isAssociationNode() && (node.isTerminalValue() && !node.isTableNode() || node.isTerminalValueDescendant())) {
-				if (node.isComplex() && (node.isTerminalValue() || node.getMaxOccurs() > 1) && !DamaUtils.isNodeDAC(node)) {
+			if (!node.isAssociationNode()
+					&& (node.isTerminalValue() && !node.isTableNode() || node.isTerminalValueDescendant())) {
+				if (node.isComplex() && (node.isTerminalValue() || node.getMaxOccurs() > 1)
+						&& !DamaUtils.isNodeDAC(node)) {
 					this.generateBeanForComplexType(node);
 				}
-				if (!node.isTerminalValueDescendant() || node.isComplex() && node.getMaxOccurs() > 1 || node.getNodeChildren().length == 0 || DamaUtils.isNodeDAC(node)) {
+				if (!node.isTerminalValueDescendant() || node.isComplex() && node.getMaxOccurs() > 1
+						|| node.getNodeChildren().length == 0 || DamaUtils.isNodeDAC(node)) {
 					str.append(this.getAttributeDeclarationForNodeInBean(node, pExtraImports));
 				}
 			} else {
@@ -379,10 +409,14 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 	}
 
 	/**
-	 * Generates instance variables declarations for all fields below a certain position indicated by the schema node in parameter. It identifies on the fly packages to be imported in case extra
-	 * treatments are necessary such as for foreign key fields. It reports on the Wizard second step pane the eventual generation of Java Beans for complex types.
+	 * Generates instance variables declarations for all fields below a certain
+	 * position indicated by the schema node in parameter. It identifies on the fly
+	 * packages to be imported in case extra treatments are necessary such as for
+	 * foreign key fields. It reports on the Wizard second step pane the eventual
+	 * generation of Java Beans for complex types.
 	 *
-	 * @param pNode         The node from which to generate variables declaration for other elements.
+	 * @param pNode         The node from which to generate variables declaration
+	 *                      for other elements.
 	 * @param pDTO
 	 * @param pExtraImports Set collecting extra packages to be imported.
 	 * @param pAnnotate
@@ -390,7 +424,8 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 	 * @return The instance variable declaration as String
 	 * @throws EBXCommonsException
 	 */
-	private String generateAttributesForFieldsBelowForDTO(final SchemaNode pNode, final DataTransferObject pDTO, final Set<String> pExtraImports) throws OperationException, EBXCommonsException {
+	private String generateAttributesForFieldsBelowForDTO(final SchemaNode pNode, final DataTransferObject pDTO,
+			final Set<String> pExtraImports) throws OperationException, EBXCommonsException {
 		StringBuilder str = new StringBuilder();
 
 		for (SchemaNode node : pNode.getNodeChildren()) {
@@ -398,10 +433,12 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 				continue;
 			}
 			if (node.isTerminalValue() && !node.isTableNode() || node.isTerminalValueDescendant()) {
-				if (node.isComplex() && (node.isTerminalValue() || node.getMaxOccurs() > 1) && !DamaUtils.isNodeDAC(node)) {
+				if (node.isComplex() && (node.isTerminalValue() || node.getMaxOccurs() > 1)
+						&& !DamaUtils.isNodeDAC(node)) {
 					this.generateDTOForComplexType(node);
 				}
-				if (!node.isTerminalValueDescendant() || node.isComplex() && node.getMaxOccurs() > 1 || node.getNodeChildren().length == 0 || DamaUtils.isNodeDAC(node)) {
+				if (!node.isTerminalValueDescendant() || node.isComplex() && node.getMaxOccurs() > 1
+						|| node.getNodeChildren().length == 0 || DamaUtils.isNodeDAC(node)) {
 					str.append(this.getAttributeDeclarationForNodeInDTO(node, pDTO, pExtraImports));
 				}
 			} else {
@@ -411,7 +448,8 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 		return str.toString();
 	}
 
-	private static boolean isFieldIgnored(final SchemaNode pNode, final DataTransferObject pDTO) throws EBXCommonsException {
+	private static boolean isFieldIgnored(final SchemaNode pNode, final DataTransferObject pDTO)
+			throws EBXCommonsException {
 		for (IgnoredField ignoredField : pDTO.getIgnoredFields()) {
 			if (ignoredField.getField().getPath().equals(pNode.getPathInAdaptation().format())) {
 				return true;
@@ -420,14 +458,17 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 		return false;
 	}
 
-	private String generateBean(final SchemaNode pNode, final JavaBean pBean) throws OperationException, EBXCommonsException {
+	private String generateBean(final SchemaNode pNode, final JavaBean pBean)
+			throws OperationException, EBXCommonsException {
 
 		Set<String> extraImports = new HashSet<>();
 
 		StringBuilder str = new StringBuilder();
 		str.append("/**" + CR);
-		str.append("* Java Bean of type " + pBean.getType() + " automatically generated by service 'Generate Java Accessers' of EBX Commons" + CR);
-		str.append("* It represents node at path " + pNode.getPathInSchema().format() + " in data model " + pNode.getSchemaLocation().format() + "." + CR);
+		str.append("* Java Bean of type " + pBean.getType()
+				+ " automatically generated by service 'Generate Java Accessers' of EBX Commons" + CR);
+		str.append("* It represents node at path " + pNode.getPathInSchema().format() + " in data model "
+				+ pNode.getSchemaLocation().format() + "." + CR);
 		str.append("*" + CR);
 		str.append("* @author EBX Commons" + CR);
 		str.append("*/" + CR);
@@ -466,7 +507,8 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 		return str.toString();
 	}
 
-	private static void writeExtraImports(final String pCurrentPackage, final Set<String> pExtraImports, final StringBuilder pStringBuilder) {
+	private static void writeExtraImports(final String pCurrentPackage, final Set<String> pExtraImports,
+			final StringBuilder pStringBuilder) {
 		for (String extraImport : pExtraImports) {
 			if (!pCurrentPackage.equals(extraImport.substring(0, extraImport.lastIndexOf(".")))) {
 				pStringBuilder.append("import " + extraImport + ";" + CR);
@@ -475,15 +517,18 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 	}
 
 	/**
-	 * Generates accessers for all fields below a certain position indicated by the schema node in parameter. It identifies on the fly packages to be imported in case extra treatments are necessary
-	 * such as for foreign key fields.
+	 * Generates accessers for all fields below a certain position indicated by the
+	 * schema node in parameter. It identifies on the fly packages to be imported in
+	 * case extra treatments are necessary such as for foreign key fields.
 	 *
-	 * @param pNode         The node from which to generate accessers for other elements.
+	 * @param pNode         The node from which to generate accessers for other
+	 *                      elements.
 	 * @param pExtraImports Set collecting extra packages to be imported.
 	 * @return The getter as String
 	 * @throws OperationException
 	 */
-	private String generateBeanAccessersForFieldsBelow(final SchemaNode pNode, final JavaBean pBean, final Set<String> pExtraImports) throws OperationException, EBXCommonsException {
+	private String generateBeanAccessersForFieldsBelow(final SchemaNode pNode, final JavaBean pBean,
+			final Set<String> pExtraImports) throws OperationException, EBXCommonsException {
 		StringBuilder str = new StringBuilder();
 
 		for (SchemaNode node : pNode.getNodeChildren()) {
@@ -504,7 +549,9 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 	}
 
 	/**
-	 * Generates a Java Bean for the complex type of the schema node in parameter. It reports on the Wizard second step pane the generation of Java Beans for complex types.
+	 * Generates a Java Bean for the complex type of the schema node in parameter.
+	 * It reports on the Wizard second step pane the generation of Java Beans for
+	 * complex types.
 	 *
 	 * @param pNode The node of complex type for which to generate a Java Bean.
 	 * @throws EBXCommonsException
@@ -514,16 +561,20 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 		JavaBean bean = this.getOrRegisterBean(pNode);
 		if (bean.getGenerationActive().booleanValue()) {
 			String classContent = this.generateBean(pNode, bean);
-			GenerateJavaAccessers.writeJavaFile(this.DATA_MODELS.get(pNode.getSchemaLocation()).getBeansSourceFolder(), bean.getJavaPackage(), bean.getJavaClassName(), classContent);
+			GenerateJavaAccessers.writeJavaFile(this.DATA_MODELS.get(pNode.getSchemaLocation()).getBeansSourceFolder(),
+					bean.getJavaPackage(), bean.getJavaClassName(), classContent);
 		}
 		Class<?> javaBean = pNode.getJavaBeanClass();
-		if (javaBean == null || !javaBean.getCanonicalName().equals(GenerateJavaAccessers.getClassSignatureForBean(bean))) {
+		if (javaBean == null
+				|| !javaBean.getCanonicalName().equals(GenerateJavaAccessers.getClassSignatureForBean(bean))) {
 			this.terminalComplexElements.add(pNode);
 		}
 	}
 
 	/**
-	 * Generates a Java Bean for every table in the dataset in parameter. It reports on the Wizard second step pane the generation of Java Beans for tables and complex types.
+	 * Generates a Java Bean for every table in the dataset in parameter. It reports
+	 * on the Wizard second step pane the generation of Java Beans for tables and
+	 * complex types.
 	 *
 	 * @return
 	 * @throws EBXCommonsException
@@ -532,19 +583,24 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 	 * @pWriter Writer allowing to write in generation report.
 	 *
 	 */
-	private JavaBean generateBeanForSchema(final SchemaLocation pSchemaLocation) throws OperationException, UnavailableContentError, EBXCommonsException {
+	private JavaBean generateBeanForSchema(final SchemaLocation pSchemaLocation)
+			throws OperationException, UnavailableContentError, EBXCommonsException {
 		JavaBean bean = this.getOrRegisterBean(this.DATASETS.get(pSchemaLocation).getSchemaNode());
 		if (Boolean.TRUE.equals(bean.getGenerationActive()) || bean.getGenerationActive() == null) {
 			String classContent = this.generateBean(this.DATASETS.get(pSchemaLocation).getSchemaNode(), bean);
-			GenerateJavaAccessers.writeJavaFile(this.DATA_MODELS.get(pSchemaLocation).getBeansSourceFolder(), bean.getJavaPackage(), bean.getJavaClassName(), classContent);
+			GenerateJavaAccessers.writeJavaFile(this.DATA_MODELS.get(pSchemaLocation).getBeansSourceFolder(),
+					bean.getJavaPackage(), bean.getJavaClassName(), classContent);
 		}
 		return bean;
 	}
 
 	/**
-	 * Generates a Java Bean for the table node in parameter. It reports on the Wizard second step pane the generation of Java Beans for the table and complex types.
+	 * Generates a Java Bean for the table node in parameter. It reports on the
+	 * Wizard second step pane the generation of Java Beans for the table and
+	 * complex types.
 	 *
-	 * @param pTable.getTableNode() The table node for which to generate a Java Bean.
+	 * @param pTable.getTableNode() The table node for which to generate a Java
+	 *                              Bean.
 	 * @return
 	 *
 	 */
@@ -552,13 +608,17 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 		JavaBean bean = this.getOrRegisterBean(pTable.getTableNode());
 		if (bean.getGenerationActive().booleanValue()) {
 			String classContent = this.generateBean(pTable.getTableOccurrenceRootNode(), bean);
-			GenerateJavaAccessers.writeJavaFile(this.DATA_MODELS.get(pTable.getTableNode().getSchemaLocation()).getBeansSourceFolder(), bean.getJavaPackage(), bean.getJavaClassName(), classContent);
+			GenerateJavaAccessers.writeJavaFile(
+					this.DATA_MODELS.get(pTable.getTableNode().getSchemaLocation()).getBeansSourceFolder(),
+					bean.getJavaPackage(), bean.getJavaClassName(), classContent);
 		}
 		return bean;
 	}
 
 	/**
-	 * Generates the getter of a field. It identifies on the fly packages to be imported in case extra treatments are necessary such as for foreign key fields.
+	 * Generates the getter of a field. It identifies on the fly packages to be
+	 * imported in case extra treatments are necessary such as for foreign key
+	 * fields.
 	 *
 	 * @param pNode         The terminal node for which to generate a getter method.
 	 * @param pExtraImports Set collecting extra packages to be imported.
@@ -567,11 +627,13 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 	 * @throws OperationException
 	 *
 	 */
-	private String generateBeanGetterForField(final SchemaNode pNode, final JavaBean pBean, final Set<String> pExtraImports) throws EBXCommonsException {
+	private String generateBeanGetterForField(final SchemaNode pNode, final JavaBean pBean,
+			final Set<String> pExtraImports) throws EBXCommonsException {
 		StringBuilder str = new StringBuilder();
 		String attributeName = GenerateJavaAccessers.getAttributeNameForNode(pNode);
 		String functionName = GenerateJavaAccessers.getGetterNameForNode(pNode);
-		str.append(TAB[1] + "public " + this.getJavaTypeForNodeInBean(pNode, false, pExtraImports) + " " + functionName + "()");
+		str.append(TAB[1] + "public " + this.getJavaTypeForNodeInBean(pNode, false, pExtraImports) + " " + functionName
+				+ "()");
 		if (pNode.getFacetOnTableReference() != null) {
 			str.append(" throws EBXCommonsException ");
 			pExtraImports.add("com.tibco.ebx.cs.commons.lib.exception.EBXCommonsException");
@@ -588,12 +650,15 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 			DataAccessObject distantDAO = this.getOrRegisterDAO(pNode.getFacetOnTableReference().getTableNode());
 			pExtraImports.add(GenerateJavaAccessers.getClassSignatureForDAO(localDAO));
 			pExtraImports.add(GenerateJavaAccessers.getClassSignatureForDAO(distantDAO));
-			str.append(TAB[2] + "if(this." + attributeName + " == null" + (pNode.getMaxOccurs() > 1 ? "" : " && isBoundToEBX()") + "){" + CR);
+			str.append(TAB[2] + "if(this." + attributeName + " == null"
+					+ (pNode.getMaxOccurs() > 1 ? "" : " && isBoundToEBX()") + "){" + CR);
 			str.append(TAB[3] + "this." + attributeName + " = " + distantDAO.getJavaClassName() + ".getInstance().");
 			if (pNode.getMaxOccurs() > 1) {
-				str.append("readAll(this, " + localDAO.getJavaClassName() + "." + GenerateJavaAccessers.getConstantNameForPathToField(pNode) + ");" + CR);
+				str.append("readAll(this, " + localDAO.getJavaClassName() + "."
+						+ GenerateJavaAccessers.getConstantNameForPathToField(pNode) + ");" + CR);
 			} else {
-				str.append("read(this, " + localDAO.getJavaClassName() + "." + GenerateJavaAccessers.getConstantNameForPathToField(pNode) + ").orElse(null);" + CR);
+				str.append("read(this, " + localDAO.getJavaClassName() + "."
+						+ GenerateJavaAccessers.getConstantNameForPathToField(pNode) + ").orElse(null);" + CR);
 			}
 			str.append(TAB[2] + "}" + CR);
 			str.append(TAB[2] + "return this." + attributeName + ";" + CR);
@@ -603,26 +668,32 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 			DataAccessObject distantDAO = this.getOrRegisterDAO(pNode.getAssociationLink().getTableNode());
 			pExtraImports.add(GenerateJavaAccessers.getClassSignatureForDAO(localDAO));
 			pExtraImports.add(GenerateJavaAccessers.getClassSignatureForDAO(distantDAO));
-			str.append(TAB[2] + "return " + distantDAO.getJavaClassName() + ".getInstance().readAll(this, " + localDAO.getJavaClassName() + "."
-					+ GenerateJavaAccessers.getConstantNameForPathToField(pNode) + ");" + CR);
+			str.append(TAB[2] + "return " + distantDAO.getJavaClassName() + ".getInstance().readAll(this, "
+					+ localDAO.getJavaClassName() + "." + GenerateJavaAccessers.getConstantNameForPathToField(pNode)
+					+ ");" + CR);
 			str.append(TAB[1] + "}" + CR);
 			str.append(CR);
-			str.append(TAB[1] + "public " + this.getJavaTypeForNodeInBean(pNode, false, pExtraImports) + " " + functionName + "(final String predicate) {" + CR);
-			str.append(TAB[2] + "return " + distantDAO.getJavaClassName() + ".getInstance().readAll(this, " + localDAO.getJavaClassName() + "."
-					+ GenerateJavaAccessers.getConstantNameForPathToField(pNode) + ", Optional.of(predicate));" + CR);
+			str.append(TAB[1] + "public " + this.getJavaTypeForNodeInBean(pNode, false, pExtraImports) + " "
+					+ functionName + "(final String predicate) {" + CR);
+			str.append(TAB[2] + "return " + distantDAO.getJavaClassName() + ".getInstance().readAll(this, "
+					+ localDAO.getJavaClassName() + "." + GenerateJavaAccessers.getConstantNameForPathToField(pNode)
+					+ ", Optional.of(predicate));" + CR);
 			str.append(TAB[1] + "}" + CR);
 		} else {
 			if (pNode.isValueFunction()) {
 				String setValue = GenerateJavaAccessers.getSetterNameForNode(pNode);
 				String javaType = this.getJavaTypeForNodeInBean(pNode, false, pExtraImports);
 				pExtraImports.add("com.orchestranetworks.schema.Path");
-				String relativePath = "Path.parse(\"" + SchemaUtils.getPathToRecordRoot(pNode).format() + "\").add(" + localDAO.getJavaClassName() + "."
-						+ GenerateJavaAccessers.getConstantNameForPathToField(pNode) + ")";
+				String relativePath = "Path.parse(\"" + SchemaUtils.getPathToRecordRoot(pNode).format() + "\").add("
+						+ localDAO.getJavaClassName() + "." + GenerateJavaAccessers.getConstantNameForPathToField(pNode)
+						+ ")";
 				str.append(TAB[2] + "if(this.ebxRecord != null){" + CR);
 				str.append(
-						TAB[3] + "this." + setValue + "((" + javaType + ") ebxRecord.get(" + localDAO.getJavaClassName() + "." + GenerateJavaAccessers.getConstantNameForPathToField(pNode) + "));\n");
+						TAB[3] + "this." + setValue + "((" + javaType + ") ebxRecord.get(" + localDAO.getJavaClassName()
+								+ "." + GenerateJavaAccessers.getConstantNameForPathToField(pNode) + "));\n");
 				str.append(TAB[2] + "} else if(this.ebxContext != null){" + CR);
-				str.append(TAB[3] + setValue + "((" + javaType + ") this.ebxContext.getValue(" + relativePath + "));\n");
+				str.append(
+						TAB[3] + setValue + "((" + javaType + ") this.ebxContext.getValue(" + relativePath + "));\n");
 				str.append(TAB[2] + "}" + CR);
 			}
 			str.append(TAB[2] + "return this." + attributeName + ";" + CR);
@@ -632,7 +703,9 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 	}
 
 	/**
-	 * Generates the setter of a field. It identifies on the fly packages to be imported in case extra treatments are necessary such as for foreign key fields.
+	 * Generates the setter of a field. It identifies on the fly packages to be
+	 * imported in case extra treatments are necessary such as for foreign key
+	 * fields.
 	 *
 	 * @param pNode         The terminal node for which to generate a setter method.
 	 * @param pExtraImports Set collecting extra packages to be imported.
@@ -641,20 +714,23 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 	 * @throws EBXCommonsException EBXCommonsException
 	 *
 	 */
-	private String generateBeanSetterForField(final SchemaNode pNode, final Set<String> pExtraImports) throws EBXCommonsException {
+	private String generateBeanSetterForField(final SchemaNode pNode, final Set<String> pExtraImports)
+			throws EBXCommonsException {
 		StringBuilder str = new StringBuilder();
 		String attributeName = GenerateJavaAccessers.getAttributeNameForNode(pNode);
-		str.append(
-				TAB[1] + "public void " + GenerateJavaAccessers.getSetterNameForNode(pNode) + "(final " + this.getJavaTypeForNodeInBean(pNode, false, pExtraImports) + " " + attributeName + "){" + CR);
+		str.append(TAB[1] + "public void " + GenerateJavaAccessers.getSetterNameForNode(pNode) + "(final "
+				+ this.getJavaTypeForNodeInBean(pNode, false, pExtraImports) + " " + attributeName + "){" + CR);
 		if (pNode.getInheritanceProperties() != null) {
-			str.append(TAB[2] + "this.overwrite(this.getDAO()." + GenerateJavaAccessers.getConstantNameForPathToField(pNode) + ");" + CR);
+			str.append(TAB[2] + "this.overwrite(this.getDAO()."
+					+ GenerateJavaAccessers.getConstantNameForPathToField(pNode) + ");" + CR);
 		}
 		str.append(TAB[2] + "this." + attributeName + " = " + attributeName + ";" + CR);
 		str.append(TAB[1] + "}" + CR);
 		return str.toString();
 	}
 
-	private void generateDatasetDAO(final SchemaLocation pSchemaLocation) throws OperationException, EBXCommonsException {
+	private void generateDatasetDAO(final SchemaLocation pSchemaLocation)
+			throws OperationException, EBXCommonsException {
 
 		DataModel dataModel = this.DATA_MODELS.get(pSchemaLocation);
 		Adaptation dataset = this.DATASETS.get(pSchemaLocation);
@@ -663,12 +739,16 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 
 		StringBuilder str = new StringBuilder();
 		str.append("/**" + CR);
-		str.append("* Data access object (DA) automatically generated by service 'Generate Java Accessers' of EBX Commons" + CR);
-		str.append("* It aims to access data and table of any dataset relying on data model " + pSchemaLocation.format() + "." + CR);
+		str.append(
+				"* Data access object (DA) automatically generated by service 'Generate Java Accessers' of EBX Commons"
+						+ CR);
+		str.append("* It aims to access data and table of any dataset relying on data model " + pSchemaLocation.format()
+				+ "." + CR);
 		str.append("*" + CR);
 		str.append("* @author EBX Commons" + CR);
 		str.append("*/" + CR);
-		str.append("public class " + dao.getJavaClassName() + " extends DatasetDAO<" + dao.getJavaBean().getJavaClassName() + ">{" + CR);
+		str.append("public class " + dao.getJavaClassName() + " extends DatasetDAO<"
+				+ dao.getJavaBean().getJavaClassName() + ">{" + CR);
 		str.append(CR);
 		str.append(GenerateJavaAccessers.generateDatasetDaoConstructor(dao));
 		str.append(CR);
@@ -689,19 +769,22 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 			this.generateBeanForTable(table);
 			this.generateTableDAO(table, dao);
 
-			if (!StringUtils.isBlank(dataModel.getDtoSourceFolder()) && !StringUtils.isBlank(dataModel.getDtoPackage())) {
+			if (!StringUtils.isBlank(dataModel.getDtoSourceFolder())
+					&& !StringUtils.isBlank(dataModel.getDtoPackage())) {
 				for (DataTransferObject dto : this.getOrRegisterDTO(table.getTableNode())) {
 					if (dto.getGenerationActive().booleanValue()) {
 						this.generateDTOForTable(table, dto);
 					}
 				}
-				if (!StringUtils.isBlank(dataModel.getServicesSourceFolder()) && !StringUtils.isBlank(dataModel.getServicesPackage())) {
+				if (!StringUtils.isBlank(dataModel.getServicesSourceFolder())
+						&& !StringUtils.isBlank(dataModel.getServicesPackage())) {
 					for (Service service : this.getOrRegisterService(table.getTableNode())) {
 						if (service.getGenerationActive().booleanValue()) {
 							this.generateTableService(table, service);
 						}
 					}
-					if (!StringUtils.isBlank(dataModel.getRsSourceFolder()) && !StringUtils.isBlank(dataModel.getRsPackage())) {
+					if (!StringUtils.isBlank(dataModel.getRsSourceFolder())
+							&& !StringUtils.isBlank(dataModel.getRsPackage())) {
 						for (RestService rs : this.getOrRegisterRestServices(table.getTableNode())) {
 							if (rs.getGenerationActive().booleanValue()) {
 								this.generateTableRS(table, rs);
@@ -730,7 +813,8 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 		classContent.append(CR);
 		classContent.append(str);
 		this.numberOfDAOs++;
-		GenerateJavaAccessers.writeJavaFile(dataModel.getDaoSourceFolder(), dao.getJavaPackage(), dao.getJavaClassName(), classContent.toString());
+		GenerateJavaAccessers.writeJavaFile(dataModel.getDaoSourceFolder(), dao.getJavaPackage(),
+				dao.getJavaClassName(), classContent.toString());
 	}
 
 	private static Object generateDatasetDaoConstructor(final DataAccessObject pDao) {
@@ -741,21 +825,26 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 		return str.toString();
 	}
 
-	private String generateDTO(final SchemaNode pNode, final DataTransferObject pDTO) throws OperationException, EBXCommonsException {
+	private String generateDTO(final SchemaNode pNode, final DataTransferObject pDTO)
+			throws OperationException, EBXCommonsException {
 		Set<String> extraImports = new HashSet<>();
 
 		JavaBean bean = this.getOrRegisterBean(pNode);
 		StringBuilder str = new StringBuilder();
 		str.append("/**" + CR);
-		str.append("* Data transfer object (DTO) automatically generated by service 'Generate Java Accessers' of EBX Commons" + CR);
-		str.append("* It represents node at path " + pNode.getPathInSchema().format() + " in data model " + pNode.getSchemaLocation().format() + "." + CR);
-		str.append("*" + CR);
 		str.append(
-				"* It can be turned into or build from the Java Bean {@link " + bean.getJavaClassName() + "} with Mapper {@link " + GenerateJavaAccessers.getClassSignatureForMapper(pDTO) + "} " + CR);
+				"* Data transfer object (DTO) automatically generated by service 'Generate Java Accessers' of EBX Commons"
+						+ CR);
+		str.append("* It represents node at path " + pNode.getPathInSchema().format() + " in data model "
+				+ pNode.getSchemaLocation().format() + "." + CR);
+		str.append("*" + CR);
+		str.append("* It can be turned into or build from the Java Bean {@link " + bean.getJavaClassName()
+				+ "} with Mapper {@link " + GenerateJavaAccessers.getClassSignatureForMapper(pDTO) + "} " + CR);
 		str.append("*" + CR);
 		str.append("* @author EBX Commons" + CR);
 		str.append("*/" + CR);
-		str.append("@Schema(name = \"" + pDTO.getJavaClassName() + "\", description = \"Object representing " + bean.getJavaClassName() + "\")" + CR);
+		str.append("@Schema(name = \"" + pDTO.getJavaClassName() + "\", description = \"Object representing "
+				+ bean.getJavaClassName() + "\")" + CR);
 		str.append("public class " + pDTO.getJavaClassName() + " implements ");
 		if (bean.getSpecific().booleanValue()) {
 			str.append("SpecificComplexTypeDTO");
@@ -807,7 +896,8 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 		return classContent.toString();
 	}
 
-	private void generateMapper(final SchemaNode pNode, final DataTransferObject pDTO) throws OperationException, EBXCommonsException {
+	private void generateMapper(final SchemaNode pNode, final DataTransferObject pDTO)
+			throws OperationException, EBXCommonsException {
 		Set<String> extraImports = new HashSet<>();
 
 		JavaBean bean = this.getOrRegisterBean(pNode);
@@ -818,11 +908,13 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 		str.append("*" + CR);
 		str.append("* @author EBX Commons" + CR);
 		str.append("*/" + CR);
-		str.append("public class " + pDTO.getMapper().getJavaClassName() + " extends BeanToDTOMapper<" + bean.getJavaClassName() + "," + pDTO.getJavaClassName() + ">{" + CR);
+		str.append("public class " + pDTO.getMapper().getJavaClassName() + " extends BeanToDTOMapper<"
+				+ bean.getJavaClassName() + "," + pDTO.getJavaClassName() + ">{" + CR);
 		extraImports.add(GenerateJavaAccessers.getClassSignatureForBean(bean));
 		extraImports.add(GenerateJavaAccessers.getClassSignatureForDTO(pDTO));
 		str.append(CR);
-		str.append(TAB[1] + "private static final " + pDTO.getMapper().getJavaClassName() + " instance = new " + pDTO.getMapper().getJavaClassName() + "();" + CR);
+		str.append(TAB[1] + "private static final " + pDTO.getMapper().getJavaClassName() + " instance = new "
+				+ pDTO.getMapper().getJavaClassName() + "();" + CR);
 		str.append(CR);
 		str.append(GenerateJavaAccessers.generateGetInstance(pDTO.getMapper().getJavaClassName()));
 		str.append(CR);
@@ -840,17 +932,19 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 		GenerateJavaAccessers.writeExtraImports(pDTO.getMapper().getJavaPackage(), extraImports, classContent);
 		classContent.append(CR);
 		classContent.append(str);
-		GenerateJavaAccessers.writeJavaFile(this.DATA_MODELS.get(pNode.getSchemaLocation()).getMappersSourceFolder(), pDTO.getMapper().getJavaPackage(), pDTO.getMapper().getJavaClassName(),
-				classContent.toString());
+		GenerateJavaAccessers.writeJavaFile(this.DATA_MODELS.get(pNode.getSchemaLocation()).getMappersSourceFolder(),
+				pDTO.getMapper().getJavaPackage(), pDTO.getMapper().getJavaClassName(), classContent.toString());
 		this.numberOfMappers++;
 	}
 
-	private String generateDTOAccessersForFieldsBelow(final SchemaNode pNode, final DataTransferObject pDTO, final Set<String> pExtraImports) throws OperationException, EBXCommonsException {
+	private String generateDTOAccessersForFieldsBelow(final SchemaNode pNode, final DataTransferObject pDTO,
+			final Set<String> pExtraImports) throws OperationException, EBXCommonsException {
 		StringBuilder str = new StringBuilder();
 
 		for (SchemaNode node : pNode.getNodeChildren()) {
 			if (!node.isAssociationNode() && (node.isTerminalValue() && !node.isTableNode()
-					|| node.isTerminalValueDescendant() && (node.isComplex() && node.getMaxOccurs() > 1 || node.getNodeChildren().length == 0 || DamaUtils.isNodeDAC(node)))) {
+					|| node.isTerminalValueDescendant() && (node.isComplex() && node.getMaxOccurs() > 1
+							|| node.getNodeChildren().length == 0 || DamaUtils.isNodeDAC(node)))) {
 				str.append(this.generateDTOGetterForField(node, pDTO, pExtraImports));
 				str.append(CR);
 				str.append(this.generateDTOSetterForField(node, pDTO, pExtraImports));
@@ -863,7 +957,8 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 		return str.toString();
 	}
 
-	private static String generateDTOConstructors(final SchemaNode pNode, final DataTransferObject pDTO, final Set<String> pExtraImports) {
+	private static String generateDTOConstructors(final SchemaNode pNode, final DataTransferObject pDTO,
+			final Set<String> pExtraImports) {
 		StringBuilder str = new StringBuilder();
 		str.append(TAB[1] + "/**" + CR);
 		str.append(TAB[1] + "* Default Constructor" + CR);
@@ -874,15 +969,19 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 		return str.toString();
 	}
 
-	private String generateGetDTO(final SchemaNode pNode, final DataTransferObject pDTO, final Set<String> pExtraImports) throws OperationException, EBXCommonsException {
+	private String generateGetDTO(final SchemaNode pNode, final DataTransferObject pDTO,
+			final Set<String> pExtraImports) throws OperationException, EBXCommonsException {
 		StringBuilder str = new StringBuilder();
 		JavaBean bean = this.getOrRegisterBean(pNode);
 		String parameterName = "pBean";
-		str.append(TAB[1] + "public " + pDTO.getJavaClassName() + " getDTO(final " + bean.getJavaClassName() + " " + parameterName + ") throws EBXCommonsException {" + CR);
+		str.append(TAB[1] + "public " + pDTO.getJavaClassName() + " getDTO(final " + bean.getJavaClassName() + " "
+				+ parameterName + ") throws EBXCommonsException {" + CR);
 		String variableName = StringUtils.uncapitalize(pDTO.getJavaClassName());
-		str.append(TAB[2] + pDTO.getJavaClassName() + " " + variableName + " = new " + pDTO.getJavaClassName() + "();" + CR);
+		str.append(TAB[2] + pDTO.getJavaClassName() + " " + variableName + " = new " + pDTO.getJavaClassName() + "();"
+				+ CR);
 		if (pNode.isTableNode()) {
-			str.append(this.setValuesFromBeanForDTOForFieldsBelow(pNode.getTableOccurrenceRootNode(), pDTO, pExtraImports));
+			str.append(this.setValuesFromBeanForDTOForFieldsBelow(pNode.getTableOccurrenceRootNode(), pDTO,
+					pExtraImports));
 		} else {
 			str.append(this.setValuesFromBeanForDTOForFieldsBelow(pNode, pDTO, pExtraImports));
 		}
@@ -892,7 +991,9 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 	}
 
 	/**
-	 * Generates a Java Bean for the complex type of the schema node in parameter. It reports on the Wizard second step pane the generation of Java Beans for complex types.
+	 * Generates a Java Bean for the complex type of the schema node in parameter.
+	 * It reports on the Wizard second step pane the generation of Java Beans for
+	 * complex types.
 	 *
 	 * @param pNode The node of complex type for which to generate a Java Bean.
 	 * @return
@@ -900,16 +1001,20 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 	 */
 	private void generateDTOForComplexType(final SchemaNode pNode) throws OperationException, EBXCommonsException {
 		for (DataTransferObject dto : this.getOrRegisterDTO(pNode)) {
-			String dtoLocation = this.DATA_MODELS.get(pNode.getSchemaLocation()).getDtoSourceFolder() + "/" + dto.getJavaPackage().replaceAll("\\.", "/") + "/" + dto.getJavaClassName();
+			String dtoLocation = this.DATA_MODELS.get(pNode.getSchemaLocation()).getDtoSourceFolder() + "/"
+					+ dto.getJavaPackage().replaceAll("\\.", "/") + "/" + dto.getJavaClassName();
 			if (!this.GENERATED_DTOS.contains(dtoLocation)) {
 				String classContent = this.generateDTO(pNode, dto);
-				GenerateJavaAccessers.writeJavaFile(this.DATA_MODELS.get(pNode.getSchemaLocation()).getDtoSourceFolder(), dto.getJavaPackage(), dto.getJavaClassName(), classContent);
+				GenerateJavaAccessers.writeJavaFile(
+						this.DATA_MODELS.get(pNode.getSchemaLocation()).getDtoSourceFolder(), dto.getJavaPackage(),
+						dto.getJavaClassName(), classContent);
 				this.GENERATED_DTOS.add(dtoLocation);
 			}
 		}
 	}
 
-	private Object generateDTOGetterForField(final SchemaNode pNode, final DataTransferObject pDTO, final Set<String> pExtraImports) throws EBXCommonsException {
+	private Object generateDTOGetterForField(final SchemaNode pNode, final DataTransferObject pDTO,
+			final Set<String> pExtraImports) throws EBXCommonsException {
 		StringBuilder str = new StringBuilder();
 		String attributeName = GenerateJavaAccessers.getAttributeNameForNode(pNode);
 		String functionName = GenerateJavaAccessers.getGetterNameForNode(pNode);
@@ -917,7 +1022,8 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 		if (pNode.isAssociationNode() || pNode.getFacetOnTableReference() != null) {
 			includedDTO = this.getDTOInclusion(pNode, pDTO);
 		}
-		str.append(TAB[1] + "public " + this.getJavaTypeForNodeInDTO(pNode, false, includedDTO, pExtraImports) + " " + functionName + "(){" + CR);
+		str.append(TAB[1] + "public " + this.getJavaTypeForNodeInDTO(pNode, false, includedDTO, pExtraImports) + " "
+				+ functionName + "(){" + CR);
 		if (!pNode.isAssociationNode()) {
 			str.append(TAB[2] + "return this." + attributeName + ";" + CR);
 		}
@@ -925,7 +1031,8 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 		return str.toString();
 	}
 
-	private Object generateDTOSetterForField(final SchemaNode pNode, final DataTransferObject pDTO, final Set<String> pExtraImports) throws EBXCommonsException {
+	private Object generateDTOSetterForField(final SchemaNode pNode, final DataTransferObject pDTO,
+			final Set<String> pExtraImports) throws EBXCommonsException {
 		StringBuilder str = new StringBuilder();
 		String attributeName = GenerateJavaAccessers.getAttributeNameForNode(pNode);
 		String functionName = "set" + attributeName.substring(0, 1).toUpperCase() + attributeName.substring(1);
@@ -933,7 +1040,9 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 		if (pNode.isAssociationNode() || pNode.getFacetOnTableReference() != null) {
 			includedDTO = this.getDTOInclusion(pNode, pDTO);
 		}
-		str.append(TAB[1] + "public void " + functionName + "(final " + this.getJavaTypeForNodeInDTO(pNode, false, includedDTO, pExtraImports) + " " + attributeName + "){" + CR);
+		str.append(TAB[1] + "public void " + functionName + "(final "
+				+ this.getJavaTypeForNodeInDTO(pNode, false, includedDTO, pExtraImports) + " " + attributeName + "){"
+				+ CR);
 		str.append(TAB[2] + "this." + attributeName + " = " + attributeName + ";" + CR);
 		str.append(TAB[1] + "}" + CR);
 		return str.toString();
@@ -949,30 +1058,37 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 		return "Objects.equals(" + attributeName + ", other." + attributeName + ")";
 	}
 
-	private static Object generateGetAdaptationTable(final SchemaNode pTableNode, final JavaBean pBean, final Set<String> pExtraImports) {
+	private static Object generateGetAdaptationTable(final SchemaNode pTableNode, final JavaBean pBean,
+			final Set<String> pExtraImports) {
 		StringBuilder str = new StringBuilder();
 		pExtraImports.add("com.onwbp.adaptation.AdaptationTable");
 		str.append(TAB[1] + "@Override" + CR);
 		str.append(TAB[1] + "protected AdaptationTable getAdaptationTable(final Adaptation pDataset) {" + CR);
-		str.append(TAB[2] + "return this.getDatasetDAO(pDataset)." + GenerateJavaAccessers.getTableGetterName(pTableNode) + "();" + CR);
+		str.append(TAB[2] + "return this.getDatasetDAO(pDataset)."
+				+ GenerateJavaAccessers.getTableGetterName(pTableNode) + "();" + CR);
 		str.append(TAB[1] + "}" + CR);
 		return str;
 	}
 
-	private Object generateGetBean(final SchemaNode pNode, final DataTransferObject pDTO, final Set<String> pExtraImports) throws OperationException, EBXCommonsException {
+	private Object generateGetBean(final SchemaNode pNode, final DataTransferObject pDTO,
+			final Set<String> pExtraImports) throws OperationException, EBXCommonsException {
 		StringBuilder str = new StringBuilder();
 		JavaBean bean = this.getOrRegisterBean(pNode);
 		String variableName = StringUtils.uncapitalize(bean.getJavaClassName());
 		pExtraImports.add("com.onwbp.adaptation.Adaptation");
 		pExtraImports.add("com.orchestranetworks.service.SessionPermissions");
 		pExtraImports.add("java.util.Optional");
-		str.append(TAB[1] + "public " + bean.getJavaClassName() + " getBean(final Adaptation pDataset, final " + pDTO.getJavaClassName()
+		str.append(TAB[1] + "public " + bean.getJavaClassName() + " getBean(final Adaptation pDataset, final "
+				+ pDTO.getJavaClassName()
 				+ " pDTO, final Optional<SessionPermissions> pPermissions)  throws EBXCommonsException {" + CR);
 		if (!pNode.isTableOccurrenceNode()) {
-			str.append(TAB[2] + bean.getJavaClassName() + " " + variableName + " = getDAO().getInstanceOfBean(pDataset);" + CR);
-			str.append(this.setValuesFromDTOForBeanForFieldsBelow(pNode.getTableOccurrenceRootNode(), pDTO, pExtraImports));
+			str.append(TAB[2] + bean.getJavaClassName() + " " + variableName
+					+ " = getDAO().getInstanceOfBean(pDataset);" + CR);
+			str.append(this.setValuesFromDTOForBeanForFieldsBelow(pNode.getTableOccurrenceRootNode(), pDTO,
+					pExtraImports));
 		} else {
-			str.append(TAB[2] + bean.getJavaClassName() + " " + variableName + " = new " + bean.getJavaClassName() + "();" + CR);
+			str.append(TAB[2] + bean.getJavaClassName() + " " + variableName + " = new " + bean.getJavaClassName()
+					+ "();" + CR);
 			str.append(this.setValuesFromDTOForBeanForFieldsBelow(pNode, pDTO, pExtraImports));
 		}
 		str.append(TAB[2] + "return " + variableName + ";" + CR);
@@ -994,37 +1110,48 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 	private static Object generateGetDatasetDAO(final DataAccessObject pDatasetDAO) {
 		StringBuilder str = new StringBuilder();
 		str.append(TAB[1] + "@Override" + CR);
-		str.append(TAB[1] + "protected " + pDatasetDAO.getJavaClassName() + " getDatasetDAO(final Adaptation pDataset) {" + CR);
+		str.append(TAB[1] + "protected " + pDatasetDAO.getJavaClassName()
+				+ " getDatasetDAO(final Adaptation pDataset) {" + CR);
 		str.append(TAB[2] + "return new " + pDatasetDAO.getJavaClassName() + "(pDataset);" + CR);
 		str.append(TAB[1] + "}" + CR);
 		return str;
 	}
 
-	private String generateGetDefaultValuesForFieldsBelow(final SchemaNode pNode, final Set<String> pExtraImports) throws OperationException, EBXCommonsException {
+	private String generateGetDefaultValuesForFieldsBelow(final SchemaNode pNode, final Set<String> pExtraImports)
+			throws OperationException, EBXCommonsException {
 		StringBuilder str = new StringBuilder();
 		for (SchemaNode node : pNode.getNodeChildren()) {
-			if (node.getMaxOccurs() < 2 && !node.isAssociationNode() && (node.isTerminalValue() || SchemaUtils.isTerminalUnderTerminal(pNode))) {
+			if (node.getMaxOccurs() < 2 && !node.isAssociationNode()
+					&& (node.isTerminalValue() || SchemaUtils.isTerminalUnderTerminal(pNode))) {
 				if (node.getDefaultValue() != null) {
 
 					if (node.getFacetOnTableReference() != null) {
 						str.append(TAB[2] + "if(pDataset != null){" + CR);
-						DataAccessObject distantDAO = this.getOrRegisterDAO(node.getFacetOnTableReference().getTableNode());
+						DataAccessObject distantDAO = this
+								.getOrRegisterDAO(node.getFacetOnTableReference().getTableNode());
 						pExtraImports.add(GenerateJavaAccessers.getClassSignatureForDAO(distantDAO));
 						if (node.getFacetOnTableReference().getContainerReference() != null) {
 							pExtraImports.add("com.tibco.ebx.cs.commons.lib.utils.AdaptationUtils");
-							String datasetVariableName = GenerateJavaAccessers.getAttributeNameForNode(node) + "Dataset";
+							String datasetVariableName = GenerateJavaAccessers.getAttributeNameForNode(node)
+									+ "Dataset";
 							if (node.getFacetOnTableReference().getContainerHome() != null) {
-								str.append(TAB[3] + "Adaptation " + datasetVariableName + " = AdaptationUtils.getDataset(pDataset.getHome().getRepository(), \""
-										+ node.getFacetOnTableReference().getContainerHome().getName() + "\", \"" + node.getFacetOnTableReference().getContainerReference().getStringName() + "\");"
-										+ CR);
+								str.append(TAB[3] + "Adaptation " + datasetVariableName
+										+ " = AdaptationUtils.getDataset(pDataset.getHome().getRepository(), \""
+										+ node.getFacetOnTableReference().getContainerHome().getName() + "\", \""
+										+ node.getFacetOnTableReference().getContainerReference().getStringName()
+										+ "\");" + CR);
 							} else {
-								str.append(TAB[3] + "Adaptation " + datasetVariableName + " = AdaptationUtils.getDataset(pDataset.getHome(), \""
-										+ node.getFacetOnTableReference().getContainerReference().getStringName() + "\");" + CR);
+								str.append(TAB[3] + "Adaptation " + datasetVariableName
+										+ " = AdaptationUtils.getDataset(pDataset.getHome(), \""
+										+ node.getFacetOnTableReference().getContainerReference().getStringName()
+										+ "\");" + CR);
 							}
-							str.append(TAB[3] + "instance." + GenerateJavaAccessers.getSetterNameForNode(node) + "(" + distantDAO.getJavaClassName() + ".getInstance().read(\"" + node.getDefaultValue()
+							str.append(TAB[3] + "instance." + GenerateJavaAccessers.getSetterNameForNode(node) + "("
+									+ distantDAO.getJavaClassName() + ".getInstance().read(\"" + node.getDefaultValue()
 									+ "\", " + datasetVariableName + ").orElse(null));" + CR);
 						} else {
-							str.append(TAB[3] + "instance." + GenerateJavaAccessers.getSetterNameForNode(node) + "(" + distantDAO.getJavaClassName() + ".getInstance().read(\"" + node.getDefaultValue()
+							str.append(TAB[3] + "instance." + GenerateJavaAccessers.getSetterNameForNode(node) + "("
+									+ distantDAO.getJavaClassName() + ".getInstance().read(\"" + node.getDefaultValue()
 									+ "\", pDataset).orElse(null));" + CR);
 						}
 						str.append(TAB[2] + "}" + CR);
@@ -1041,11 +1168,13 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 							str.append("Locale.forLanguageTag(" + node.getDefaultValue() + "));" + CR);
 						} else if (DATE_TYPE.equals(node.getXsTypeName().toString())) {
 							pExtraImports.add("java.text.*");
-							str.append("DateFormat.getDateInstance(DateFormat.DEFAULT, Locale.US).parse(\"" + DATE_FORMAT.format((Date) node.getDefaultValue()) + "\"));" + CR);
+							str.append("DateFormat.getDateInstance(DateFormat.DEFAULT, Locale.US).parse(\""
+									+ DATE_FORMAT.format((Date) node.getDefaultValue()) + "\"));" + CR);
 						} else if (DATETIME_TYPE.equals(node.getXsTypeName().toString())) {
 							pExtraImports.add("java.text.*");
-							str.append("DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.US).parse(\"" + DATETIME_FORMAT.format((Date) node.getDefaultValue()) + "\"));"
-									+ CR);
+							str.append(
+									"DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.US).parse(\""
+											+ DATETIME_FORMAT.format((Date) node.getDefaultValue()) + "\"));" + CR);
 						} else if (BOOLEAN_TYPE.equals(node.getXsTypeName().toString())) {
 							if (((Boolean) node.getDefaultValue()).booleanValue()) {
 								str.append("Boolean.TRUE);" + CR);
@@ -1059,7 +1188,8 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 						}
 					}
 				} else if (node.getInheritanceProperties() != null) {
-					str.append(TAB[2] + "instance.inherit(" + GenerateJavaAccessers.getConstantNameForPathToField(node) + ");" + CR);
+					str.append(TAB[2] + "instance.inherit(" + GenerateJavaAccessers.getConstantNameForPathToField(node)
+							+ ");" + CR);
 				}
 			} else {
 				str.append(this.generateGetDefaultValuesForFieldsBelow(node, pExtraImports));
@@ -1077,7 +1207,8 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 		return str.toString();
 	}
 
-	private String generateGetInstanceOfBean(final SchemaNode pNode, final JavaBean pBean, final Set<String> pExtraImports) throws OperationException, EBXCommonsException {
+	private String generateGetInstanceOfBean(final SchemaNode pNode, final JavaBean pBean,
+			final Set<String> pExtraImports) throws OperationException, EBXCommonsException {
 		StringBuilder str = new StringBuilder();
 		str.append(TAB[1] + "@Override" + CR);
 		str.append(TAB[1] + "public " + pBean.getJavaClassName() + " getInstanceOfBean(){" + CR);
@@ -1085,7 +1216,8 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 		str.append(TAB[2] + "return instance;" + CR);
 		str.append(TAB[1] + "}" + CR + CR);
 		str.append(TAB[1] + "@Override" + CR);
-		str.append(TAB[1] + "public " + pBean.getJavaClassName() + " getInstanceOfBean(final Adaptation pDataset){" + CR);
+		str.append(
+				TAB[1] + "public " + pBean.getJavaClassName() + " getInstanceOfBean(final Adaptation pDataset){" + CR);
 		str.append(TAB[2] + pBean.getJavaClassName() + " instance = new " + pBean.getJavaClassName() + "();" + CR);
 		str.append(this.generateGetDefaultValuesForFieldsBelow(pNode, pExtraImports));
 		str.append(TAB[2] + "return instance;" + CR);
@@ -1097,18 +1229,21 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 		StringBuilder str = new StringBuilder();
 		str.append(TAB[1] + "@Override" + CR);
 		str.append(TAB[1] + "protected String[] getPrimaryKeysGetters() {" + CR);
-		str.append(TAB[2] + "return new String[] { " + GenerateJavaAccessers.getPrimaryKeysGetters(pTable) + " };" + CR);
+		str.append(
+				TAB[2] + "return new String[] { " + GenerateJavaAccessers.getPrimaryKeysGetters(pTable) + " };" + CR);
 		str.append(TAB[1] + "}" + CR);
 		return str.toString();
 	}
 
-	private Object generateGetPrimaryKeysSetters(final AdaptationTable pTable, final Set<String> pExtraImports) throws EBXCommonsException {
+	private Object generateGetPrimaryKeysSetters(final AdaptationTable pTable, final Set<String> pExtraImports)
+			throws EBXCommonsException {
 		pExtraImports.add("java.util.List");
 		pExtraImports.add("java.util.ArrayList");
 		pExtraImports.add("com.tibco.ebx.cs.commons.beans.generator.exception.BeansTechnicalException");
 		StringBuilder str = new StringBuilder();
 		str.append(TAB[1] + "@Override" + CR);
-		str.append(TAB[1] + "protected List<PrimaryKeySetter> getPrimaryKeysSetters() throws BeansTechnicalException {" + CR);
+		str.append(TAB[1] + "protected List<PrimaryKeySetter> getPrimaryKeysSetters() throws BeansTechnicalException {"
+				+ CR);
 		str.append(TAB[2] + "List<PrimaryKeySetter> setters = new ArrayList<>();" + CR);
 		str.append(TAB[2] + "try {" + CR);
 		for (Path path : pTable.getPrimaryKeySpec()) {
@@ -1116,7 +1251,8 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 			String beanClassName = GenerateJavaAccessers.getJavaClassName(pTable.getTableNode());
 			String setterName = GenerateJavaAccessers.getSetterNameForNode(pkNode);
 			String parameterClassName = this.getJavaTypeForNodeInBean(pkNode, false, pExtraImports);
-			str.append(TAB[3] + "setters.add(new PrimaryKeySetter(" + beanClassName + ".class.getMethod(\"" + setterName + "\", " + parameterClassName + ".class), Optional.");
+			str.append(TAB[3] + "setters.add(new PrimaryKeySetter(" + beanClassName + ".class.getMethod(\"" + setterName
+					+ "\", " + parameterClassName + ".class), Optional.");
 			if (pkNode.getFacetOnTableReference() == null) {
 				str.append("empty()));" + CR);
 			} else {
@@ -1132,27 +1268,32 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 
 	}
 
-	private Object generateGetValuesFromAdaptation(final SchemaNode pNode, final JavaBean pBean, final Set<String> pExtraImports) throws OperationException, EBXCommonsException {
+	private Object generateGetValuesFromAdaptation(final SchemaNode pNode, final JavaBean pBean,
+			final Set<String> pExtraImports) throws OperationException, EBXCommonsException {
 		StringBuilder str = new StringBuilder();
 		String className = pBean.getJavaClassName();
 		pExtraImports.add("com.orchestranetworks.service.SessionPermissions");
 		pExtraImports.add("java.util.Optional");
 		str.append(TAB[1] + "@Override" + CR);
-		str.append(TAB[1] + "protected void getValuesFromAdaptation(final " + className + " p" + className + ", final Adaptation pRecord, final Optional<SessionPermissions> pPermissions) {" + CR);
+		str.append(TAB[1] + "protected void getValuesFromAdaptation(final " + className + " p" + className
+				+ ", final Adaptation pRecord, final Optional<SessionPermissions> pPermissions) {" + CR);
 		str.append(this.getValuesFromAdaptationForFieldsBelow(pNode, pBean, pExtraImports));
 		str.append(TAB[1] + "}" + CR);
 		return str.toString();
 	}
 
-	private Object generateGetValuesFromValueContext(final SchemaNode pNode, final JavaBean pBean, final Set<String> pExtraImports) throws OperationException, EBXCommonsException {
+	private Object generateGetValuesFromValueContext(final SchemaNode pNode, final JavaBean pBean,
+			final Set<String> pExtraImports) throws OperationException, EBXCommonsException {
 		StringBuilder str = new StringBuilder();
 		String className = pBean.getJavaClassName();
 		str.append(TAB[1] + "@Override" + CR);
-		str.append(TAB[1] + "protected void getValuesFromValueContext(final " + className + " p" + className + ", final ValueContext pContext, Optional<SessionPermissions> pPermissions) {" + CR);
+		str.append(TAB[1] + "protected void getValuesFromValueContext(final " + className + " p" + className
+				+ ", final ValueContext pContext, Optional<SessionPermissions> pPermissions) {" + CR);
 		String getValues = this.getValuesFromValueContextForFieldsBelow(pNode, pBean, pExtraImports);
 		if (!getValues.isEmpty()) {
 			str.append(TAB[2] + "Path pathToRecordRoot = SchemaUtils.getPathToRecordRoot(pContext.getNode());" + CR);
-			str.append(TAB[2] + "Optional<Adaptation> record = AdaptationUtils.getRecordForValueContext(pContext);" + CR);
+			str.append(
+					TAB[2] + "Optional<Adaptation> record = AdaptationUtils.getRecordForValueContext(pContext);" + CR);
 			pExtraImports.add("com.tibco.ebx.cs.commons.lib.utils.SchemaUtils");
 			pExtraImports.add("com.tibco.ebx.cs.commons.lib.utils.AdaptationUtils");
 		}
@@ -1164,12 +1305,15 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 	/**
 	 * Generates overwritten equals and hashCode methods for class.
 	 *
-	 * @param node           The table for which to create the hashCode and equals methods.
-	 * @param pJavaClassName The Java class name of the object to hash and test for equality with a counterpart.
+	 * @param node           The table for which to create the hashCode and equals
+	 *                       methods.
+	 * @param pJavaClassName The Java class name of the object to hash and test for
+	 *                       equality with a counterpart.
 	 * @param pExtraImports
 	 * @return String with code for hashCode and equals methods
 	 */
-	private String generateHashCodeAndEquals(final SchemaNode pNode, final String pJavaClassName, final Set<String> pExtraImports) {
+	private String generateHashCodeAndEquals(final SchemaNode pNode, final String pJavaClassName,
+			final Set<String> pExtraImports) {
 		StringBuilder str = new StringBuilder();
 		pExtraImports.add("java.util.Objects");
 		List<String> attributesList = this.getListOfAttributeNamesForNode(pNode);
@@ -1215,8 +1359,13 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 			if (node.isTableNode()) {
 				continue;
 			}
-			if (node.isTerminalValue() || node.isTerminalValueDescendant() && (node.getAccessMode().isReadWrite() || node.getMaxOccurs() > 1) || node.isAssociationNode()) {
-				str.append(TAB[1] + "public static final Path " + GenerateJavaAccessers.getConstantNameForPathToField(node) + " = Path.parse(\"." + node.getPathInAdaptation().format() + "\");" + CR);
+			if (node.isTerminalValue()
+					|| node.isTerminalValueDescendant()
+							&& (node.getAccessMode().isReadWrite() || node.getMaxOccurs() > 1)
+					|| node.isAssociationNode()) {
+				str.append(
+						TAB[1] + "public static final Path " + GenerateJavaAccessers.getConstantNameForPathToField(node)
+								+ " = Path.parse(\"." + node.getPathInAdaptation().format() + "\");" + CR);
 			}
 			str.append(this.generatePathsAsConstantsForFieldsBelow(node));
 		}
@@ -1226,13 +1375,15 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 	private String generatePathsAsConstantsForTablesBelow(final SchemaNode schemaNode) {
 		StringBuilder str = new StringBuilder();
 		for (AdaptationTable table : AdaptationUtils.getAllTables(this.DATASETS.get(schemaNode.getSchemaLocation()))) {
-			str.append(TAB[1] + "public static final Path " + GenerateJavaAccessers.getConstantNameForPathToTable(table.getTableNode()) + " = Path.parse(\"" + table.getTablePath().format() + "\");"
-					+ CR);
+			str.append(TAB[1] + "public static final Path "
+					+ GenerateJavaAccessers.getConstantNameForPathToTable(table.getTableNode()) + " = Path.parse(\""
+					+ table.getTablePath().format() + "\");" + CR);
 		}
 		return str.toString();
 	}
 
-	private static String generateRestService(final AdaptationTable pTable, final RestService pRestService) throws EBXCommonsException {
+	private static String generateRestService(final AdaptationTable pTable, final RestService pRestService)
+			throws EBXCommonsException {
 		StringBuilder classContent = new StringBuilder();
 		String tableLabel = pTable.getTableNode().getLabel(Locale.US);
 		classContent.append("package " + pRestService.getJavaPackage() + ";" + CR);
@@ -1260,8 +1411,10 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 		classContent.append("import com.orchestranetworks.rest.annotation.Documentation;" + CR);
 		classContent.append("import com.orchestranetworks.rest.inject.SessionContext;" + CR);
 		classContent.append("import com.tibco.ebx.cs.commons.lib.exception.EBXCommonsException;" + CR);
-		classContent.append("import " + GenerateJavaAccessers.getClassSignatureForDTO(pRestService.getDto()) + ";" + CR);
-		classContent.append("import " + GenerateJavaAccessers.getClassSignatureForService(pRestService.getService()) + ";" + CR);
+		classContent
+				.append("import " + GenerateJavaAccessers.getClassSignatureForDTO(pRestService.getDto()) + ";" + CR);
+		classContent.append(
+				"import " + GenerateJavaAccessers.getClassSignatureForService(pRestService.getService()) + ";" + CR);
 		classContent.append("import com.tibco.ebx.cs.commons.lib.utils.AdaptationUtils;" + CR);
 
 		classContent.append("import io.swagger.v3.oas.annotations.Operation;" + CR);
@@ -1276,13 +1429,17 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 
 		classContent.append(CR);
 		classContent.append("/**" + CR);
-		classContent.append("* REST Service automatically generated by service 'Generate Java Accessers' of EBX Commons" + CR);
-		classContent.append("* It aims to integrate records of table at path " + pTable.getTablePath().format() + " in data model " + pTable.getTableNode().getSchemaLocation().format() + "." + CR);
+		classContent.append(
+				"* REST Service automatically generated by service 'Generate Java Accessers' of EBX Commons" + CR);
+		classContent.append("* It aims to integrate records of table at path " + pTable.getTablePath().format()
+				+ " in data model " + pTable.getTableNode().getSchemaLocation().format() + "." + CR);
 		if (!StringUtils.isBlank(pRestService.getDataspace())) {
-			classContent.append("* The identifier of a dataspace being specified before generation to be '" + pRestService.getDataspace() + "', operation are applied to it." + CR);
+			classContent.append("* The identifier of a dataspace being specified before generation to be '"
+					+ pRestService.getDataspace() + "', operation are applied to it." + CR);
 		}
 		if (!StringUtils.isBlank(pRestService.getDataset())) {
-			classContent.append("* The identifier of a dataset being specified before generation to be '" + pRestService.getDataset() + "', operation are applied to it." + CR);
+			classContent.append("* The identifier of a dataset being specified before generation to be '"
+					+ pRestService.getDataset() + "', operation are applied to it." + CR);
 		}
 		classContent.append("*" + CR);
 		classContent.append("* @author EBX Commons" + CR);
@@ -1311,39 +1468,50 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 		classContent.append(TAB[1] + "protected SessionContext sessionContext;" + CR);
 		classContent.append(CR);
 		if (!StringUtils.isBlank(pRestService.getDataspace())) {
-			classContent.append(TAB[1] + "private static final String DATASPACE = \"" + pRestService.getDataspace() + "\";");
+			classContent.append(
+					TAB[1] + "private static final String DATASPACE = \"" + pRestService.getDataspace() + "\";");
 			classContent.append(CR);
 		}
 		if (!StringUtils.isBlank(pRestService.getDataset())) {
-			classContent.append(TAB[1] + "private static final String DATASET = \"" + pRestService.getDataset() + "\";");
+			classContent
+					.append(TAB[1] + "private static final String DATASET = \"" + pRestService.getDataset() + "\";");
 			classContent.append(CR);
 		}
 		classContent.append(CR);
-		classContent.append(TAB[1] + "protected " + pRestService.getService().getJavaClassName() + " getService() {" + CR);
+		classContent
+				.append(TAB[1] + "protected " + pRestService.getService().getJavaClassName() + " getService() {" + CR);
 		classContent.append(TAB[2] + "return new " + pRestService.getService().getJavaClassName() + "();" + CR);
 		classContent.append(TAB[1] + "}" + CR);
 
-		String dataspaceDatasetParameters = (StringUtils.isBlank(pRestService.getDataspace()) ? "pDataspace" : "DATASPACE") + ", "
-				+ (StringUtils.isBlank(pRestService.getDataspace()) ? "pDataset" : "DATASET");
+		String dataspaceDatasetParameters = (StringUtils.isBlank(pRestService.getDataspace()) ? "pDataspace"
+				: "DATASPACE") + ", " + (StringUtils.isBlank(pRestService.getDataspace()) ? "pDataset" : "DATASET");
 
 		if (pRestService.getPost().booleanValue()) {
 			classContent.append(CR);
 			classContent.append(TAB[1] + "/**" + CR);
+			classContent
+					.append(TAB[1] + "* POST Operation to create a record in table " + pTable.getTablePath().format()
+							+ " in data model " + pTable.getTableNode().getSchemaLocation().format() + "." + CR);
+			classContent.append(TAB[1] + "*" + CR);
 			classContent.append(
-					TAB[1] + "* POST Operation to create a record in table " + pTable.getTablePath().format() + " in data model " + pTable.getTableNode().getSchemaLocation().format() + "." + CR);
+					TAB[1] + "* @param pDTO A data transfer object representing the record to be created {@link "
+							+ pRestService.getDto().getJavaClassName() + "}" + CR);
 			classContent.append(TAB[1] + "*" + CR);
-			classContent.append(TAB[1] + "* @param pDTO A data transfer object representing the record to be created {@link " + pRestService.getDto().getJavaClassName() + "}" + CR);
-			classContent.append(TAB[1] + "*" + CR);
-			classContent.append(TAB[1] + "* @return A response with the code 201 along with a DTO representing the created record." + CR);
+			classContent.append(TAB[1]
+					+ "* @return A response with the code 201 along with a DTO representing the created record." + CR);
 			classContent.append(TAB[1] + "*/" + CR);
 			classContent.append(TAB[1] + "@POST" + CR);
 			classContent.append(TAB[1] + "@Path(\"/\")" + CR);
-			classContent.append(TAB[1] + "@Operation(summary = \"Create a record in table '" + tableLabel + "'\", description = \"Create a record in table '" + tableLabel + "'\")" + CR);
-			classContent.append(
-					TAB[1] + "@ApiResponse(description = \"Created record\", content = @Content(schema = @Schema(implementation = " + pRestService.getDto().getJavaClassName() + ".class)))" + CR);
+			classContent.append(TAB[1] + "@Operation(summary = \"Create a record in table '" + tableLabel
+					+ "'\", description = \"Create a record in table '" + tableLabel + "'\")" + CR);
+			classContent.append(TAB[1]
+					+ "@ApiResponse(description = \"Created record\", content = @Content(schema = @Schema(implementation = "
+					+ pRestService.getDto().getJavaClassName() + ".class)))" + CR);
 			classContent.append(TAB[1] + "@ApiResponse(responseCode = \"201\", description = \"Record created\")" + CR);
-			classContent.append(TAB[1] + "public Response post(@RequestBody(description = \"" + pRestService.getJavaClassName() + "\", required = true, ");
-			classContent.append("content = @Content(schema = @Schema(implementation = " + pRestService.getDto().getJavaClassName() + ".class)))" + CR);
+			classContent.append(TAB[1] + "public Response post(@RequestBody(description = \""
+					+ pRestService.getJavaClassName() + "\", required = true, ");
+			classContent.append("content = @Content(schema = @Schema(implementation = "
+					+ pRestService.getDto().getJavaClassName() + ".class)))" + CR);
 			classContent.append(TAB[1] + "final " + pRestService.getDto().getJavaClassName() + " pDTO");
 			if (StringUtils.isBlank(pRestService.getDataspace())) {
 				classContent.append(", @PathParam(\"dataspace\")" + CR);
@@ -1354,35 +1522,46 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 				classContent.append(TAB[1] + "final String pDataset");
 			}
 			classContent.append(") throws EBXCommonsException {" + CR);
-			classContent.append(TAB[2] + "Adaptation dataset = AdaptationUtils.getDataset(Repository.getDefault(), " + dataspaceDatasetParameters + ");" + CR);
-			classContent.append(TAB[2] + pRestService.getDto().getJavaClassName() + " created = this.getService().create(pDTO, this.sessionContext.getSession(), dataset);" + CR);
-			classContent.append(TAB[2] + "return Response.status(Response.Status.CREATED).entity(created).build();" + CR);
+			classContent.append(TAB[2] + "Adaptation dataset = AdaptationUtils.getDataset(Repository.getDefault(), "
+					+ dataspaceDatasetParameters + ");" + CR);
+			classContent.append(TAB[2] + pRestService.getDto().getJavaClassName()
+					+ " created = this.getService().create(pDTO, this.sessionContext.getSession(), dataset);" + CR);
+			classContent
+					.append(TAB[2] + "return Response.status(Response.Status.CREATED).entity(created).build();" + CR);
 			classContent.append(TAB[1] + "}" + CR);
 		}
 
 		if (pRestService.getGet().booleanValue()) {
 			classContent.append(CR);
 			classContent.append(TAB[1] + "/**" + CR);
-			classContent.append(
-					TAB[1] + "* GET Operation to get a record from table " + pTable.getTablePath().format() + " in data model " + pTable.getTableNode().getSchemaLocation().format() + "." + CR);
+			classContent.append(TAB[1] + "* GET Operation to get a record from table " + pTable.getTablePath().format()
+					+ " in data model " + pTable.getTableNode().getSchemaLocation().format() + "." + CR);
 			classContent.append(TAB[1] + "*" + CR);
 			if (StringUtils.isBlank(pRestService.getDataspace())) {
-				classContent.append(TAB[1] + "* @param pDataspace Identifier of the dataspace from which to get the record." + CR);
+				classContent.append(
+						TAB[1] + "* @param pDataspace Identifier of the dataspace from which to get the record." + CR);
 			}
 			if (StringUtils.isBlank(pRestService.getDataset())) {
-				classContent.append(TAB[1] + "* @param pDataset Identifier of the dataset from which to get the record." + CR);
+				classContent.append(
+						TAB[1] + "* @param pDataset Identifier of the dataset from which to get the record." + CR);
 			}
 			classContent.append(TAB[1] + "* @param pPK The primary key of the record to get." + CR);
 			classContent.append(TAB[1] + "*" + CR);
-			classContent.append(TAB[1] + "* @return A response with the code 20O along with a DTO representing the record. A response with the code 404 if the record has not been found." + CR);
+			classContent.append(TAB[1]
+					+ "* @return A response with the code 20O along with a DTO representing the record. A response with the code 404 if the record has not been found."
+					+ CR);
 			classContent.append(TAB[1] + "*/" + CR);
 			classContent.append(TAB[1] + "@GET" + CR);
 			classContent.append(TAB[1] + "@Path(\"/{pk}\")" + CR);
-			classContent.append(TAB[1] + "@Operation(summary = \"Get record from table '" + tableLabel + "'\", description = \"Get record from table '" + tableLabel + "'\")" + CR);
-			classContent.append(TAB[1] + "@ApiResponse(description = \"Record from table '" + tableLabel + "'\", content = @Content(schema = @Schema(implementation = "
+			classContent.append(TAB[1] + "@Operation(summary = \"Get record from table '" + tableLabel
+					+ "'\", description = \"Get record from table '" + tableLabel + "'\")" + CR);
+			classContent.append(TAB[1] + "@ApiResponse(description = \"Record from table '" + tableLabel
+					+ "'\", content = @Content(schema = @Schema(implementation = "
 					+ pRestService.getDto().getJavaClassName() + ".class)))" + CR);
-			classContent.append(TAB[1] + "@ApiResponse(responseCode = \"200\", description = \"Record found and returned\")" + CR);
-			classContent.append(TAB[1] + "@ApiResponse(responseCode = \"404\", description = \"Record not found\")" + CR);
+			classContent.append(
+					TAB[1] + "@ApiResponse(responseCode = \"200\", description = \"Record found and returned\")" + CR);
+			classContent
+					.append(TAB[1] + "@ApiResponse(responseCode = \"404\", description = \"Record not found\")" + CR);
 			classContent.append(TAB[1] + "public " + pRestService.getDto().getJavaClassName() + " get(");
 			if (StringUtils.isBlank(pRestService.getDataspace())) {
 				classContent.append("@PathParam(\"dataspace\")" + CR);
@@ -1392,10 +1571,14 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 				classContent.append("@PathParam(\"dataset\")" + CR);
 				classContent.append(TAB[1] + "final String pDataset, ");
 			}
-			classContent.append("@Parameter(description = \"" + GenerateJavaAccessers.getPrimaryDescription(pTable) + "\") @PathParam(\"pk\")" + CR);
+			classContent.append("@Parameter(description = \"" + GenerateJavaAccessers.getPrimaryDescription(pTable)
+					+ "\") @PathParam(\"pk\")" + CR);
 			classContent.append(TAB[1] + "final String pPK) throws EBXCommonsException {" + CR);
-			classContent.append(TAB[2] + "Adaptation dataset = AdaptationUtils.getDataset(Repository.getDefault(), " + dataspaceDatasetParameters + ");" + CR);
-			classContent.append(TAB[2] + pRestService.getDto().getJavaClassName() + " dto =  this.getService().read(pPK, this.sessionContext.getSession(), dataset).orElse(null);" + CR);
+			classContent.append(TAB[2] + "Adaptation dataset = AdaptationUtils.getDataset(Repository.getDefault(), "
+					+ dataspaceDatasetParameters + ");" + CR);
+			classContent.append(TAB[2] + pRestService.getDto().getJavaClassName()
+					+ " dto =  this.getService().read(pPK, this.sessionContext.getSession(), dataset).orElse(null);"
+					+ CR);
 			classContent.append(TAB[2] + "if (dto == null) {" + CR);
 			classContent.append(TAB[3] + "throw new NotFoundException();" + CR);
 			classContent.append(TAB[2] + "}" + CR);
@@ -1406,28 +1589,40 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 		if (pRestService.getGetList().booleanValue()) {
 			classContent.append(CR);
 			classContent.append(TAB[1] + "/**" + CR);
-			classContent.append(TAB[1] + "* GET Operation to get a list of records from table " + pTable.getTablePath().format() + " in data model "
-					+ pTable.getTableNode().getSchemaLocation().format() + "." + CR);
+			classContent.append(
+					TAB[1] + "* GET Operation to get a list of records from table " + pTable.getTablePath().format()
+							+ " in data model " + pTable.getTableNode().getSchemaLocation().format() + "." + CR);
 			classContent.append(TAB[1] + "*" + CR);
 			if (StringUtils.isBlank(pRestService.getDataspace())) {
-				classContent.append(TAB[1] + "* @param pDataspace Identifier of the dataspace from which to search for records." + CR);
+				classContent.append(TAB[1]
+						+ "* @param pDataspace Identifier of the dataspace from which to search for records." + CR);
 			}
 			if (StringUtils.isBlank(pRestService.getDataset())) {
-				classContent.append(TAB[1] + "* @param pDataset Identifier of the dataset from which to search for records." + CR);
+				classContent.append(
+						TAB[1] + "* @param pDataset Identifier of the dataset from which to search for records." + CR);
 			}
-			classContent.append(TAB[1] + "* @param pPredicate An XPath predicate to be applied to the table to filter the records to be returned." + CR);
+			classContent.append(TAB[1]
+					+ "* @param pPredicate An XPath predicate to be applied to the table to filter the records to be returned."
+					+ CR);
 			classContent.append(TAB[1] + "* @param pLimit Maximum number of record to be returned." + CR);
-			classContent.append(TAB[1] + "* @param pOffset Number of record to be ignored in the results. This is to be used to get paginated results in association with pLimit." + CR);
+			classContent.append(TAB[1]
+					+ "* @param pOffset Number of record to be ignored in the results. This is to be used to get paginated results in association with pLimit."
+					+ CR);
 			classContent.append(TAB[1] + "*" + CR);
-			classContent.append(TAB[1] + "* @return A response with the code 20O along with a list of DTO representing the records found." + CR);
+			classContent.append(TAB[1]
+					+ "* @return A response with the code 20O along with a list of DTO representing the records found."
+					+ CR);
 			classContent.append(TAB[1] + "*/" + CR);
 			classContent.append(TAB[1] + "@GET" + CR);
 			classContent.append(TAB[1] + "@Path(\"/\")" + CR);
-			classContent.append(TAB[1] + "@Operation(summary = \"Search for records from table '" + tableLabel + "' by predicate\", description = \"Search for records from table '" + tableLabel
+			classContent.append(TAB[1] + "@Operation(summary = \"Search for records from table '" + tableLabel
+					+ "' by predicate\", description = \"Search for records from table '" + tableLabel
 					+ "' by predicate\")" + CR);
-			classContent.append(TAB[1] + "@ApiResponse(description = \"List of records matching predicate\", content = @Content(array = @ArraySchema(schema = @Schema(implementation = "
+			classContent.append(TAB[1]
+					+ "@ApiResponse(description = \"List of records matching predicate\", content = @Content(array = @ArraySchema(schema = @Schema(implementation = "
 					+ pRestService.getDto().getJavaClassName() + ".class))))" + CR);
-			classContent.append(TAB[1] + "@ApiResponse(responseCode = \"200\", description = \"Request executed properly\")" + CR);
+			classContent.append(
+					TAB[1] + "@ApiResponse(responseCode = \"200\", description = \"Request executed properly\")" + CR);
 			classContent.append(TAB[1] + "public List<" + pRestService.getDto().getJavaClassName() + "> getList(");
 			if (StringUtils.isBlank(pRestService.getDataspace())) {
 				classContent.append("@PathParam(\"dataspace\")" + CR);
@@ -1441,37 +1636,51 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 			classContent.append(TAB[1] + "final String pPredicate, @QueryParam(\"limit\")" + CR);
 			classContent.append(TAB[1] + "final Integer pLimit, @QueryParam(\"offset\")" + CR);
 			classContent.append(TAB[1] + "final Integer pOffset) throws EBXCommonsException {" + CR);
-			classContent.append(TAB[2] + "Adaptation dataset = AdaptationUtils.getDataset(Repository.getDefault(), " + dataspaceDatasetParameters + ");" + CR);
-			classContent.append(TAB[2] + "return this.getService().read(this.sessionContext.getSession(), dataset, pPredicate, pLimit, pOffset);" + CR);
+			classContent.append(TAB[2] + "Adaptation dataset = AdaptationUtils.getDataset(Repository.getDefault(), "
+					+ dataspaceDatasetParameters + ");" + CR);
+			classContent.append(TAB[2]
+					+ "return this.getService().read(this.sessionContext.getSession(), dataset, pPredicate, pLimit, pOffset);"
+					+ CR);
 			classContent.append(TAB[1] + "}" + CR);
 		}
 
 		if (pRestService.getPut().booleanValue()) {
 			classContent.append(CR);
 			classContent.append(TAB[1] + "/**" + CR);
-			classContent.append(
-					TAB[1] + "* PUT Operation to update a record in table " + pTable.getTablePath().format() + " in data model " + pTable.getTableNode().getSchemaLocation().format() + "." + CR);
+			classContent.append(TAB[1] + "* PUT Operation to update a record in table " + pTable.getTablePath().format()
+					+ " in data model " + pTable.getTableNode().getSchemaLocation().format() + "." + CR);
 			classContent.append(TAB[1] + "*" + CR);
 			if (StringUtils.isBlank(pRestService.getDataspace())) {
-				classContent.append(TAB[1] + "* @param pDataspace Identifier of the dataspace from which to update the record." + CR);
+				classContent.append(TAB[1]
+						+ "* @param pDataspace Identifier of the dataspace from which to update the record." + CR);
 			}
 			if (StringUtils.isBlank(pRestService.getDataset())) {
-				classContent.append(TAB[1] + "* @param pDataset Identifier of the dataset from which to update the record." + CR);
+				classContent.append(
+						TAB[1] + "* @param pDataset Identifier of the dataset from which to update the record." + CR);
 			}
 			classContent.append(TAB[1] + "* @param pPK The primary key of the record to update." + CR);
-			classContent.append(TAB[1] + "* @param pDTO A data transfer object representing the record to be created {@link " + pRestService.getDto().getJavaClassName() + "}" + CR);
+			classContent.append(
+					TAB[1] + "* @param pDTO A data transfer object representing the record to be created {@link "
+							+ pRestService.getDto().getJavaClassName() + "}" + CR);
 			classContent.append(TAB[1] + "*" + CR);
-			classContent.append(TAB[1] + "* @return A response with the code 200 along with a DTO representing the updated record. A response with code 404 if the record has not been found." + CR);
+			classContent.append(TAB[1]
+					+ "* @return A response with the code 200 along with a DTO representing the updated record. A response with code 404 if the record has not been found."
+					+ CR);
 			classContent.append(TAB[1] + "*/" + CR);
 			classContent.append(TAB[1] + "@PUT" + CR);
 			classContent.append(TAB[1] + "@Path(\"/{pk}\")" + CR);
-			classContent.append(TAB[1] + "@Operation(summary = \"Update a record in table '" + tableLabel + "'\", description = \"Update a record in table '" + tableLabel + "'\")" + CR);
-			classContent.append(
-					TAB[1] + "@ApiResponse(description = \"Updated record\", content = @Content(schema = @Schema(implementation = " + pRestService.getDto().getJavaClassName() + ".class)))" + CR);
+			classContent.append(TAB[1] + "@Operation(summary = \"Update a record in table '" + tableLabel
+					+ "'\", description = \"Update a record in table '" + tableLabel + "'\")" + CR);
+			classContent.append(TAB[1]
+					+ "@ApiResponse(description = \"Updated record\", content = @Content(schema = @Schema(implementation = "
+					+ pRestService.getDto().getJavaClassName() + ".class)))" + CR);
 			classContent.append(TAB[1] + "@ApiResponse(responseCode = \"200\", description = \"Record updated\")" + CR);
-			classContent.append(TAB[1] + "@ApiResponse(responseCode = \"404\", description = \"Record not found\")" + CR);
-			classContent.append(TAB[1] + "public Response put(@RequestBody(description = \"" + pRestService.getJavaClassName() + "\", required = true, ");
-			classContent.append("content = @Content(schema = @Schema(implementation = " + pRestService.getDto().getJavaClassName() + ".class)))" + CR);
+			classContent
+					.append(TAB[1] + "@ApiResponse(responseCode = \"404\", description = \"Record not found\")" + CR);
+			classContent.append(TAB[1] + "public Response put(@RequestBody(description = \""
+					+ pRestService.getJavaClassName() + "\", required = true, ");
+			classContent.append("content = @Content(schema = @Schema(implementation = "
+					+ pRestService.getDto().getJavaClassName() + ".class)))" + CR);
 			classContent.append(TAB[1] + "final " + pRestService.getDto().getJavaClassName() + " pDTO");
 			if (StringUtils.isBlank(pRestService.getDataspace())) {
 				classContent.append(", @PathParam(\"dataspace\")" + CR);
@@ -1481,12 +1690,17 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 				classContent.append(", @PathParam(\"dataset\")" + CR);
 				classContent.append(TAB[1] + "final String pDataset");
 			}
-			classContent.append(", @Parameter(description = \"" + GenerateJavaAccessers.getPrimaryDescription(pTable) + "\") @PathParam(\"pk\")" + CR);
+			classContent.append(", @Parameter(description = \"" + GenerateJavaAccessers.getPrimaryDescription(pTable)
+					+ "\") @PathParam(\"pk\")" + CR);
 			classContent.append(TAB[1] + "final String pPK) throws EBXCommonsException {" + CR);
-			classContent.append(TAB[2] + "Adaptation dataset = AdaptationUtils.getDataset(Repository.getDefault(), " + dataspaceDatasetParameters + ");" + CR);
-			classContent.append(TAB[2] + pRestService.getDto().getJavaClassName() + " dto = this.getService().update(pPK, pDTO, this.sessionContext.getSession(), dataset);" + CR);
+			classContent.append(TAB[2] + "Adaptation dataset = AdaptationUtils.getDataset(Repository.getDefault(), "
+					+ dataspaceDatasetParameters + ");" + CR);
+			classContent.append(TAB[2] + pRestService.getDto().getJavaClassName()
+					+ " dto = this.getService().update(pPK, pDTO, this.sessionContext.getSession(), dataset);" + CR);
 			classContent.append(TAB[2] + "if(dto != null){" + CR);
-			classContent.append(TAB[3] + "return Response.status(Response.Status.OK).entity(this.getService().read(pPK, this.sessionContext.getSession(), dataset)).build();" + CR);
+			classContent.append(TAB[3]
+					+ "return Response.status(Response.Status.OK).entity(this.getService().read(pPK, this.sessionContext.getSession(), dataset)).build();"
+					+ CR);
 			classContent.append(TAB[2] + "}" + CR);
 			classContent.append(TAB[2] + "else {" + CR);
 			classContent.append(TAB[3] + "throw new NotFoundException();" + CR);
@@ -1497,29 +1711,41 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 		if (pRestService.getPutList().booleanValue()) {
 			classContent.append(CR);
 			classContent.append(TAB[1] + "/**" + CR);
-			classContent.append(TAB[1] + "* PUT Operation to create or update a list of records in table " + pTable.getTablePath().format() + " in data model "
+			classContent.append(TAB[1] + "* PUT Operation to create or update a list of records in table "
+					+ pTable.getTablePath().format() + " in data model "
 					+ pTable.getTableNode().getSchemaLocation().format() + "." + CR);
 			classContent.append(TAB[1] + "*" + CR);
 			if (StringUtils.isBlank(pRestService.getDataspace())) {
-				classContent.append(TAB[1] + "* @param pDataspace Identifier of the dataspace from which to update the records." + CR);
+				classContent.append(TAB[1]
+						+ "* @param pDataspace Identifier of the dataspace from which to update the records." + CR);
 			}
 			if (StringUtils.isBlank(pRestService.getDataset())) {
-				classContent.append(TAB[1] + "* @param pDataset Identifier of the dataset from which to update the records." + CR);
+				classContent.append(
+						TAB[1] + "* @param pDataset Identifier of the dataset from which to update the records." + CR);
 			}
-			classContent
-					.append(TAB[1] + "* @param pDTOs A list of data transfer object representing the records to be created or updated {@link " + pRestService.getDto().getJavaClassName() + "}" + CR);
+			classContent.append(TAB[1]
+					+ "* @param pDTOs A list of data transfer object representing the records to be created or updated {@link "
+					+ pRestService.getDto().getJavaClassName() + "}" + CR);
 			classContent.append(TAB[1] + "*" + CR);
-			classContent.append(TAB[1] + "* @return A response with the code 200 along with a list of DTO representing the created and/or updated records." + CR);
+			classContent.append(TAB[1]
+					+ "* @return A response with the code 200 along with a list of DTO representing the created and/or updated records."
+					+ CR);
 			classContent.append(TAB[1] + "*/" + CR);
 			classContent.append(TAB[1] + "@PUT" + CR);
 			classContent.append(TAB[1] + "@Path(\"/\")" + CR);
-			classContent.append(TAB[1] + "@Operation(summary = \"Update or create a list of records in table '" + tableLabel + "'\", description = \"Update or create a list of records in table '"
-					+ tableLabel + "'\")" + CR);
-			classContent.append(TAB[1] + "@ApiResponse(description = \"Created and/or Updated records\", content = @Content(array = @ArraySchema(schema = @Schema(implementation = "
+			classContent.append(TAB[1] + "@Operation(summary = \"Update or create a list of records in table '"
+					+ tableLabel + "'\", description = \"Update or create a list of records in table '" + tableLabel
+					+ "'\")" + CR);
+			classContent.append(TAB[1]
+					+ "@ApiResponse(description = \"Created and/or Updated records\", content = @Content(array = @ArraySchema(schema = @Schema(implementation = "
 					+ pRestService.getDto().getJavaClassName() + ".class))))" + CR);
-			classContent.append(TAB[1] + "@ApiResponse(responseCode = \"200\", description = \"All occurrences updated or created\")" + CR);
-			classContent.append(TAB[1] + "public Response putList(@RequestBody(description = \"" + pRestService.getJavaClassName() + "\", required = true, ");
-			classContent.append("content = @Content(array = @ArraySchema(schema = @Schema(implementation = " + pRestService.getDto().getJavaClassName() + ".class))))" + CR);
+			classContent.append(TAB[1]
+					+ "@ApiResponse(responseCode = \"200\", description = \"All occurrences updated or created\")"
+					+ CR);
+			classContent.append(TAB[1] + "public Response putList(@RequestBody(description = \""
+					+ pRestService.getJavaClassName() + "\", required = true, ");
+			classContent.append("content = @Content(array = @ArraySchema(schema = @Schema(implementation = "
+					+ pRestService.getDto().getJavaClassName() + ".class))))" + CR);
 			classContent.append(TAB[1] + "final List<" + pRestService.getDto().getJavaClassName() + "> pDTOs");
 			if (StringUtils.isBlank(pRestService.getDataspace())) {
 				classContent.append(", @PathParam(\"dataspace\")" + CR);
@@ -1530,8 +1756,11 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 				classContent.append(TAB[1] + "final String pDataset");
 			}
 			classContent.append(") throws EBXCommonsException {" + CR);
-			classContent.append(TAB[2] + "Adaptation dataset = AdaptationUtils.getDataset(Repository.getDefault(), " + dataspaceDatasetParameters + ");" + CR);
-			classContent.append(TAB[2] + "List<" + pRestService.getDto().getJavaClassName() + "> dtos = this.getService().createOrUpdate(pDTOs, this.sessionContext.getSession(), dataset);" + CR);
+			classContent.append(TAB[2] + "Adaptation dataset = AdaptationUtils.getDataset(Repository.getDefault(), "
+					+ dataspaceDatasetParameters + ");" + CR);
+			classContent.append(TAB[2] + "List<" + pRestService.getDto().getJavaClassName()
+					+ "> dtos = this.getService().createOrUpdate(pDTOs, this.sessionContext.getSession(), dataset);"
+					+ CR);
 			classContent.append(TAB[2] + "return Response.status(Response.Status.OK).entity(dtos).build();" + CR);
 			classContent.append(TAB[1] + "}" + CR);
 		}
@@ -1541,23 +1770,30 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 			classContent.append(CR);
 			classContent.append(TAB[1] + "/**" + CR);
 			classContent.append(
-					TAB[1] + "* DELETE Operation to remove a record from table " + pTable.getTablePath().format() + " in data model " + pTable.getTableNode().getSchemaLocation().format() + "." + CR);
+					TAB[1] + "* DELETE Operation to remove a record from table " + pTable.getTablePath().format()
+							+ " in data model " + pTable.getTableNode().getSchemaLocation().format() + "." + CR);
 			classContent.append(TAB[1] + "*" + CR);
 			if (StringUtils.isBlank(pRestService.getDataspace())) {
-				classContent.append(TAB[1] + "* @param pDataspace Identifier of the dataspace from which to remove the record." + CR);
+				classContent.append(TAB[1]
+						+ "* @param pDataspace Identifier of the dataspace from which to remove the record." + CR);
 			}
 			if (StringUtils.isBlank(pRestService.getDataset())) {
-				classContent.append(TAB[1] + "* @param pDataset Identifier of the dataset from which to remove the record." + CR);
+				classContent.append(
+						TAB[1] + "* @param pDataset Identifier of the dataset from which to remove the record." + CR);
 			}
 			classContent.append(TAB[1] + "* @param pPK The primary key of the record to delete." + CR);
 			classContent.append(TAB[1] + "*" + CR);
-			classContent.append(TAB[1] + "* @return A response with the code 204. A response with the code 404 if the record has not been found." + CR);
+			classContent.append(TAB[1]
+					+ "* @return A response with the code 204. A response with the code 404 if the record has not been found."
+					+ CR);
 			classContent.append(TAB[1] + "*/" + CR);
 			classContent.append(TAB[1] + "@DELETE" + CR);
 			classContent.append(TAB[1] + "@Path(\"/{pk}\")" + CR);
-			classContent.append(TAB[1] + "@Operation(summary = \"Delete a record from table '" + tableLabel + "'\", description = \"Delete a record from table '" + tableLabel + "'\")" + CR);
+			classContent.append(TAB[1] + "@Operation(summary = \"Delete a record from table '" + tableLabel
+					+ "'\", description = \"Delete a record from table '" + tableLabel + "'\")" + CR);
 			classContent.append(TAB[1] + "@ApiResponse(responseCode = \"204\", description = \"Record deleted\")" + CR);
-			classContent.append(TAB[1] + "@ApiResponse(responseCode = \"404\", description = \"Record not found\")" + CR);
+			classContent
+					.append(TAB[1] + "@ApiResponse(responseCode = \"404\", description = \"Record not found\")" + CR);
 			classContent.append(TAB[1] + "public Response delete(");
 			if (StringUtils.isBlank(pRestService.getDataspace())) {
 				classContent.append("@PathParam(\"dataspace\")" + CR);
@@ -1567,10 +1803,13 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 				classContent.append("@PathParam(\"dataset\")" + CR);
 				classContent.append(TAB[1] + "final String pDataset, ");
 			}
-			classContent.append("@Parameter(description = \"" + GenerateJavaAccessers.getPrimaryDescription(pTable) + "\") @PathParam(\"pk\")" + CR);
+			classContent.append("@Parameter(description = \"" + GenerateJavaAccessers.getPrimaryDescription(pTable)
+					+ "\") @PathParam(\"pk\")" + CR);
 			classContent.append(TAB[1] + "final String pPk) throws EBXCommonsException {" + CR);
-			classContent.append(TAB[2] + "Adaptation dataset = AdaptationUtils.getDataset(Repository.getDefault(), " + dataspaceDatasetParameters + ");" + CR);
-			classContent.append(TAB[2] + "this.getService().delete(pPk, this.sessionContext.getSession(), dataset);" + CR);
+			classContent.append(TAB[2] + "Adaptation dataset = AdaptationUtils.getDataset(Repository.getDefault(), "
+					+ dataspaceDatasetParameters + ");" + CR);
+			classContent
+					.append(TAB[2] + "this.getService().delete(pPk, this.sessionContext.getSession(), dataset);" + CR);
 			classContent.append(TAB[3] + "return Response.noContent().build();" + CR);
 			classContent.append(TAB[1] + "}" + CR);
 		}
@@ -1587,7 +1826,8 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 			description.append("The primary key is made of the fields '");
 
 			for (int i = 0; i < primaryKeySpec.length; i++) {
-				description.append(GenerateJavaAccessers.getAttributeNameForNode(pTable.getTableOccurrenceRootNode().getNode(Path.SELF.add(primaryKeySpec[i]))));
+				description.append(GenerateJavaAccessers.getAttributeNameForNode(
+						pTable.getTableOccurrenceRootNode().getNode(Path.SELF.add(primaryKeySpec[i]))));
 				if (i == primaryKeySpec.length - 2) {
 					description.append("' and '");
 				} else if (i == primaryKeySpec.length - 1) {
@@ -1599,7 +1839,8 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 			description.append("' concatenated in this order and separated with a pipe.");
 		} else {
 			description.append("The primary key is the field '");
-			description.append(GenerateJavaAccessers.getAttributeNameForNode(pTable.getTableOccurrenceRootNode().getNode(Path.SELF.add(primaryKeySpec[0]))));
+			description.append(GenerateJavaAccessers.getAttributeNameForNode(
+					pTable.getTableOccurrenceRootNode().getNode(Path.SELF.add(primaryKeySpec[0]))));
 			description.append("'");
 		}
 		description.append(".");
@@ -1607,32 +1848,40 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 	}
 
 	private String generateService(final AdaptationTable pTable, final Service pService) throws EBXCommonsException {
-		DataAccessObject dao = this.DAOS.get(pTable.getTableNode().getSchemaLocation()).get(pTable.getTableNode().getPathInSchema().format());
+		DataAccessObject dao = this.DAOS.get(pTable.getTableNode().getSchemaLocation())
+				.get(pTable.getTableNode().getPathInSchema().format());
 		StringBuilder classContent = new StringBuilder();
 		classContent.append("package " + pService.getJavaPackage() + ";" + CR);
 		classContent.append(CR);
 		classContent.append("import " + GenerateJavaAccessers.getClassSignatureForBean(dao.getJavaBean()) + ";" + CR);
 		classContent.append("import " + GenerateJavaAccessers.getClassSignatureForDAO(dao) + ";" + CR);
-		classContent.append("import " + GenerateJavaAccessers.getClassSignatureForDTO(pService.getDataTransferObject()) + ";" + CR);
-		classContent.append("import " + GenerateJavaAccessers.getClassSignatureForMapper(pService.getDataTransferObject()) + ";" + CR);
+		classContent.append(
+				"import " + GenerateJavaAccessers.getClassSignatureForDTO(pService.getDataTransferObject()) + ";" + CR);
+		classContent.append("import "
+				+ GenerateJavaAccessers.getClassSignatureForMapper(pService.getDataTransferObject()) + ";" + CR);
 		classContent.append("import com.tibco.ebx.cs.commons.beans.generator.template.Service;" + CR);
 		classContent.append(CR);
 		classContent.append("/**" + CR);
-		classContent.append("* Service automatically generated by service 'Generate Java Accessers' of EBX Commons" + CR);
-		classContent.append("* It aims to manipulate records of table at path " + pTable.getTablePath().format() + " in data model " + pTable.getTableNode().getSchemaLocation().format() + "." + CR);
+		classContent
+				.append("* Service automatically generated by service 'Generate Java Accessers' of EBX Commons" + CR);
+		classContent.append("* It aims to manipulate records of table at path " + pTable.getTablePath().format()
+				+ " in data model " + pTable.getTableNode().getSchemaLocation().format() + "." + CR);
 		classContent.append("*" + CR);
 		classContent.append("* @author EBX Commons" + CR);
 		classContent.append("*/" + CR);
 		classContent.append("public class " + pService.getJavaClassName() + " extends ");
-		classContent.append("Service<" + dao.getJavaBean().getJavaClassName() + ", " + dao.getJavaClassName() + ", " + pService.getDataTransferObject().getJavaClassName() + "> {" + CR);
+		classContent.append("Service<" + dao.getJavaBean().getJavaClassName() + ", " + dao.getJavaClassName() + ", "
+				+ pService.getDataTransferObject().getJavaClassName() + "> {" + CR);
 		classContent.append(CR);
 		classContent.append(TAB[1] + "@Override" + CR);
-		classContent.append(TAB[1] + "protected Class<" + dao.getJavaBean().getJavaClassName() + "> getBeanClass() {" + CR);
+		classContent
+				.append(TAB[1] + "protected Class<" + dao.getJavaBean().getJavaClassName() + "> getBeanClass() {" + CR);
 		classContent.append(TAB[2] + "return " + dao.getJavaBean().getJavaClassName() + ".class;" + CR);
 		classContent.append(TAB[1] + "}" + CR);
 		classContent.append(CR);
 		classContent.append(TAB[1] + "@Override" + CR);
-		classContent.append(TAB[1] + "protected Class<" + pService.getDataTransferObject().getJavaClassName() + "> getDTOClass() {" + CR);
+		classContent.append(TAB[1] + "protected Class<" + pService.getDataTransferObject().getJavaClassName()
+				+ "> getDTOClass() {" + CR);
 		classContent.append(TAB[2] + "return " + pService.getDataTransferObject().getJavaClassName() + ".class;" + CR);
 		classContent.append(TAB[1] + "}" + CR);
 		classContent.append(CR);
@@ -1642,52 +1891,66 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 		classContent.append(TAB[1] + "}" + CR);
 		classContent.append(CR);
 		classContent.append(TAB[1] + "@Override" + CR);
-		classContent.append(TAB[1] + "protected " + pService.getDataTransferObject().getMapper().getJavaClassName() + " getMapper() {" + CR);
-		classContent.append(TAB[2] + "return new " + pService.getDataTransferObject().getMapper().getJavaClassName() + "();" + CR);
+		classContent.append(TAB[1] + "protected " + pService.getDataTransferObject().getMapper().getJavaClassName()
+				+ " getMapper() {" + CR);
+		classContent.append(
+				TAB[2] + "return new " + pService.getDataTransferObject().getMapper().getJavaClassName() + "();" + CR);
 		classContent.append(TAB[1] + "}" + CR);
 		classContent.append("}" + CR);
 		this.numberOfServices++;
 		return classContent.toString();
 	}
 
-	private Object generateSetValuesForUpdate(final SchemaNode pNode, final JavaBean pBean, final Set<String> pExtraImports)
+	private Object generateSetValuesForUpdate(final SchemaNode pNode, final JavaBean pBean,
+			final Set<String> pExtraImports)
 			throws ConstraintViolationException, EBXCommonsException, OperationException {
 		StringBuilder str = new StringBuilder();
 		String className = pBean.getJavaClassName();
 		str.append(TAB[1] + "@Override" + CR);
 		pExtraImports.add("com.tibco.ebx.cs.commons.lib.exception.EBXCommonsException");
-		str.append(TAB[1] + "protected void setValuesForUpdate(final ValueContextForUpdate pContext, final " + className + " p" + className + ") throws EBXCommonsException {" + CR);
+		str.append(TAB[1] + "protected void setValuesForUpdate(final ValueContextForUpdate pContext, final " + className
+				+ " p" + className + ") throws EBXCommonsException {" + CR);
 		str.append(this.setValuesForUpdateForFieldsBelow(pNode, pBean, pExtraImports));
 		str.append(TAB[1] + "}" + CR);
 		return str.toString();
 	}
 
-	private DataAccessObject generateTableDAO(final AdaptationTable pTable, final DataAccessObject pDAO) throws EBXCommonsException, OperationException {
+	private DataAccessObject generateTableDAO(final AdaptationTable pTable, final DataAccessObject pDAO)
+			throws EBXCommonsException, OperationException {
 		DataAccessObject dao = this.getOrRegisterDAO(pTable.getTableNode());
 		if (dao.getGenerationActive().booleanValue()) {
 			Set<String> extraImports = new HashSet<>();
 			StringBuilder str = new StringBuilder();
 			str.append("/**" + CR);
-			str.append("* Data access object (DAO) automatically generated by service 'Generate Java Accessers' of EBX Commons" + CR);
-			str.append("* It aims to access records of table at path " + pTable.getTablePath().format() + " in data model " + pTable.getTableNode().getSchemaLocation().format() + "." + CR);
+			str.append(
+					"* Data access object (DAO) automatically generated by service 'Generate Java Accessers' of EBX Commons"
+							+ CR);
+			str.append("* It aims to access records of table at path " + pTable.getTablePath().format()
+					+ " in data model " + pTable.getTableNode().getSchemaLocation().format() + "." + CR);
 			str.append("*" + CR);
 			str.append("* @author EBX Commons" + CR);
 			str.append("*/" + CR);
-			str.append("public class " + dao.getJavaClassName() + " extends TableDAO<" + dao.getJavaBean().getJavaClassName() + "> {" + CR);
+			str.append("public class " + dao.getJavaClassName() + " extends TableDAO<"
+					+ dao.getJavaBean().getJavaClassName() + "> {" + CR);
 			str.append(CR);
-			str.append(TAB[1] + "private static final " + dao.getJavaClassName() + " instance = new " + dao.getJavaClassName() + "();" + CR);
+			str.append(TAB[1] + "private static final " + dao.getJavaClassName() + " instance = new "
+					+ dao.getJavaClassName() + "();" + CR);
 			str.append(CR);
 			str.append(this.generatePathsAsConstantsForFieldsBelow(pTable.getTableOccurrenceRootNode()));
 			str.append(CR);
-			str.append(this.generateSetValuesForUpdate(pTable.getTableOccurrenceRootNode(), dao.getJavaBean(), extraImports));
+			str.append(this.generateSetValuesForUpdate(pTable.getTableOccurrenceRootNode(), dao.getJavaBean(),
+					extraImports));
 			str.append(CR);
-			str.append(this.generateGetValuesFromAdaptation(pTable.getTableOccurrenceRootNode(), dao.getJavaBean(), extraImports));
+			str.append(this.generateGetValuesFromAdaptation(pTable.getTableOccurrenceRootNode(), dao.getJavaBean(),
+					extraImports));
 			str.append(CR);
-			str.append(this.generateGetValuesFromValueContext(pTable.getTableOccurrenceRootNode(), dao.getJavaBean(), extraImports));
+			str.append(this.generateGetValuesFromValueContext(pTable.getTableOccurrenceRootNode(), dao.getJavaBean(),
+					extraImports));
 			str.append(CR);
 			str.append(GenerateJavaAccessers.generateGetInstance(dao.getJavaClassName()));
 			str.append(CR);
-			str.append(this.generateGetInstanceOfBean(pTable.getTableOccurrenceRootNode(), dao.getJavaBean(), extraImports));
+			str.append(this.generateGetInstanceOfBean(pTable.getTableOccurrenceRootNode(), dao.getJavaBean(),
+					extraImports));
 			str.append(CR);
 			str.append(GenerateJavaAccessers.generateGetPrimaryKeysGetters(pTable));
 			str.append(CR);
@@ -1695,7 +1958,8 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 			str.append(CR);
 			str.append(GenerateJavaAccessers.generateGetDatasetDAO(pDAO));
 			str.append(CR);
-			str.append(GenerateJavaAccessers.generateGetAdaptationTable(pTable.getTableNode(), dao.getJavaBean(), extraImports));
+			str.append(GenerateJavaAccessers.generateGetAdaptationTable(pTable.getTableNode(), dao.getJavaBean(),
+					extraImports));
 
 			str.append("}");
 
@@ -1714,27 +1978,33 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 			classContent.append(CR);
 			classContent.append(str);
 			this.numberOfDAOs++;
-			GenerateJavaAccessers.writeJavaFile(this.DATA_MODELS.get(pTable.getTableNode().getSchemaLocation()).getDaoSourceFolder(), dao.getJavaPackage(), dao.getJavaClassName(),
-					classContent.toString());
+			GenerateJavaAccessers.writeJavaFile(
+					this.DATA_MODELS.get(pTable.getTableNode().getSchemaLocation()).getDaoSourceFolder(),
+					dao.getJavaPackage(), dao.getJavaClassName(), classContent.toString());
 		}
 		return dao;
 	}
 
-	private void generateDTOForTable(final AdaptationTable pTable, final DataTransferObject pDTO) throws OperationException, EBXCommonsException {
+	private void generateDTOForTable(final AdaptationTable pTable, final DataTransferObject pDTO)
+			throws OperationException, EBXCommonsException {
 		String classContent = this.generateDTO(pTable.getTableOccurrenceRootNode(), pDTO);
-		GenerateJavaAccessers.writeJavaFile(this.DATA_MODELS.get(pTable.getTableNode().getSchemaLocation()).getDtoSourceFolder(), pDTO.getJavaPackage(), pDTO.getJavaClassName(), classContent);
+		GenerateJavaAccessers.writeJavaFile(
+				this.DATA_MODELS.get(pTable.getTableNode().getSchemaLocation()).getDtoSourceFolder(),
+				pDTO.getJavaPackage(), pDTO.getJavaClassName(), classContent);
 	}
 
 	private static Object generateTableGetter(final AdaptationTable table) {
 		StringBuilder str = new StringBuilder();
 		String tableGetterName = GenerateJavaAccessers.getTableGetterName(table.getTableNode());
 		str.append(TAB[1] + "public AdaptationTable " + tableGetterName + "(){" + CR);
-		str.append(TAB[2] + "return ebxDataset.getTable(" + GenerateJavaAccessers.getConstantNameForPathToTable(table.getTableNode()) + ");" + CR);
+		str.append(TAB[2] + "return ebxDataset.getTable("
+				+ GenerateJavaAccessers.getConstantNameForPathToTable(table.getTableNode()) + ");" + CR);
 		str.append(TAB[1] + "}" + CR);
 		return str.toString();
 	}
 
-	private void generateTableRS(final AdaptationTable pTable, final RestService pRS) throws OperationException, EBXCommonsException {
+	private void generateTableRS(final AdaptationTable pTable, final RestService pRS)
+			throws OperationException, EBXCommonsException {
 		Service service = pRS.getService();
 		if (service == null) {
 			service = this.getOrRegisterService(pTable.getTableNode()).get(0);
@@ -1750,35 +2020,47 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 		}
 		String classContent = GenerateJavaAccessers.generateRestService(pTable, pRS);
 		this.numberOfRS++;
-		GenerateJavaAccessers.writeJavaFile(this.DATA_MODELS.get(pTable.getTableNode().getSchemaLocation()).getRsSourceFolder(), pRS.getJavaPackage(), pRS.getJavaClassName(), classContent);
+		GenerateJavaAccessers.writeJavaFile(
+				this.DATA_MODELS.get(pTable.getTableNode().getSchemaLocation()).getRsSourceFolder(),
+				pRS.getJavaPackage(), pRS.getJavaClassName(), classContent);
 	}
 
-	private void generateTableService(final AdaptationTable pTable, final Service pService) throws OperationException, EBXCommonsException {
+	private void generateTableService(final AdaptationTable pTable, final Service pService)
+			throws OperationException, EBXCommonsException {
 		String classContent = this.generateService(pTable, pService);
-		GenerateJavaAccessers.writeJavaFile(this.DATA_MODELS.get(pTable.getTableNode().getSchemaLocation()).getServicesSourceFolder(), pService.getJavaPackage(), pService.getJavaClassName(),
-				classContent);
+		GenerateJavaAccessers.writeJavaFile(
+				this.DATA_MODELS.get(pTable.getTableNode().getSchemaLocation()).getServicesSourceFolder(),
+				pService.getJavaPackage(), pService.getJavaClassName(), classContent);
 	}
 
 	/**
-	 * Generates instance variable declaration for a fields. It identifies on the fly packages to be imported in case extra treatments are necessary such as for foreign key fields.
+	 * Generates instance variable declaration for a fields. It identifies on the
+	 * fly packages to be imported in case extra treatments are necessary such as
+	 * for foreign key fields.
 	 *
-	 * @param pNode         The node for which to generate an instance variable declaration.
+	 * @param pNode         The node for which to generate an instance variable
+	 *                      declaration.
 	 * @param pExtraImports Set collecting extra packages to be imported.
 	 * @param pAnnotate
 	 *
 	 * @return The instance variable declaration as String
 	 * @throws OperationException
 	 */
-	private String getAttributeDeclarationForNodeInBean(final SchemaNode pNode, final Set<String> pExtraImports) throws EBXCommonsException {
+	private String getAttributeDeclarationForNodeInBean(final SchemaNode pNode, final Set<String> pExtraImports)
+			throws EBXCommonsException {
 		StringBuilder str = new StringBuilder();
-		str.append(TAB[1] + "private " + this.getJavaTypeForNodeInBean(pNode, false, pExtraImports) + " " + GenerateJavaAccessers.getAttributeNameForNode(pNode) + ";" + CR);
+		str.append(TAB[1] + "private " + this.getJavaTypeForNodeInBean(pNode, false, pExtraImports) + " "
+				+ GenerateJavaAccessers.getAttributeNameForNode(pNode) + ";" + CR);
 		return str.toString();
 	}
 
 	/**
-	 * Generates instance variable declaration for a fields. It identifies on the fly packages to be imported in case extra treatments are necessary such as for foreign key fields.
+	 * Generates instance variable declaration for a fields. It identifies on the
+	 * fly packages to be imported in case extra treatments are necessary such as
+	 * for foreign key fields.
 	 *
-	 * @param pNode         The node for which to generate an instance variable declaration.
+	 * @param pNode         The node for which to generate an instance variable
+	 *                      declaration.
 	 * @param pDTO
 	 * @param pExtraImports Set collecting extra packages to be imported.
 	 * @param pAnnotate
@@ -1786,7 +2068,8 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 	 * @return The instance variable declaration as String
 	 * @throws OperationException
 	 */
-	private String getAttributeDeclarationForNodeInDTO(final SchemaNode pNode, final DataTransferObject pDTO, final Set<String> pExtraImports) throws EBXCommonsException {
+	private String getAttributeDeclarationForNodeInDTO(final SchemaNode pNode, final DataTransferObject pDTO,
+			final Set<String> pExtraImports) throws EBXCommonsException {
 		StringBuilder str = new StringBuilder();
 		StringBuilder doc = new StringBuilder("");
 		if (pNode.getDescription(Locale.US) != null) {
@@ -1823,9 +2106,12 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 				pExtraImports.add(GenerateJavaAccessers.getClassSignatureForDTO(inDTO));
 				pExtraImports.add(GenerateJavaAccessers.getClassSignatureForBean(inDTO.getTable().getJavaBean()));
 				pExtraImports.add("io.swagger.v3.oas.annotations.media.ArraySchema");
-				str.append(TAB[1] + "@ArraySchema(arraySchema = @Schema(description = \"" + (doc == null ? "" : doc.toString().replace("\n", "").replace("\r", "").replace("\"", "\\\"")) + "\"");
+				str.append(TAB[1] + "@ArraySchema(arraySchema = @Schema(description = \""
+						+ (doc == null ? "" : doc.toString().replace("\n", "").replace("\r", "").replace("\"", "\\\""))
+						+ "\"");
 				str.append(", implementation = " + inDTO.getJavaClassName() + ".class))" + CR);
-				str.append(TAB[1] + "private " + this.getJavaTypeForNodeInDTO(pNode, false, inDTO, pExtraImports) + " " + GenerateJavaAccessers.getAttributeNameForNode(pNode) + ";" + CR);
+				str.append(TAB[1] + "private " + this.getJavaTypeForNodeInDTO(pNode, false, inDTO, pExtraImports) + " "
+						+ GenerateJavaAccessers.getAttributeNameForNode(pNode) + ";" + CR);
 			}
 		} else {
 			if (pNode.getMaxOccurs() > 1) {
@@ -1836,7 +2122,9 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 			}
 			if (tableRef != null) {
 				inDTO = this.getDTOInclusion(pNode, pDTO);
-				str.append("@Schema(description = \"" + (doc == null ? "" : doc.toString().replace("\n", "").replace("\r", "").replace("\"", "\\\"")) + "\"");
+				str.append("@Schema(description = \""
+						+ (doc == null ? "" : doc.toString().replace("\n", "").replace("\r", "").replace("\"", "\\\""))
+						+ "\"");
 				if (inDTO != null) {
 					pExtraImports.add(GenerateJavaAccessers.getClassSignatureForDTO(inDTO));
 					pExtraImports.add(GenerateJavaAccessers.getClassSignatureForBean(inDTO.getTable().getJavaBean()));
@@ -1845,7 +2133,9 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 					str.append(")");
 				}
 			} else {
-				str.append("@Schema(description = \"" + (doc == null ? "" : doc.toString().replace("\n", "").replace("\r", "").replace("\"", "\\\"")) + "\"");
+				str.append("@Schema(description = \""
+						+ (doc == null ? "" : doc.toString().replace("\n", "").replace("\r", "").replace("\"", "\\\""))
+						+ "\"");
 				if (SchemaTypeName.XS_DATETIME.equals(pNode.getXsTypeName())) {
 					str.append(", format = \"date-time\"");
 				}
@@ -1855,21 +2145,25 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 				str.append(")");
 			}
 			str.append(CR);
-			str.append(TAB[1] + "private " + this.getJavaTypeForNodeInDTO(pNode, false, inDTO, pExtraImports) + " " + GenerateJavaAccessers.getAttributeNameForNode(pNode) + ";" + CR);
+			str.append(TAB[1] + "private " + this.getJavaTypeForNodeInDTO(pNode, false, inDTO, pExtraImports) + " "
+					+ GenerateJavaAccessers.getAttributeNameForNode(pNode) + ";" + CR);
 		}
 
 		return str.toString();
 	}
 
-	private DataTransferObject getDTOInclusion(final SchemaNode pNode, final DataTransferObject pDTO) throws EBXCommonsException {
+	private DataTransferObject getDTOInclusion(final SchemaNode pNode, final DataTransferObject pDTO)
+			throws EBXCommonsException {
 		for (IncludedRelation includedRelation : pDTO.getIncludedRelations()) {
 			if (includedRelation.getField().getPath().equals(pNode.getPathInAdaptation().format())) {
 				if (includedRelation.getRelatedDTO() == null) {
 					if (pNode.isAssociationNode()) {
 						// TODO modify by prefferedDTO
-						includedRelation.setRelatedDTO(this.getOrRegisterTable(pNode.getAssociationLink().getTableNode()).getPreferredDTO());
+						includedRelation.setRelatedDTO(
+								this.getOrRegisterTable(pNode.getAssociationLink().getTableNode()).getPreferredDTO());
 					} else if (pNode.getFacetOnTableReference() != null) {
-						includedRelation.setRelatedDTO(this.getOrRegisterTable(pNode.getFacetOnTableReference().getTableNode()).getPreferredDTO());
+						includedRelation.setRelatedDTO(this
+								.getOrRegisterTable(pNode.getFacetOnTableReference().getTableNode()).getPreferredDTO());
 					}
 				}
 				return includedRelation.getRelatedDTO();
@@ -1881,7 +2175,8 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 	/**
 	 * Format a name of instance variable for a given field.
 	 *
-	 * @param pNode The node for which to format the corresponding instance variable name.
+	 * @param pNode The node for which to format the corresponding instance variable
+	 *              name.
 	 *
 	 * @return The instance variable name as String
 	 */
@@ -1892,7 +2187,8 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 	/**
 	 * Format a name of instance variable for a given field.
 	 *
-	 * @param pNode            The node for which to format the corresponding instance variable name.
+	 * @param pNode            The node for which to format the corresponding
+	 *                         instance variable name.
 	 * @param upToTerminalNode if true, stop name composition at terminal node.
 	 *
 	 * @return The instance variable name as String
@@ -1901,7 +2197,8 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 		String name = StringUtils.capitalize(pNode.getPathInSchema().getLastStep().format());
 		SchemaNode node = pNode.getParent();
 		while (node != null && !node.getPathInSchema().isRoot()) {
-			if (node.getPathInAdaptation().isRoot() || node.isTableNode() || upToTerminalNode && (node.isTerminalValue() || SchemaUtils.isTerminalUnderTerminal(node))) {
+			if (node.getPathInAdaptation().isRoot() || node.isTableNode()
+					|| upToTerminalNode && (node.isTerminalValue() || SchemaUtils.isTerminalUnderTerminal(node))) {
 				break;
 			}
 			name = StringUtils.capitalize(node.getPathInSchema().getLastStep().format()) + name;
@@ -1967,14 +2264,16 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 	}
 
 	/**
-	 * Retrieve the right Java type corresponding to the type of the field. It can be a generated Java Bean if the field is a terminal complex type.
+	 * Retrieve the right Java type corresponding to the type of the field. It can
+	 * be a generated Java Bean if the field is a terminal complex type.
 	 *
 	 * @param pNode The node for which to retrieve the Java type.
 	 *
 	 * @return The Java Type.
 	 * @throws EBXCommonsException EBXCommonsException
 	 */
-	private String getJavaTypeForNodeInBean(final SchemaNode pNode, final boolean pForceMono, final Set<String> pExtraImports) throws EBXCommonsException {
+	private String getJavaTypeForNodeInBean(final SchemaNode pNode, final boolean pForceMono,
+			final Set<String> pExtraImports) throws EBXCommonsException {
 		String type = "";
 		if ((pNode.isAssociationNode() || pNode.getMaxOccurs() > 1) && !pForceMono) {
 			type = "List<";
@@ -1983,7 +2282,8 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 		if (DamaUtils.isNodeDAC(pNode)) {
 			type += MediaType.class.getSimpleName();
 			pExtraImports.add(MediaType.class.getCanonicalName());
-		} else if (pNode.isComplex() && (pNode.isTerminalValue() || !pNode.isTerminalValue() && pNode.getJavaBeanClass() != null)) {
+		} else if (pNode.isComplex()
+				&& (pNode.isTerminalValue() || !pNode.isTerminalValue() && pNode.getJavaBeanClass() != null)) {
 			JavaBean bean = this.getOrRegisterBean(pNode);
 			type += bean.getJavaClassName();
 			pExtraImports.add(GenerateJavaAccessers.getClassSignatureForBean(bean));
@@ -2022,7 +2322,7 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 		if (table == null) {
 			table = ModelTableDAO.getInstance().getInstanceOfBean(this.DATASETS.get(pNode.getSchemaLocation()));
 			DataAccessObject dao = this.getOrRegisterDAO(pNode);
-			table.setDao(dao);
+			table.setDaobject(dao);
 			table.setJavaBean(dao.getJavaBean());
 			if (!pNode.getPathInSchema().equals(Path.ROOT)) {
 				table.inherit(ModelTableDAO.path_to_field_javaBean);
@@ -2047,7 +2347,8 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 
 	private Field getOrRegisterField(final SchemaNode pNode) throws EBXCommonsException {
 		Field field = this.FIELDS.get(pNode.getSchemaLocation()).get(pNode.getPathInSchema().format());
-		if (field == null && (pNode.isTerminalValue() || SchemaUtils.isTerminalUnderTerminal(pNode)) && !pNode.isTableNode()) {
+		if (field == null && (pNode.isTerminalValue() || SchemaUtils.isTerminalUnderTerminal(pNode))
+				&& !pNode.isTableNode()) {
 			field = FieldDAO.getInstance().getInstanceOfBean(this.DATASETS.get(pNode.getSchemaLocation()));
 			field.setDataModel(this.DATA_MODELS.get(pNode.getSchemaLocation()));
 			if (pNode.getTableNode() != null) {
@@ -2107,7 +2408,8 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 				bean.setType(TABLE_BEAN_TYPE);
 			} else {
 				bean.setType(COMPLEX_TYPE_BEAN_TYPE);
-				table = this.TABLES.get(pNode.getSchemaLocation()).get(SchemaUtils.getTableNode(pNode).getPathInSchema().format());
+				table = this.TABLES.get(pNode.getSchemaLocation())
+						.get(SchemaUtils.getTableNode(pNode).getPathInSchema().format());
 				bean.setTable(table);
 				bean.setField(pField);
 			}
@@ -2149,12 +2451,12 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 				dao.inherit(DataAccessObjectDAO.path_to_field_javaPackage);
 			}
 			this.DAOS.get(pNode.getSchemaLocation()).put(pNode.getPathInSchema().format(), dao);
-			if (table != null && table.getDao() == null) {
-				table.setDao(dao);
+			if (table != null && table.getDaobject() == null) {
+				table.setDaobject(dao);
 				ModelTableDAO.getInstance().update(this.procedureContext, this.DATA_MODELS_DATASET, table);
 			}
 			if (pNode.getParent() == null) {
-				dataModel.setDao(dao);
+				dataModel.setDaobject(dao);
 				DataModelDAO.getInstance().update(this.procedureContext, this.DATA_MODELS_DATASET, dataModel);
 			}
 		} else {
@@ -2177,7 +2479,8 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 			dtos = new ArrayList<>();
 		}
 		if (dtos.isEmpty()) {
-			DataTransferObject dto = DataTransferObjectDAO.getInstance().getInstanceOfBean(this.DATASETS.get(pNode.getSchemaLocation()));
+			DataTransferObject dto = DataTransferObjectDAO.getInstance()
+					.getInstanceOfBean(this.DATASETS.get(pNode.getSchemaLocation()));
 			DataModel dataModel = this.DATA_MODELS.get(pNode.getSchemaLocation());
 			Table table = null;
 			if (pNode.isTableNode()) {
@@ -2244,12 +2547,14 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 	}
 
 	private List<RestService> getOrRegisterRestServices(final SchemaNode pNode) throws EBXCommonsException {
-		List<RestService> restServices = this.REST_SERVICES.get(pNode.getSchemaLocation()).get(pNode.getPathInSchema().format());
+		List<RestService> restServices = this.REST_SERVICES.get(pNode.getSchemaLocation())
+				.get(pNode.getPathInSchema().format());
 		if (restServices == null) {
 			restServices = new ArrayList<>();
 		}
 		if (restServices.isEmpty()) {
-			RestService rs = RestServiceDAO.getInstance().getInstanceOfBean(this.DATASETS.get(pNode.getSchemaLocation()));
+			RestService rs = RestServiceDAO.getInstance()
+					.getInstanceOfBean(this.DATASETS.get(pNode.getSchemaLocation()));
 			rs.setService(this.getOrRegisterService(pNode).get(0));
 			Table table = this.getOrRegisterTable(pNode);
 			rs.setTable(table);
@@ -2272,7 +2577,8 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 		return restServices;
 	}
 
-	private String getJavaTypeForNodeInDTO(final SchemaNode pNode, final boolean pForceMono, final DataTransferObject pIncludedDTO, final Set<String> pExtraImports) throws EBXCommonsException {
+	private String getJavaTypeForNodeInDTO(final SchemaNode pNode, final boolean pForceMono,
+			final DataTransferObject pIncludedDTO, final Set<String> pExtraImports) throws EBXCommonsException {
 		String type = "";
 		if ((pNode.isAssociationNode() || pNode.getMaxOccurs() > 1) && !pForceMono) {
 			type = "List<";
@@ -2315,7 +2621,8 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 	private List<String> getListOfAttributeNamesForNode(final SchemaNode pNode) {
 		List<String> attributes = new ArrayList<>();
 		for (SchemaNode node : pNode.getNodeChildren()) {
-			if ((node.isTerminalValue() && !node.isTableNode() || node.isTerminalValueDescendant()) && !node.isAssociationNode()) {
+			if ((node.isTerminalValue() && !node.isTableNode() || node.isTerminalValueDescendant())
+					&& !node.isAssociationNode()) {
 				attributes.add(GenerateJavaAccessers.getAttributeNameForNode(node));
 			} else if (!node.isAssociationNode()) {
 				attributes.addAll(this.getListOfAttributeNamesForNode(node));
@@ -2327,7 +2634,8 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 	private static String getPrimaryKeysGetters(final AdaptationTable pTable) {
 		StringBuilder str = new StringBuilder();
 		for (Path path : pTable.getPrimaryKeySpec()) {
-			str.append("\"" + GenerateJavaAccessers.getGetterNameForNode(pTable.getTableOccurrenceRootNode().getNode(Path.SELF.add(path))) + "\",");
+			str.append("\"" + GenerateJavaAccessers
+					.getGetterNameForNode(pTable.getTableOccurrenceRootNode().getNode(Path.SELF.add(path))) + "\",");
 		}
 		str.deleteCharAt(str.length() - 1);
 		return str.toString();
@@ -2351,8 +2659,10 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 	}
 
 	/**
-	 * Gets java instructions to set values of a record to the Java Beans instance variables of all fields below the one in parameter. It identifies on the fly packages to be imported in case extra
-	 * treatments are necessary such as for foreign key fields.
+	 * Gets java instructions to set values of a record to the Java Beans instance
+	 * variables of all fields below the one in parameter. It identifies on the fly
+	 * packages to be imported in case extra treatments are necessary such as for
+	 * foreign key fields.
 	 *
 	 * @param pNode         The node from which to put values in instance variables.
 	 * @param pExtraImports Set collecting extra packages to be imported.
@@ -2360,28 +2670,35 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 	 * @return Java instructions as String.
 	 * @throws OperationException
 	 */
-	private String getValuesFromAdaptationForFieldsBelow(final SchemaNode pNode, final JavaBean pBean, final Set<String> pExtraImports) throws OperationException, EBXCommonsException {
+	private String getValuesFromAdaptationForFieldsBelow(final SchemaNode pNode, final JavaBean pBean,
+			final Set<String> pExtraImports) throws OperationException, EBXCommonsException {
 		StringBuilder str = new StringBuilder();
 		String className = pBean.getJavaClassName();
 		for (SchemaNode node : pNode.getNodeChildren()) {
 
 			String beanParameter = "p" + className;
 			String setValue = beanParameter + "." + GenerateJavaAccessers.getSetterNameForNode(node);
-			if (!node.isTableNode() && !node.isValueFunction() && !node.isAssociationNode()
-					&& (node.isTerminalValue() || node.isTerminalValueDescendant() && (!node.isComplex() || node.getMaxOccurs() > 1))) {
+			if (!node.isTableNode() && !node.isValueFunction() && !node.isAssociationNode() && (node.isTerminalValue()
+					|| node.isTerminalValueDescendant() && (!node.isComplex() || node.getMaxOccurs() > 1))) {
 				if (node.getFacetOnTableReference() == null) {
 					String type = this.getJavaTypeForNodeInBean(node, false, pExtraImports);
-					str.append(TAB[2] + "if(!pPermissions.isPresent() || !pPermissions.get().getNodeAccessPermission(pRecord.getSchemaNode().getNode("
-							+ GenerateJavaAccessers.getConstantNameForPathToField(node) + "), pRecord).isHidden()){" + CR);
-					str.append(TAB[3] + setValue + "(" + ("Object".equals(type) ? "" : "(" + type + ") ") + "pRecord.get(" + GenerateJavaAccessers.getConstantNameForPathToField(node) + "));\n");
+					str.append(TAB[2]
+							+ "if(!pPermissions.isPresent() || !pPermissions.get().getNodeAccessPermission(pRecord.getSchemaNode().getNode("
+							+ GenerateJavaAccessers.getConstantNameForPathToField(node) + "), pRecord).isHidden()){"
+							+ CR);
+					str.append(TAB[3] + setValue + "(" + ("Object".equals(type) ? "" : "(" + type + ") ")
+							+ "pRecord.get(" + GenerateJavaAccessers.getConstantNameForPathToField(node) + "));\n");
 					str.append(TAB[2] + "}" + CR);
 				}
 				if (node.getInheritanceProperties() != null) {
 					pExtraImports.add("com.onwbp.adaptation.AdaptationValue");
-					str.append(TAB[2] + "if(AdaptationValue.INHERIT_VALUE.equals(pRecord.getValueWithoutResolution(" + GenerateJavaAccessers.getConstantNameForPathToField(node) + "))){" + CR);
-					str.append(TAB[3] + beanParameter + ".inherit(" + GenerateJavaAccessers.getConstantNameForPathToField(node) + ");" + CR);
+					str.append(TAB[2] + "if(AdaptationValue.INHERIT_VALUE.equals(pRecord.getValueWithoutResolution("
+							+ GenerateJavaAccessers.getConstantNameForPathToField(node) + "))){" + CR);
+					str.append(TAB[3] + beanParameter + ".inherit("
+							+ GenerateJavaAccessers.getConstantNameForPathToField(node) + ");" + CR);
 					str.append(TAB[2] + "}else{" + CR);
-					str.append(TAB[3] + beanParameter + ".overwrite(" + GenerateJavaAccessers.getConstantNameForPathToField(node) + ");" + CR);
+					str.append(TAB[3] + beanParameter + ".overwrite("
+							+ GenerateJavaAccessers.getConstantNameForPathToField(node) + ");" + CR);
 					str.append(TAB[2] + "}" + CR);
 				}
 			} else {
@@ -2393,8 +2710,10 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 	}
 
 	/**
-	 * Gets java instructions to set values of a value context to the Java Beans instance variables of all fields below the one in parameter. It identifies on the fly packages to be imported in case
-	 * extra treatments are necessary such as for foreign key fields.
+	 * Gets java instructions to set values of a value context to the Java Beans
+	 * instance variables of all fields below the one in parameter. It identifies on
+	 * the fly packages to be imported in case extra treatments are necessary such
+	 * as for foreign key fields.
 	 *
 	 * @param pNode         The node from which to put values in instance variables.
 	 * @param pExtraImports Set collecting extra packages to be imported.
@@ -2402,31 +2721,40 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 	 * @return Java instructions as String.
 	 * @throws OperationException
 	 */
-	private String getValuesFromValueContextForFieldsBelow(final SchemaNode pNode, final JavaBean pBean, final Set<String> pExtraImports) throws OperationException, EBXCommonsException {
+	private String getValuesFromValueContextForFieldsBelow(final SchemaNode pNode, final JavaBean pBean,
+			final Set<String> pExtraImports) throws OperationException, EBXCommonsException {
 		StringBuilder str = new StringBuilder();
 		String className = pBean.getJavaClassName();
 		for (SchemaNode node : pNode.getNodeChildren()) {
 			String beanParameter = "p" + className;
 			String setValue = beanParameter + "." + GenerateJavaAccessers.getSetterNameForNode(node);
-			if (!node.isTableNode() && !node.isValueFunction() && !node.isAssociationNode()
-					&& (node.isTerminalValue() || node.isTerminalValueDescendant() && (!node.isComplex() || node.getMaxOccurs() > 1))) {
+			if (!node.isTableNode() && !node.isValueFunction() && !node.isAssociationNode() && (node.isTerminalValue()
+					|| node.isTerminalValueDescendant() && (!node.isComplex() || node.getMaxOccurs() > 1))) {
 				String path = "pathToRecordRoot.add(" + GenerateJavaAccessers.getConstantNameForPathToField(node) + ")";
 				if (node.getFacetOnTableReference() == null) {
 					str.append(TAB[2] + "if(!pPermissions.isPresent() || ");
-					str.append("record.isPresent() && !pPermissions.get().getNodeAccessPermission(record.get().getSchemaNode().getNode(" + GenerateJavaAccessers.getConstantNameForPathToField(node)
-							+ "), record.get()).isHidden() || ");
-					str.append("!pPermissions.get().getNodeAccessPermission(pContext.getNode(" + path + "), pContext.getAdaptationInstance()).isHidden()){" + CR);
+					str.append(
+							"record.isPresent() && !pPermissions.get().getNodeAccessPermission(record.get().getSchemaNode().getNode("
+									+ GenerateJavaAccessers.getConstantNameForPathToField(node)
+									+ "), record.get()).isHidden() || ");
+					str.append("!pPermissions.get().getNodeAccessPermission(pContext.getNode(" + path
+							+ "), pContext.getAdaptationInstance()).isHidden()){" + CR);
 					String type = this.getJavaTypeForNodeInBean(node, false, pExtraImports);
-					str.append(TAB[3] + setValue + "(" + ("Object".equals(type) ? "" : "(" + type + ") ") + "pContext.getValue(" + path + "));\n");
+					str.append(TAB[3] + setValue + "(" + ("Object".equals(type) ? "" : "(" + type + ") ")
+							+ "pContext.getValue(" + path + "));\n");
 					str.append(TAB[2] + "}" + CR);
 				}
 				if (node.getInheritanceProperties() != null) {
 					pExtraImports.add("com.onwbp.adaptation.AdaptationValue");
 					str.append(TAB[2] + "if(record.isPresent()){" + CR);
-					str.append(TAB[3] + "if(AdaptationValue.INHERIT_VALUE.equals(record.get().getValueWithoutResolution(" + GenerateJavaAccessers.getConstantNameForPathToField(node) + "))){" + CR);
-					str.append(TAB[4] + beanParameter + ".inherit(" + GenerateJavaAccessers.getConstantNameForPathToField(node) + ");" + CR);
+					str.append(
+							TAB[3] + "if(AdaptationValue.INHERIT_VALUE.equals(record.get().getValueWithoutResolution("
+									+ GenerateJavaAccessers.getConstantNameForPathToField(node) + "))){" + CR);
+					str.append(TAB[4] + beanParameter + ".inherit("
+							+ GenerateJavaAccessers.getConstantNameForPathToField(node) + ");" + CR);
 					str.append(TAB[3] + "}else{" + CR);
-					str.append(TAB[4] + beanParameter + ".overwrite(" + GenerateJavaAccessers.getConstantNameForPathToField(node) + ");" + CR);
+					str.append(TAB[4] + beanParameter + ".overwrite("
+							+ GenerateJavaAccessers.getConstantNameForPathToField(node) + ");" + CR);
 					str.append(TAB[3] + "}" + CR);
 					str.append(TAB[2] + "}" + CR);
 				}
@@ -2455,7 +2783,7 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 			Map<String, List<DataTransferObject>> dtos = new HashMap<>();
 			Map<String, List<Service>> services = new HashMap<>();
 			Map<String, List<RestService>> rss = new HashMap<>();
-			DataAccessObject dao = dataModel.getDao();
+			DataAccessObject dao = dataModel.getDaobject();
 			if (dao != null) {
 				beans.put(Path.ROOT.format(), dao.getJavaBean());
 				daos.put(Path.ROOT.format(), dao);
@@ -2473,7 +2801,7 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 						dtos.put(table.getPathInSchema() + field.getPath(), field.getDtos());
 					}
 				}
-				dao = table.getDao();
+				dao = table.getDaobject();
 				if (dao != null) {
 					beans.put(table.getPathInSchema(), dao.getJavaBean());
 					daos.put(table.getPathInSchema(), dao);
@@ -2521,7 +2849,9 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 	}
 
 	@Override
-	public UserServiceEventOutcome processEventOutcome(final UserServiceProcessEventOutcomeContext<DatasetEntitySelection> pContext, final UserServiceEventOutcome pOutcome) {
+	public UserServiceEventOutcome processEventOutcome(
+			final UserServiceProcessEventOutcomeContext<DatasetEntitySelection> pContext,
+			final UserServiceEventOutcome pOutcome) {
 		if (pOutcome instanceof CustomOutcome) {
 			CustomOutcome action = (CustomOutcome) pOutcome;
 			switch (action) {
@@ -2539,12 +2869,15 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 	}
 
 	@Override
-	public void setupDisplay(final UserServiceSetupDisplayContext<DatasetEntitySelection> pContext, final UserServiceDisplayConfigurator pConfigurator) {
+	public void setupDisplay(final UserServiceSetupDisplayContext<DatasetEntitySelection> pContext,
+			final UserServiceDisplayConfigurator pConfigurator) {
 		if (ConfigurationStep.class.isInstance(this.step)) {
 			for (SchemaLocation schema : GenerateJavaAccessers.this.schemas) {
 				ObjectKey key = GenerateJavaAccessers.this.objectKeys.get(schema);
-				pContext.getValueContext(key, DataModelDAO.path_to_field_moduleName).setNewValue(schema.getModuleName());
-				pContext.getValueContext(key, DataModelDAO.path_to_field_schemaLocation).setNewValue(SchemaUtils.getSchemaPathInModule(schema));
+				pContext.getValueContext(key, DataModelDAO.path_to_field_moduleName)
+						.setNewValue(schema.getModuleName());
+				pContext.getValueContext(key, DataModelDAO.path_to_field_schemaLocation)
+						.setNewValue(SchemaUtils.getSchemaPathInModule(schema));
 			}
 		}
 
@@ -2556,7 +2889,8 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 	}
 
 	@Override
-	public void setupObjectContext(final UserServiceSetupObjectContext<DatasetEntitySelection> pContext, final UserServiceObjectContextBuilder pBuilder) {
+	public void setupObjectContext(final UserServiceSetupObjectContext<DatasetEntitySelection> pContext,
+			final UserServiceObjectContextBuilder pBuilder) {
 		if (pContext.isInitialDisplay()) {
 			this.initServiceVariables(pContext);
 			for (SchemaLocation schemaLocation : this.schemas) {
@@ -2569,7 +2903,8 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 		}
 	}
 
-	private void setupObjectForSchema(final UserServiceSetupObjectContext<DatasetEntitySelection> pContext, final UserServiceObjectContextBuilder pBuilder, final SchemaLocation schemaLocation)
+	private void setupObjectForSchema(final UserServiceSetupObjectContext<DatasetEntitySelection> pContext,
+			final UserServiceObjectContextBuilder pBuilder, final SchemaLocation schemaLocation)
 			throws BeansTechnicalException {
 		ObjectKey key = ObjectKey.forName("S" + UUID.randomUUID().toString().replace("-", ""));
 		this.objectKeys.put(schemaLocation, key);
@@ -2582,7 +2917,8 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 	}
 
 	/**
-	 * Gets java instructions to set the values of the Java Beans instance variables to a ValueContextForUpdate.
+	 * Gets java instructions to set the values of the Java Beans instance variables
+	 * to a ValueContextForUpdate.
 	 *
 	 * @param pNode The node from which to put values in value context.
 	 *
@@ -2591,7 +2927,8 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 	 * @throws ConstraintViolationException
 	 * @throws OperationException
 	 */
-	private String setValuesForUpdateForFieldsBelow(final SchemaNode pNode, final JavaBean pBean, final Set<String> pExtraImports)
+	private String setValuesForUpdateForFieldsBelow(final SchemaNode pNode, final JavaBean pBean,
+			final Set<String> pExtraImports)
 			throws EBXCommonsException, ConstraintViolationException, OperationException {
 		StringBuilder str = new StringBuilder();
 		String className = pBean.getJavaClassName();
@@ -2601,13 +2938,15 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 			}
 			String beanParameter = "p" + className;
 			String getValue = beanParameter + "." + GenerateJavaAccessers.getGetterNameForNode(node) + "()";
-			if (!node.isAssociationNode() && (node.isTerminalValue() || node.isTerminalValueDescendant() && !(node.isComplex() && node.getMaxOccurs() > 1))) {
+			if (!node.isAssociationNode() && (node.isTerminalValue()
+					|| node.isTerminalValueDescendant() && !(node.isComplex() && node.getMaxOccurs() > 1))) {
 				String constantToPath = GenerateJavaAccessers.getConstantNameForPathToField(node);
 				int baseTab = 0;
 				if (node.getInheritanceProperties() != null) {
 					pExtraImports.add("com.onwbp.adaptation.AdaptationValue");
 					str.append(TAB[2] + "if(" + beanParameter + ".doesInherit(" + constantToPath + ")){" + CR);
-					str.append(TAB[3] + "pContext.setValue(AdaptationValue.INHERIT_VALUE," + constantToPath + ");" + CR);
+					str.append(
+							TAB[3] + "pContext.setValue(AdaptationValue.INHERIT_VALUE," + constantToPath + ");" + CR);
 					str.append(TAB[2] + "}else{" + CR);
 					baseTab = 1;
 				}
@@ -2617,17 +2956,23 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 					pExtraImports.add(GenerateJavaAccessers.getClassSignatureForDAO(distantDAO));
 					if (node.getMaxOccurs() > 1) {
 						pExtraImports.add(GenerateJavaAccessers.getClassSignatureForBean(distantBean));
-						String serialListVariableName = GenerateJavaAccessers.getAttributeNameForNode(node) + "_serialized_list";
-						str.append(TAB[baseTab + 2] + "List<String> " + serialListVariableName + " = new ArrayList<String>();" + CR);
+						String serialListVariableName = GenerateJavaAccessers.getAttributeNameForNode(node)
+								+ "_serialized_list";
+						str.append(TAB[baseTab + 2] + "List<String> " + serialListVariableName
+								+ " = new ArrayList<String>();" + CR);
 						pExtraImports.add("java.util.List");
 						pExtraImports.add("java.util.ArrayList");
-						str.append(TAB[baseTab + 2] + "for(" + distantBean.getJavaClassName() + " record : " + getValue + "){" + CR);
-						str.append(TAB[baseTab + 3] + serialListVariableName + ".add(" + distantDAO.getJavaClassName() + ".getInstance().getRecordPrimaryKey(record));" + CR);
+						str.append(TAB[baseTab + 2] + "for(" + distantBean.getJavaClassName() + " record : " + getValue
+								+ "){" + CR);
+						str.append(TAB[baseTab + 3] + serialListVariableName + ".add(" + distantDAO.getJavaClassName()
+								+ ".getInstance().getRecordPrimaryKey(record));" + CR);
 						str.append(TAB[baseTab + 2] + "}" + CR);
-						str.append(TAB[baseTab + 2] + "pContext.setValue(" + serialListVariableName + "," + constantToPath + ");" + CR);
+						str.append(TAB[baseTab + 2] + "pContext.setValue(" + serialListVariableName + ","
+								+ constantToPath + ");" + CR);
 					} else {
 						str.append(TAB[baseTab + 2] + "if(" + getValue + " != null){" + CR);
-						str.append(TAB[baseTab + 3] + "pContext.setValue(" + distantDAO.getJavaClassName() + ".getInstance().getRecordPrimaryKey(" + getValue + ")," + constantToPath + ");" + CR);
+						str.append(TAB[baseTab + 3] + "pContext.setValue(" + distantDAO.getJavaClassName()
+								+ ".getInstance().getRecordPrimaryKey(" + getValue + ")," + constantToPath + ");" + CR);
 						str.append(TAB[baseTab + 2] + "}" + CR);
 					}
 				} else {
@@ -2644,7 +2989,8 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 		return str.toString();
 	}
 
-	private Object setValuesFromBeanForDTOForFieldsBelow(final SchemaNode pNode, final DataTransferObject pDTO, final Set<String> pExtraImports) throws OperationException, EBXCommonsException {
+	private Object setValuesFromBeanForDTOForFieldsBelow(final SchemaNode pNode, final DataTransferObject pDTO,
+			final Set<String> pExtraImports) throws OperationException, EBXCommonsException {
 		StringBuilder str = new StringBuilder();
 		JavaBean bean = this.getOrRegisterBean(pNode);
 		String parameterName = "pBean";
@@ -2656,19 +3002,26 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 					pExtraImports.add("java.util.List");
 					pExtraImports.add("java.util.ArrayList");
 					String variablePKListName = GenerateJavaAccessers.getAttributeNameForNode(node) + "PKList";
-					str.append(TAB[2] + "if(" + parameterName + "." + GenerateJavaAccessers.getGetterNameForNode(node) + "() != null){" + CR);
+					str.append(TAB[2] + "if(" + parameterName + "." + GenerateJavaAccessers.getGetterNameForNode(node)
+							+ "() != null){" + CR);
 					bean = this.getOrRegisterBean(node);
-					str.append(TAB[3] + "List<" + dto.getJavaClassName() + "> " + variablePKListName + " = new ArrayList<>();" + CR);
-					str.append(TAB[3] + "for(" + bean.getJavaClassName() + " bean : " + parameterName + "." + GenerateJavaAccessers.getGetterNameForNode(node) + "()){" + CR);
-					str.append(TAB[4] + variablePKListName + ".add(" + dto.getMapper().getJavaClassName() + ".getInstance().getDTO(bean));" + CR);
+					str.append(TAB[3] + "List<" + dto.getJavaClassName() + "> " + variablePKListName
+							+ " = new ArrayList<>();" + CR);
+					str.append(TAB[3] + "for(" + bean.getJavaClassName() + " bean : " + parameterName + "."
+							+ GenerateJavaAccessers.getGetterNameForNode(node) + "()){" + CR);
+					str.append(TAB[4] + variablePKListName + ".add(" + dto.getMapper().getJavaClassName()
+							+ ".getInstance().getDTO(bean));" + CR);
 					str.append(TAB[3] + "}" + CR);
-					str.append(TAB[3] + variableName + "." + GenerateJavaAccessers.getSetterNameForNode(node) + "(" + variablePKListName + ");" + CR);
+					str.append(TAB[3] + variableName + "." + GenerateJavaAccessers.getSetterNameForNode(node) + "("
+							+ variablePKListName + ");" + CR);
 					str.append(TAB[2] + "}" + CR);
 				} else {
 					DataTransferObject dto = this.getOrRegisterDTO(node).get(0);
-					str.append(TAB[2] + "if(" + parameterName + "." + GenerateJavaAccessers.getGetterNameForNode(node) + "() != null){" + CR);
-					str.append(TAB[3] + variableName + "." + GenerateJavaAccessers.getSetterNameForNode(node) + "(" + dto.getMapper().getJavaClassName() + ".getInstance().getDTO(" + parameterName
-							+ "." + GenerateJavaAccessers.getGetterNameForNode(node) + "()));" + CR);
+					str.append(TAB[2] + "if(" + parameterName + "." + GenerateJavaAccessers.getGetterNameForNode(node)
+							+ "() != null){" + CR);
+					str.append(TAB[3] + variableName + "." + GenerateJavaAccessers.getSetterNameForNode(node) + "("
+							+ dto.getMapper().getJavaClassName() + ".getInstance().getDTO(" + parameterName + "."
+							+ GenerateJavaAccessers.getGetterNameForNode(node) + "()));" + CR);
 					str.append(TAB[2] + "}" + CR);
 				}
 			} else if (node.isAssociationNode()) {
@@ -2678,16 +3031,21 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 					pExtraImports.add("java.util.ArrayList");
 					String variableListName = GenerateJavaAccessers.getAttributeNameForNode(node) + "List";
 					String variableAssoName = GenerateJavaAccessers.getAttributeNameForNode(node) + "Asso";
-					str.append(TAB[2] + "List<" + bean.getJavaClassName() + "> " + variableAssoName + " = " + parameterName + "." + GenerateJavaAccessers.getGetterNameForNode(node) + "();" + CR);
+					str.append(TAB[2] + "List<" + bean.getJavaClassName() + "> " + variableAssoName + " = "
+							+ parameterName + "." + GenerateJavaAccessers.getGetterNameForNode(node) + "();" + CR);
 					str.append(TAB[2] + "if(!" + variableAssoName + ".isEmpty()){" + CR);
-					str.append(TAB[3] + "List<" + includedDTO.getJavaClassName() + "> " + variableListName + " = new ArrayList<>();" + CR);
+					str.append(TAB[3] + "List<" + includedDTO.getJavaClassName() + "> " + variableListName
+							+ " = new ArrayList<>();" + CR);
 					str.append(TAB[3] + "for(" + bean.getJavaClassName() + " bean : " + variableAssoName + "){" + CR);
-					str.append(TAB[4] + variableListName + ".add(" + includedDTO.getMapper().getJavaClassName() + ".getInstance().getDTO(bean));" + CR);
+					str.append(TAB[4] + variableListName + ".add(" + includedDTO.getMapper().getJavaClassName()
+							+ ".getInstance().getDTO(bean));" + CR);
 					str.append(TAB[3] + "}" + CR);
-					str.append(TAB[3] + variableName + "." + GenerateJavaAccessers.getSetterNameForNode(node) + "(" + variableListName + ");" + CR);
+					str.append(TAB[3] + variableName + "." + GenerateJavaAccessers.getSetterNameForNode(node) + "("
+							+ variableListName + ");" + CR);
 					str.append(TAB[2] + "}" + CR);
 				}
-			} else if (node.isTerminalValue() || node.isTerminalValueDescendant() && (!node.isComplex() || node.getMaxOccurs() > 1)) {
+			} else if (node.isTerminalValue()
+					|| node.isTerminalValueDescendant() && (!node.isComplex() || node.getMaxOccurs() > 1)) {
 				if (node.getFacetOnTableReference() != null) {
 					DataTransferObject includedDTO = this.getDTOInclusion(node, pDTO);
 					DataAccessObject distantDAO = this.getOrRegisterDAO(node.getFacetOnTableReference().getTableNode());
@@ -2695,43 +3053,58 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 						pExtraImports.add("java.util.List");
 						pExtraImports.add("java.util.ArrayList");
 						String variableListName = GenerateJavaAccessers.getAttributeNameForNode(node) + "List";
-						str.append(TAB[2] + "if(" + parameterName + "." + GenerateJavaAccessers.getGetterNameForNode(node) + "() != null){" + CR);
+						str.append(TAB[2] + "if(" + parameterName + "."
+								+ GenerateJavaAccessers.getGetterNameForNode(node) + "() != null){" + CR);
 						if (includedDTO != null) {
 							pExtraImports.add(GenerateJavaAccessers.getClassSignatureForDTO(includedDTO));
-							str.append(TAB[3] + "List<" + includedDTO.getJavaClassName() + "> " + variableListName + " = new ArrayList<>();" + CR);
-							str.append(TAB[3] + "for(" + bean.getJavaClassName() + " bean : " + parameterName + "." + GenerateJavaAccessers.getGetterNameForNode(node) + "()){" + CR);
-							str.append(TAB[4] + variableListName + ".add(" + includedDTO.getMapper().getJavaClassName() + ".getInstance().getDTO(bean));" + CR);
+							str.append(TAB[3] + "List<" + includedDTO.getJavaClassName() + "> " + variableListName
+									+ " = new ArrayList<>();" + CR);
+							str.append(TAB[3] + "for(" + bean.getJavaClassName() + " bean : " + parameterName + "."
+									+ GenerateJavaAccessers.getGetterNameForNode(node) + "()){" + CR);
+							str.append(TAB[4] + variableListName + ".add(" + includedDTO.getMapper().getJavaClassName()
+									+ ".getInstance().getDTO(bean));" + CR);
 						} else {
 							str.append(TAB[3] + "List<String> " + variableListName + " = new ArrayList<>();" + CR);
 							pExtraImports.add(GenerateJavaAccessers.getClassSignatureForDAO(distantDAO));
-							str.append(TAB[3] + "for(String primaryKey : " + distantDAO.getJavaClassName() + ".getInstance()");
-							str.append(".getRecordPrimaryKeys(" + parameterName + "." + GenerateJavaAccessers.getGetterNameForNode(node) + "())){" + CR);
+							str.append(TAB[3] + "for(String primaryKey : " + distantDAO.getJavaClassName()
+									+ ".getInstance()");
+							str.append(".getRecordPrimaryKeys(" + parameterName + "."
+									+ GenerateJavaAccessers.getGetterNameForNode(node) + "())){" + CR);
 							str.append(TAB[4] + variableListName + ".add(primaryKey);" + CR);
 						}
 						str.append(TAB[3] + "}" + CR);
-						str.append(TAB[3] + variableName + "." + GenerateJavaAccessers.getSetterNameForNode(node) + "(" + variableListName + ");" + CR);
+						str.append(TAB[3] + variableName + "." + GenerateJavaAccessers.getSetterNameForNode(node) + "("
+								+ variableListName + ");" + CR);
 						str.append(TAB[2] + "}" + CR);
 					} else {
 						if (includedDTO != null) {
 							pExtraImports.add(GenerateJavaAccessers.getClassSignatureForDTO(includedDTO));
-							str.append(TAB[2] + variableName + "." + GenerateJavaAccessers.getSetterNameForNode(node) + "(" + includedDTO.getMapper().getJavaClassName() + ".getInstance().getDTO("
-									+ parameterName + "." + GenerateJavaAccessers.getGetterNameForNode(node) + "()));" + CR);
+							str.append(TAB[2] + variableName + "." + GenerateJavaAccessers.getSetterNameForNode(node)
+									+ "(" + includedDTO.getMapper().getJavaClassName() + ".getInstance().getDTO("
+									+ parameterName + "." + GenerateJavaAccessers.getGetterNameForNode(node) + "()));"
+									+ CR);
 						} else {
-							str.append(TAB[2] + "if(" + parameterName + "." + GenerateJavaAccessers.getGetterNameForNode(node) + "() != null){" + CR);
+							str.append(TAB[2] + "if(" + parameterName + "."
+									+ GenerateJavaAccessers.getGetterNameForNode(node) + "() != null){" + CR);
 							pExtraImports.add(GenerateJavaAccessers.getClassSignatureForDAO(distantDAO));
-							str.append(TAB[3] + variableName + "." + GenerateJavaAccessers.getSetterNameForNode(node) + "(" + distantDAO.getJavaClassName() + ".getInstance()");
-							str.append(".getRecordPrimaryKey(" + parameterName + "." + GenerateJavaAccessers.getGetterNameForNode(node) + "()));" + CR);
+							str.append(TAB[3] + variableName + "." + GenerateJavaAccessers.getSetterNameForNode(node)
+									+ "(" + distantDAO.getJavaClassName() + ".getInstance()");
+							str.append(".getRecordPrimaryKey(" + parameterName + "."
+									+ GenerateJavaAccessers.getGetterNameForNode(node) + "()));" + CR);
 							str.append(TAB[2] + "}" + CR);
 						}
 					}
 				} else {
 					str.append(TAB[2] + variableName + "." + GenerateJavaAccessers.getSetterNameForNode(node) + "(");
 					if (DamaUtils.isNodeDAC(node)) {
-						pExtraImports.add("com.tibco.ebx.cs.commons.beans.generator.template.MediaTypeToMediaTypeDTOMapper");
+						pExtraImports
+								.add("com.tibco.ebx.cs.commons.beans.generator.template.MediaTypeToMediaTypeDTOMapper");
 						str.append("MediaTypeToMediaTypeDTOMapper.getInstance().getDTO(");
-						str.append(parameterName + "." + GenerateJavaAccessers.getGetterNameForNode(node) + "()));" + CR);
+						str.append(
+								parameterName + "." + GenerateJavaAccessers.getGetterNameForNode(node) + "()));" + CR);
 					} else {
-						str.append(parameterName + "." + GenerateJavaAccessers.getGetterNameForNode(node) + "());" + CR);
+						str.append(
+								parameterName + "." + GenerateJavaAccessers.getGetterNameForNode(node) + "());" + CR);
 					}
 				}
 			} else {
@@ -2741,7 +3114,8 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 		return str.toString();
 	}
 
-	private Object setValuesFromDTOForBeanForFieldsBelow(final SchemaNode pNode, final DataTransferObject pDTO, final Set<String> pExtraImports) throws OperationException, EBXCommonsException {
+	private Object setValuesFromDTOForBeanForFieldsBelow(final SchemaNode pNode, final DataTransferObject pDTO,
+			final Set<String> pExtraImports) throws OperationException, EBXCommonsException {
 		StringBuilder str = new StringBuilder();
 		JavaBean bean = pDTO.getTable().getJavaBean();
 		if (pDTO.getField() != null) {
@@ -2756,20 +3130,27 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 					pExtraImports.add("java.util.List");
 					pExtraImports.add("java.util.ArrayList");
 					String variablePKListName = GenerateJavaAccessers.getAttributeNameForNode(node) + "PKList";
-					str.append(TAB[2] + "if(pDTO." + GenerateJavaAccessers.getGetterNameForNode(node) + "() != null){" + CR);
+					str.append(TAB[2] + "if(pDTO." + GenerateJavaAccessers.getGetterNameForNode(node) + "() != null){"
+							+ CR);
 					// TODO do not take first one but allow to configure it in model.
 					bean = this.getOrRegisterBean(node);
 					pExtraImports.add(GenerateJavaAccessers.getClassSignatureForBean(bean));
 					pExtraImports.add(GenerateJavaAccessers.getClassSignatureForDTO(dto));
-					str.append(TAB[3] + "List<" + bean.getJavaClassName() + "> " + variablePKListName + " = new ArrayList<>();" + CR);
-					str.append(TAB[3] + "for(" + dto.getJavaClassName() + " dto :  pDTO." + GenerateJavaAccessers.getGetterNameForNode(node) + "()){" + CR);
-					str.append(TAB[4] + variablePKListName + ".add(" + dto.getMapper().getJavaClassName() + ".getInstance().getBean(pDataset,dto, pPermissions));" + CR);
+					str.append(TAB[3] + "List<" + bean.getJavaClassName() + "> " + variablePKListName
+							+ " = new ArrayList<>();" + CR);
+					str.append(TAB[3] + "for(" + dto.getJavaClassName() + " dto :  pDTO."
+							+ GenerateJavaAccessers.getGetterNameForNode(node) + "()){" + CR);
+					str.append(TAB[4] + variablePKListName + ".add(" + dto.getMapper().getJavaClassName()
+							+ ".getInstance().getBean(pDataset,dto, pPermissions));" + CR);
 					str.append(TAB[3] + "}" + CR);
-					str.append(TAB[3] + variableName + "." + GenerateJavaAccessers.getSetterNameForNode(node) + "(" + variablePKListName + ");" + CR);
+					str.append(TAB[3] + variableName + "." + GenerateJavaAccessers.getSetterNameForNode(node) + "("
+							+ variablePKListName + ");" + CR);
 					str.append(TAB[2] + "}" + CR);
 				} else {
-					str.append(TAB[2] + "if(pDTO." + GenerateJavaAccessers.getGetterNameForNode(node) + "() != null){" + CR);
-					str.append(TAB[3] + variableName + "." + GenerateJavaAccessers.getSetterNameForNode(node) + "(" + dto.getMapper().getJavaClassName() + ".getInstance().getBean(pDataset,pDTO."
+					str.append(TAB[2] + "if(pDTO." + GenerateJavaAccessers.getGetterNameForNode(node) + "() != null){"
+							+ CR);
+					str.append(TAB[3] + variableName + "." + GenerateJavaAccessers.getSetterNameForNode(node) + "("
+							+ dto.getMapper().getJavaClassName() + ".getInstance().getBean(pDataset,pDTO."
 							+ GenerateJavaAccessers.getGetterNameForNode(node) + "(), pPermissions));" + CR);
 					str.append(TAB[2] + "}" + CR);
 				}
@@ -2780,16 +3161,22 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 					// pExtraImports.add("java.util.ArrayList");
 					// String variableListName = this.getAttributeNameForNode(node) + "List";
 					// String variableAssoName = this.getAttributeNameForNode(node) + "Asso";
-					// str.append(TAB[2] + variableAssoName + " = " + parameterName + "." + this.getGetterNameForNode(node) + "();" + CR);
+					// str.append(TAB[2] + variableAssoName + " = " + parameterName + "." +
+					// this.getGetterNameForNode(node) + "();" + CR);
 					// str.append(TAB[2] + "if(!" + variableAssoName + ".isEmpty()){" + CR);
-					// str.append(TAB[3] + "List<" + includedDTO.getJavaClassName() + "> " + variableListName + " = new ArrayList<>();" + CR);
-					// str.append(TAB[3] + "for(" + includedDTO.getTable().getJavaBean() + " bean : " + variableAssoName + "){" + CR);
-					// str.append(TAB[4] + variableListName + ".add(new " + includedDTO.getJavaClassName() + "(bean));" + CR);
+					// str.append(TAB[3] + "List<" + includedDTO.getJavaClassName() + "> " +
+					// variableListName + " = new ArrayList<>();" + CR);
+					// str.append(TAB[3] + "for(" + includedDTO.getTable().getJavaBean() + " bean :
+					// " + variableAssoName + "){" + CR);
+					// str.append(TAB[4] + variableListName + ".add(new " +
+					// includedDTO.getJavaClassName() + "(bean));" + CR);
 					// str.append(TAB[3] + "}" + CR);
-					// str.append(TAB[3] + "this." + this.getAttributeNameForNode(node) + " = " + variableListName + ";" + CR);
+					// str.append(TAB[3] + "this." + this.getAttributeNameForNode(node) + " = " +
+					// variableListName + ";" + CR);
 					// str.append(TAB[2] + "}" + CR);
 				}
-			} else if (node.isTerminalValue() || node.isTerminalValueDescendant() && (!node.isComplex() || node.getMaxOccurs() > 1)) {
+			} else if (node.isTerminalValue()
+					|| node.isTerminalValueDescendant() && (!node.isComplex() || node.getMaxOccurs() > 1)) {
 				SchemaFacetTableRef facetOnTableReference = node.getFacetOnTableReference();
 				if (facetOnTableReference != null) {
 					DataTransferObject inDTO = this.getDTOInclusion(node, pDTO);
@@ -2799,22 +3186,30 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 						DataAccessObject distantDAO = this.getOrRegisterDAO(facetOnTableReference.getTableNode());
 
 						pExtraImports.add("com.onwbp.adaptation.PrimaryKey");
-						str.append(TAB[2] + "if(pDTO." + GenerateJavaAccessers.getGetterNameForNode(node) + "() != null) {" + CR);
+						str.append(TAB[2] + "if(pDTO." + GenerateJavaAccessers.getGetterNameForNode(node)
+								+ "() != null) {" + CR);
 						String datasetVariableName = "pDataset";
 						if (facetOnTableReference.getContainerReference() != null) {
 							datasetVariableName = "dataset" + GenerateJavaAccessers.getJavaClassName(node);
 							str.append(TAB[3] + "Adaptation " + datasetVariableName + " = ");
 							String dataspace = facetOnTableReference.getContainerHome() == null ? "Optional.empty()"
-									: "Optional.ofNullable(\"" + facetOnTableReference.getContainerHome().getName() + "\")";
-							str.append("AdaptationUtils.getDataset(pDataset.createValueContext()," + dataspace + ",Optional.of(\"" + facetOnTableReference.getContainerReference().getStringName()
+									: "Optional.ofNullable(\"" + facetOnTableReference.getContainerHome().getName()
+											+ "\")";
+							str.append("AdaptationUtils.getDataset(pDataset.createValueContext()," + dataspace
+									+ ",Optional.of(\"" + facetOnTableReference.getContainerReference().getStringName()
 									+ "\"));" + CR);
 							pExtraImports.add("com.tibco.ebx.cs.commons.lib.utils.AdaptationUtils");
 						}
-						str.append(TAB[3] + variableName + "." + GenerateJavaAccessers.getSetterNameForNode(node) + "(");
-						str.append(distantDAO.getJavaClassName() + ".getInstance().read" + (node.getMaxOccurs() > 1 ? "All" : "") + "(pDTO." + GenerateJavaAccessers.getGetterNameForNode(node) + "(),"
-								+ datasetVariableName + ", pPermissions)"
+						str.append(
+								TAB[3] + variableName + "." + GenerateJavaAccessers.getSetterNameForNode(node) + "(");
+						str.append(distantDAO.getJavaClassName() + ".getInstance().read"
+								+ (node.getMaxOccurs() > 1 ? "All" : "") + "(pDTO."
+								+ GenerateJavaAccessers.getGetterNameForNode(node) + "()," + datasetVariableName
+								+ ", pPermissions)"
 								+ (node.getMaxOccurs() > 1 ? ""
-										: ".orElse(" + distantDAO.getJavaClassName() + ".getInstance().getInstanceOfBeanFromPK(" + datasetVariableName + ",PrimaryKey.parseString(pDTO."
+										: ".orElse(" + distantDAO.getJavaClassName()
+												+ ".getInstance().getInstanceOfBeanFromPK(" + datasetVariableName
+												+ ",PrimaryKey.parseString(pDTO."
 												+ GenerateJavaAccessers.getGetterNameForNode(node) + "())))")
 								+ ");" + CR);
 						str.append(TAB[2] + "}" + CR);
@@ -2822,7 +3217,8 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 				} else {
 					str.append(TAB[2] + variableName + "." + GenerateJavaAccessers.getSetterNameForNode(node) + "(");
 					if (DamaUtils.isNodeDAC(node)) {
-						pExtraImports.add("com.tibco.ebx.cs.commons.beans.generator.template.MediaTypeToMediaTypeDTOMapper");
+						pExtraImports
+								.add("com.tibco.ebx.cs.commons.beans.generator.template.MediaTypeToMediaTypeDTOMapper");
 						str.append("MediaTypeToMediaTypeDTOMapper.getInstance().getBean(pDTO.");
 						str.append(GenerateJavaAccessers.getGetterNameForNode(node) + "()));" + CR);
 					} else {
@@ -2845,7 +3241,8 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 			String beanPackage = (String) vcfip.getValue(DataModelDAO.path_to_field_beansPackage);
 			String daoPackage = (String) vcfip.getValue(DataModelDAO.path_to_field_daoPackage);
 
-			if (StringUtils.isBlank(beanFolder) || StringUtils.isBlank(daoFolder) || StringUtils.isBlank(beanPackage) || StringUtils.isBlank(daoPackage)) {
+			if (StringUtils.isBlank(beanFolder) || StringUtils.isBlank(daoFolder) || StringUtils.isBlank(beanPackage)
+					|| StringUtils.isBlank(daoPackage)) {
 				pContext.addError("Source folders and packages for Bean and DAO must be specified for all data models");
 			}
 
@@ -2867,7 +3264,8 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 	 * @return True if a file has been replaced.
 	 *
 	 */
-	private static boolean writeJavaFile(final String pSourceFolder, final String pJavaPackage, final String pJavaClassName, final String pJavaClassContent) throws OperationException {
+	private static boolean writeJavaFile(final String pSourceFolder, final String pJavaPackage,
+			final String pJavaClassName, final String pJavaClassContent) throws OperationException {
 		File directory = new File(pSourceFolder);
 		if (!directory.exists()) {
 			throw OperationException.createError("No folder at " + pSourceFolder + ".");
@@ -2891,13 +3289,16 @@ public class GenerateJavaAccessers implements UserService<DatasetEntitySelection
 		try (FileWriter writer = new FileWriter(file)) {
 			Optional<String> version = CommonsProperties.getVersion();
 			writer.write("/**" + CR);
-			writer.write("* This class has been automatically generated by ebx-cs-commons " + (version.isPresent() ? version.get() : "Unknown verison") + CR);
+			writer.write("* This class has been automatically generated by ebx-cs-commons "
+					+ (version.isPresent() ? version.get() : "Unknown verison") + CR);
 			writer.write("*/" + CR);
 			writer.write(pJavaClassContent);
 			CommonsLogger.getLogger().info("Java class " + pJavaClassName + " generated on " + file.getCanonicalPath());
 		} catch (IOException ex) {
-			CommonsLogger.getLogger().error("Failed to write Java Class " + pJavaClassName + " : " + ex.getMessage(), ex);
-			throw OperationException.createError("Failed to write Java Class " + pJavaClassName + " : " + ex.getMessage(), ex);
+			CommonsLogger.getLogger().error("Failed to write Java Class " + pJavaClassName + " : " + ex.getMessage(),
+					ex);
+			throw OperationException
+					.createError("Failed to write Java Class " + pJavaClassName + " : " + ex.getMessage(), ex);
 		}
 		return overwritting;
 	}
