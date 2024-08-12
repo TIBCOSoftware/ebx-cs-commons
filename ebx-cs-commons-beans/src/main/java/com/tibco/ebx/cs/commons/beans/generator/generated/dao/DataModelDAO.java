@@ -55,8 +55,8 @@ public class DataModelDAO extends TableDAO<DataModel> {
 		pContext.setValue(pDataModel.getIdentifier(),path_to_field_identifier);
 		pContext.setValue(pDataModel.getModuleName(),path_to_field_moduleName);
 		pContext.setValue(pDataModel.getSchemaLocation(),path_to_field_schemaLocation);
-		if(pDataModel.getDao() != null){
-			pContext.setValue(DataAccessObjectDAO.getInstance().getRecordPrimaryKey(pDataModel.getDao()),path_to_field_dao);
+		if(pDataModel.getDaobject() != null){
+			pContext.setValue(DataAccessObjectDAO.getInstance().getRecordPrimaryKey(pDataModel.getDaobject()),path_to_field_dao);
 		}
 		pContext.setValue(pDataModel.getBeansSourceFolder(),path_to_field_beansSourceFolder);
 		pContext.setValue(pDataModel.getDaoSourceFolder(),path_to_field_daoSourceFolder);
