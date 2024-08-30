@@ -2,24 +2,22 @@
 package com.tibco.ebx.cs.commons.lib.exception;
 
 /**
- * Main exception for EBX Commons
+ * Serves as the base class for all exceptions within the EBX CS Commons library.
  *
  * @author Mickaël Chevalier
  * @since 1.1.0
  */
 public class EBXCommonsException extends Exception {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 4007951756325585186L;
 	private final boolean functional;
 
 	/**
-	 * Constructor
-	 * 
-	 * @param message message
-	 * @param cause   throwable cause
+	 * Constructs a new {@code EBXCommonsException} with the specified detail
+	 * message and cause.
+	 *
+	 * @param message the detailed message
+	 * @param cause   the cause of the exception
 	 */
 	public EBXCommonsException(final String message, final Throwable cause) {
 		super(message, cause);
@@ -27,9 +25,10 @@ public class EBXCommonsException extends Exception {
 	}
 
 	/**
-	 * Constructor
-	 * 
-	 * @param message message
+	 * Constructs a new {@code EBXCommonsException} with the specified
+	 * message.
+	 *
+	 * @param message the detailed message
 	 */
 	public EBXCommonsException(final String message) {
 		super(message);
@@ -37,7 +36,7 @@ public class EBXCommonsException extends Exception {
 	}
 
 	/**
-	 * Constructor
+	 * Constructs a new {@code EBXCommonsException} with no detail message or cause.
 	 * 
 	 */
 	public EBXCommonsException() {
@@ -46,19 +45,30 @@ public class EBXCommonsException extends Exception {
 	}
 
 	/**
-	 * Constructor
-	 * 
-	 * @param cause throwable cause
+	 * Constructs a new {@code EBXCommonsException} with the specified cause.
+	 *
+	 * @param cause the cause of the exception
+	 *
 	 */
 	public EBXCommonsException(final Throwable cause) {
 		super(cause);
 		this.functional = checkFunctionalException(cause);
 	}
 
+	/**
+	 * Returns {@code true} if this exception is considered functional.
+	 *
+	 * @return {@code true} if this exception is functional; {@code false} otherwise
+	 */
 	public boolean isFunctional() {
 		return this.functional;
 	}
 
+	/**
+	 * Returns {@code true} if this exception is considered technical.
+	 *
+	 * @return {@code true} if this exception is technical; {@code false} otherwise
+	 */
 	public boolean isTechnical() {
 		return !this.functional;
 	}
@@ -72,6 +82,15 @@ public class EBXCommonsException extends Exception {
 		return cause instanceof EBXCommonsFunctionalException;
 	}
 
+	/**
+	 * Returns the message string of this exception.
+	 * <p>
+	 * If this exception is functional, the internationalized message is returned.
+	 * Otherwise, the standard message is returned.
+	 * </p>
+	 *
+	 * @return the message string
+	 */
 	@Override
 	public String getMessage() {
 		if (this.isFunctional()) {
