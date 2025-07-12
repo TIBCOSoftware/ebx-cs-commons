@@ -24,7 +24,7 @@
 		<javax.servlet.version>4.0.1</javax.servlet.version>
 		
 		<!-- Other third party -->
-		<commons.lang3.version>3.14.0</commons.lang3.version>
+		<commons.lang3.version>3.18.0</commons.lang3.version>
 		<commons.validator.version>1.8.0</commons.validator.version>
 		<commons.exec.version>1.4.0</commons.exec.version>
 		<javax.jms.version>2.0.1</javax.jms.version>
